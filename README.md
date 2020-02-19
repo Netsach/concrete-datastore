@@ -1,2 +1,3 @@
-# concrete-server
-Python package for dynamic datastore as a service
+# concrete-datastore
+
+A highly versatile REST Datastore
