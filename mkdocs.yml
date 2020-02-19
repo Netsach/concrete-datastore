@@ -1,0 +1,17 @@
+site_name: Concrete Datastore
+nav:
+  - Introduction: index.md
+  - API Authentication: authentication.md
+  - API Routes: api-routes.md
+  - API Filters: filters.md
+  - API Permissions: permissions.md
+  - API Roles: roles.md
+  - Tutorials: demo.md
+  - Datamodel sample: datamodel-yml.md
+
+theme:
+    name: readthedocs
+    highlightjs: true
+    hljs_languages:
+        - yaml
+        - rust
