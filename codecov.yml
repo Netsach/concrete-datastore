@@ -1,0 +1,14 @@
+codecov:
+  token: 151f86a0-38a3-4ef9-8af4-87d27418deef
+
+coverage:
+  precision: 2
+  round: down
+  range: "80...100"
+
+  status:
+    project: yes
+    patch: no
+    changes: no
+
+comment: off
