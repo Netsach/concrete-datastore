@@ -18,7 +18,7 @@ curl \
    -X POST \
    -d "{\"email\":\"johndoe@netsach.com\",\"password1\":\"netsach2020\",\"password2\":\"netsach2020\",\"first_name\":\"John\",\"last_name\":\"Doe\"}" \
    -H "Content-Type: application/json" \
-   "http://<webapp>/api/v1.1/auth/register/"
+   "https://<webapp>/api/v1.1/auth/register/"
 ```
 
 - **Response**:
@@ -29,7 +29,7 @@ The server will response with the following JSON:
 {
   "uid": "fe2ad17a-4678-499c-a957-4cd84dd16e08",
   "email": "johndoe@netsach.com",
-  "url": "http://localhost:8000/api/v1.1/account/me/",
+  "url": "https://localhost:8000/api/v1.1/account/me/",
   "token": "e72e8df2d1ab9ee0d7cb61367958e4bb8620c1e6",
   "first_name": "John",
   "last_name": "Doe",
@@ -48,14 +48,14 @@ curl \
    -X POST \
    -d "{\"email\":\"johndoe@netsach.com\",\"password\":\"netsach2020\"}" \
    -H "Content-Type: application/json" \
-   "http://<webapp>/api/v1.1/auth/login/"
+   "https://<webapp>/api/v1.1/auth/login/"
 ```
 And the server will respond with a JSON containing your token along with other user's information:
 ```json
 {
   "uid": "fe2ad17a-4678-499c-a957-4cd84dd16e08",
   "email": "johndoe@netsach.com",
-  "url": "http://localhost:8000/api/v1.1/account/me/",
+  "url": "https://localhost:8000/api/v1.1/account/me/",
   "token": "e72e8df2d1ab9ee0d7cb61367958e4bb8620c1e6",
   "first_name": "John",
   "last_name": "Doe",
@@ -75,7 +75,7 @@ curl \
     -H "Content-Type: application/json" \
     -H "Authorization: Token e72e8df2d1ab9ee0d7cb61367958e4bb8620c1e6" \
     -d '{"name":"MyFirstProject","code":"MFP",manager_uid":"fe2ad17a-4678-499c-a957-4cd84dd16e08","start_date":"2020-01-24T10:23:53Z"}' \
-    "http://<webapp>/api/v1.1/project/"
+    "https://<webapp>/api/v1.1/project/"
 ```
 
 The instance is the created and the server responds with the following JSON:
@@ -90,7 +90,7 @@ The instance is the created and the server responds with the following JSON:
   "modification_date": "2020-01-24T09:36:24Z",
   "creation_date": "2020-01-24T09:36:24Z",
   "public": false,
-  "url": "http://<webapp>/api/v1.1/project/b1546151-3519-415d-8d8d-8cc113dc1408/",
+  "url": "https://<webapp>/api/v1.1/project/b1546151-3519-415d-8d8d-8cc113dc1408/",
   "verbose_name": "MyFirstProject",
   "created_by": "fe2ad17a-4678-499c-a957-4cd84dd16e08",
   "can_admin_users": [],
@@ -106,7 +106,7 @@ You can also list all instances of model `Project` with a `GET` request on `api/
 curl \
     -X GET \
     -H "Authorization: Token e72e8df2d1ab9ee0d7cb61367958e4bb8620c1e6" \
-    "http://<webapp>/api/v1.1/project/"
+    "https://<webapp>/api/v1.1/project/"
 ```
 the API responds with the following JSON:
 ```json
@@ -124,7 +124,7 @@ the API responds with the following JSON:
       "modification_date": "2020-01-24T09:36:24Z",
       "creation_date": "2020-01-24T09:36:24Z",
       "public": false,
-      "url": "http://<webapp>/api/v1.1/project/b1546151-3519-415d-8d8d-8cc113dc1408/",
+      "url": "https://<webapp>/api/v1.1/project/b1546151-3519-415d-8d8d-8cc113dc1408/",
       "verbose_name": "MyFirstProject",
       "created_by": "fe2ad17a-4678-499c-a957-4cd84dd16e08",
       "can_admin_users": [],
@@ -146,6 +146,6 @@ the API responds with the following JSON:
   ],
   "list_filter": {},
   "total_objects_count": 1,
-  "create_url": "http://<webapp>/api/v1.1/project/"
+  "create_url": "https://<webapp>/api/v1.1/project/"
 }
 ```

@@ -150,7 +150,7 @@ Used to register to the application.
 }
 ```
 
-<message> can be:
+`<message>` can be:
 
 - `"The password must contain at least X character(s)."`
 - `"The password must contain at least X digit(s)."`
@@ -158,14 +158,13 @@ Used to register to the application.
 - `"The password must contain at least X upper character(s)."`
 - `"The password must contain at least X special character(s) from these : (list_of_special_characters)"`
 
-<code> can be:
+`<code>` can be:
 
 - `"NOT_ENOUGH_CHARS"`
 - `"NOT_ENOUGH_DIGITS"`
 - `"NOT_ENOUGH_LOWER"`
 - `"NOT_ENOUGH_UPPER"`
 - `"NOT_ENOUGH_SPECIAL"`
-
 
 ### Login
 
@@ -286,7 +285,7 @@ Used to get information about the user.
     "uid": "49297d80-e924-479a-8fcc-27e15f7a12e7",
     "modification_date": "2018-11-26T15:54:34Z",
     "creation_date": "2018-11-26T15:54:34Z",
-    "url": "http://<webapp>/api/v1.1/user/49297d80-e924-479a-8fcc-27e15f7a12e7/",
+    "url": "https://<webapp>/api/v1.1/user/49297d80-e924-479a-8fcc-27e15f7a12e7/",
     "verbose_name": "johndoe@netsach.com",
     "last_name": "John",
     "first_name": "Doe",
@@ -325,7 +324,7 @@ Used to get information about the user.
     "uid": "49297d80-e924-479a-8fcc-27e15f7a12e7",
     "modification_date": "2018-11-26T15:54:34Z",
     "creation_date": "2018-11-26T15:54:34Z",
-    "url": "http://<webapp>/api/v1.1/user/49297d80-e924-479a-8fcc-27e15f7a12e7/",
+    "url": "https://<webapp>/api/v1.1/user/49297d80-e924-479a-8fcc-27e15f7a12e7/",
     "verbose_name": "johndoe@netsach.com",
     "last_name": "John",
     "first_name": "Doe",
@@ -453,7 +452,7 @@ if a user attempts to change his own password
     "uid": "49297d80-e924-479a-8fcc-27e15f7a12e7",
     "modification_date": "2018-11-26T15:54:34Z",
     "creation_date": "2018-11-26T15:54:34Z",
-    "url": "http://<webapp>/api/v1.1/user/49297d80-e924-479a-8fcc-27e15f7a12e7/",
+    "url": "https://<webapp>/api/v1.1/user/49297d80-e924-479a-8fcc-27e15f7a12e7/",
     "verbose_name": "johndoe@netsach.com",
     "last_name": "John",
     "first_name": "Doe",

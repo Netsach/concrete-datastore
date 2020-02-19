@@ -6,30 +6,36 @@ For all the routes listed below, the API response has the following **failure st
 - `403 FORBIDDEN`: if the user is not authenticated to the API.
 - `404 NOT FOUND`: if the url is not found.
 
-### Custom ConcreteServer endpoints
+### Models related API endpoints
 
-As explained in the introduction, Concrete Datastore consumes a datamodel definition in order to generate an API giving acess to the instances of the datastore. For each model, ConcreteServer generates andpoints that allow a user to perform **CRUD** methods. this endpoint is a `kebab-case` (lower case with hyphens) of the model's name, for example if you have a model named `MyModel`, the API endpoint will be `my-model`.
+As explained in the introduction, Concrete Datastore consumes a datamodel definition in order to generate an API giving acess to the instances of the datastore. For each model, Concrete Datastore generates andpoints that allow a user to perform **CRUD** methods. this endpoint is a `kebab-case` (lower case with hyphens) of the model's name. For example if you have a model named `MyModel`, the API endpoint will be `my-model`.
 
-For each model, ConcreteServer exposes two routes accepting different methods:
+For each model, Concrete Datastore exposes two routes accepting different methods:
 
-#### List of all instances of model MyModel
+#### List all instances of model MyModel
 
-##### `GET` :
+A `GET` on the root url of the model MyModel will retrieve all instances of this model.
 
-- **Request**: retrieve all instances of the model
+- **Method** : `GET`
+
+- **Endpoint**: `https://<webapp>/api/v1.1/my-model/`
+
+- **Example** :
+
+**Request** 
 
 ```shell
 curl \
   -H "Authorization: Token <auth_token>" \
-  "http://<webapp>/api/v1.1/my-model/"
+  "https://<webapp>/api/v1.1/my-model/"
 ```
 
-- **Response**: `200 OK`:
+**Response** with status code HTTP `200 (OK)`, the response body is a JSON containing the details of all instances available. The response is paginated.
 
 ```json
 {
   "objects_count": 125,
-  "next": "http://<webapp>/api/v1.1/my-model/?page=2",
+  "next": "https://<webapp>/api/v1.1/my-model/?page=2",
   "previous": null,
   "results": [
     ...
@@ -43,9 +49,11 @@ curl \
   "list_display": [],
   "list_filter": {},
   "total_objects_count": 2663,
-  "create_url": "http://<webapp>/api/v1.1/my-model/"
+  "create_url": "https://<webapp>/api/v1.1/my-model/"
 }
 ```
+
+- **Response format** :
 
 The JSON response contains the following keys:
 
@@ -56,7 +64,7 @@ The JSON response contains the following keys:
 - `objects_count_per_page`: pagination of the response
 - `num_total_pages`: number of total pages
 - `num_current_page`: index of the current page
-- `max_allowed_objects_per_page`: max instances to be shown in one page
+- `max_allowed_objects_per_page`: max instances to be displayed in one response
 - `model_name`: model name
 - `model_verbose_name`: model verbose name
 - `list_display`: list of displayed fields (defined in the datamodel)
@@ -66,127 +74,168 @@ The JSON response contains the following keys:
 
 **IMPORTANT:** For model **User**, the list won't contain any user with the level `blocked`. In order to access these users, see [blocked users](#Blockedusers)
 
-##### `POST` :
+#### Create a new instance of model MyModel
 
-- **Request**: Create a new instance of the model.
+A `POST` on the root url of the model MyModel will create a new instance of this model.
+
+- **Method** : `POST`
+
+- **Endpoint**: `https://<webapp>/api/v1.1/my-model/`
+
+- **Example** :
+
+**Request**
 
 ```shell
 curl \
     -X POST \
     -H "Authorization: Token <auth_token>" \
     -d "<JSON data for the new instance to create>" \
-    "http://<webapp>/api/v1.1/my-model/"
+    "https://<webapp>/api/v1.1/my-model/"
 ```
 
-- **Responses**: `201 CREATED` a JSON containing the fields of the new instance created.
+**Responses** with status code HTTP  `201 (CREATED)`, the response body is a JSON containing the fields of the new instance created.
 
 **IMPORTANT:** For model **User**, `POST` request is not allowed. In order to create a new user, you should perform a [register](#Register)
 
-#### Specific instance of model MyModel with a UID:
+#### Retrieve a specific instance of model MyModel by its UID
 
-##### `GET`:
+A `GET` on the url of a given instance of model MyModel will retrieve the fields of this given instance.
 
-- **Request**: Retrieve one instance of model `MyModel` with the given UUID:
+- **Method** : `GET`
+
+- **Endpoint**: `https://<webapp>/api/v1.1/my-model/<uid>/`
+
+- **Example** :
+
+**Request**
 
 ```shell
 curl \
   -H "Authorization: Token <auth_token>" \
-  "http://<webapp>/api/v1.1/my-model/ef29364d-50f6-4e3e-a401-d30fecacf59b/"
+  "https://<webapp>/api/v1.1/my-model/ef29364d-50f6-4e3e-a401-d30fecacf59b/"
 ```
 
-- **Response**: `200 OK` a JSON containing the fields of the instance requested.
+**Response** : with status code HTTP `200 (OK)`, the response body is a JSON containing the fields of the instance requested.
 
-#### `PATCH`:
+#### Update a specific instance of model MyModel by its UID
 
-- **Request**: Retrieve one instance of model `MyModel` with the given UUID:
+#### Update some of the fields with `PATCH`
+
+A `PATCH` on the url of a given instance of model MyModel will update the fields of this given instance.
+
+- **Method** : `PATCH`
+
+- **Endpoint**: `https://<webapp>/api/v1.1/my-model/<uid>/`
+
+- **Example** :
+
+**Request**
 
 ```shell
 curl \
   -X PATCH \
   -H "Authorization: Token <auth_token>" \
   -d "<JSON data to update>" \
-  "http://<webapp>/api/v1.1/my-model/ef29364d-50f6-4e3e-a401-d30fecacf59b/"
+  "https://<webapp>/api/v1.1/my-model/ef29364d-50f6-4e3e-a401-d30fecacf59b/"
 ```
 
-- **Response**: `200 OK` a JSON containing the fields of the instance requested.
+**Response** : with status code HTTP `200 (OK)`, the response body is a JSON containing all the fields of the given instance, updated.
 
-#### `PUT`:
+#### Update all the fields with `PUT`
 
-- **Request**: Retrieve one instance of model `MyModel` with the given UUID:
+A `PUT` on the url of a given instance of model MyModel will update the fields of this given instance.
+
+- **Method** : `PUT`
+
+- **Endpoint**: `https://<webapp>/api/v1.1/my-model/<uid>/`
+
+- **Example** :
+
+**Request**
 
 ```shell
 curl \
   -X PUT \
   -H "Authorization: Token <auth_token>" \
-  -d "<JSON full data containing data to update>" \
-  "http://<webapp>/api/v1.1/my-model/ef29364d-50f6-4e3e-a401-d30fecacf59b/"
+  -d "<JSON data to update>" \
+  "https://<webapp>/api/v1.1/my-model/ef29364d-50f6-4e3e-a401-d30fecacf59b/"
 ```
 
-- **Response**: `200 OK` a JSON containing the fields of the instance requested.
+**Response** : with status code HTTP `200 (OK)`, the response body is a JSON containing all the fields of the given instance, updated.
 
-#### `DELETE`:
+#### Delete a specific instance of model MyModel by its UID
 
-- **Request**: Retrieve one instance of model `MyModel` with the given UUID:
+A `DELETE` on the url of a given instance of model MyModel will retrieve the fields of this given instance.
+
+- **Method** : `DELETE`
+
+- **Endpoint**: `https://<webapp>/api/v1.1/my-model/<uid>/`
+
+- **Example** :
+
+**Request**
 
 ```shell
 curl \
   -X DELETE \
   -H "Authorization: Token <auth_token>" \
-  "http://<webapp>/api/v1.1/my-model/ef29364d-50f6-4e3e-a401-d30fecacf59b/"
+  "https://<webapp>/api/v1.1/my-model/ef29364d-50f6-4e3e-a401-d30fecacf59b/"
 ```
 
-- **Responses**: 
-    + `204 NO CONTENT`: success response
-    + `412 PRECONDITION FAILED`: if the instance you are trying to delete is a related to a protected instance and therefore cannot be deleted.
+**Response** : with status code HTTP `204 (NO CONTENT)`, the response body is empty.
+
+This operation could fail, if the instance is a related to a protected instance, it cannot be deleted. In this case, the status code HTTP is `412 (PRECONDITION FAILED)`.
 
 
-### Specific ConcreteServer endpoints
+### Specific API endpoints
 
 #### <a name="Register"></a>Register
 
-- **url**: `auth/register/` 
-- **accepts**: `POST` request
-- **description**: allows a user to register to the API (see [authentication](authentication.md) section).
+- **Url** : `auth/register/` 
+- **Method** : `POST`
+- **Description** : allows a user to register to the API (see [authentication](authentication.md) section).
 
 #### Login
 
-- **url**: `auth/login/`
-- **accepts**: `POST` request
-- **description**: allows a user to log in the API (see [authentication](authentication.md) section).
+- **Url** : `auth/login/`
+- **Method** : `POST`
+- **Description** : allows a user to log in the API (see [authentication](authentication.md) section).
 
 #### Account Me
 
-- **url**: `account/me/` 
-- **accepts**: `GET` request
-- **description**: allows a user to retrieve its own information on the API
-- **request**:
+- **Url** : `account/me/` 
+- **Method** : `GET`
+- **Description** : allows a user to retrieve its own information on the API
+
+**Request** :
 
 ```shell
 curl \
   -H "Authorization: Token <auth_token>" \
-  "http://<webapp>/api/v1.1/account/me/"
+  "https://<webapp>/api/v1.1/account/me/"
 ```
 
-- **response**: `200 OK` with the JSON containing the user's information.
+**Response** : `200 OK` with the JSON containing the user's information.
 
 #### Change Password
 
-- **url**: `auth/change-password/`
-- **accepts**: `POST` request
-- **description**: allows a user to change a password. Two use cases can be found for this endpoint:
-- **request**:
+- **Url** : `auth/change-password/`
+- **Method** : `POST`
+- **Description** : allows a user to change a password.
+
+**Request** : Two use cases can be found for this endpoint:
 
 if a user's password has expired, this user will receive a `password_change_token` when attempting to log in the plateform with his expired password. He can use this token to change his own password:
 
 ```shell
 curl \
   -X POST \
-  -H "Authorization: Token <auth_token>" \
   -d '{"email": "<user_email>","password1":"<new_password>","password2":"<new_password>","password_modification_token":"<token_returned_by_login>"}' \
-  "http://<webapp>/api/v1.1/auth/change-password/"
+  "https://<webapp>/api/v1.1/auth/change-password/"
 ```
 
-- **response**: `200 OK` with the JSON containing the user's information.
+**Response** : `200 OK` with the JSON containing the user's information.
 
 if a user of a level manager or above wants to change another user's password. Thus, the requester should satisfy either one of these conditions:
 
@@ -199,10 +248,10 @@ curl \
   -X POST \
   -H "Authorization: Token <auth_token>" \
   -d '{"email": "<target_user_email>","password1":"<new_password>","password2":"<new_password>"}' \
-  "http://<webapp>/api/v1.1/auth/change-password/"
+  "https://<webapp>/api/v1.1/auth/change-password/"
 ```
 
-- **response**: `200 OK` with the following JSON:
+**Response** : `200 OK` with the following JSON:
 
 ```json
 {
@@ -213,27 +262,27 @@ curl \
 
 #### Reset Password
 
-- **url**: `auth/reset-password/` 
-- **accepts**: `POST` request
-- **description**: allows a user to request a reset of his own password if he has forgotten it (see [authentication](authentication.md) section).
+- **Url** : `auth/reset-password/` 
+- **Method** : `POST`
+- **Description** : allows a user to request a reset of his own password if he has forgotten it (see [authentication](authentication.md) section).
 
 #### Secure Connect
 
 ##### Retrieve Token
 
-- **url**: `secure-connect/retrieve-token/`
-- **accepts**: `POST` request
-- **description**: allows a user to generate a token that will be used for secure login. An email will be sent to the email address containing the login url.
-- **request**:
+- **Url** : `secure-connect/retrieve-token/`
+- **Method** : `POST`
+- **Description** : allows a user to generate a token that will be used for secure login. An email will be sent to the email address containing the login url.
+**Request** :
 
 ```shell
 curl \
   -X POST \
   -d '{"email": "<user_email>"}' \
-  "http://<webapp>/api/v1.1/secure-connect/retrieve-token/"
+  "https://<webapp>/api/v1.1/secure-connect/retrieve-token/"
 ```
 
-- **response**: `201 CREATED` with the following JSON:
+**Response** : `201 CREATED` with the following JSON:
 
 ```json
 {
@@ -243,20 +292,20 @@ curl \
 
 ##### Generate Token
 
-- **url**: `secure-connect/generate-token/`
-- **accepts**: `POST` request
-- **description**: allows a **superuser** to retrieve a user's token.
-- **request**:
+- **Url** : `secure-connect/generate-token/`
+- **Method** : `POST`
+- **Description** : allows a **superuser** to retrieve a user's token.
+**Request** :
 
 ```shell
 curl \
   -X POST \
   -H "Authorization: Token <auth_token>" \
   -d '{"email": "<target_user_email>"}' \
-  "http://<webapp>/api/v1.1/secure-connect/generate-token/"
+  "https://<webapp>/api/v1.1/secure-connect/generate-token/"
 ```
 
-- **response**: `201 CREATED` with the following JSON:
+**Response** : `201 CREATED` with the following JSON:
 
 ```json
 {
@@ -266,34 +315,34 @@ curl \
 
 ##### Login
 
-- **url**: `secure-connect/login/`
-- **accepts**: `POST` request
-- **description**: allows a user to authenticate to the API using his secure token.
-- **request**:
+- **Url** : `secure-connect/login/`
+- **Method** : `POST`
+- **Description** : allows a user to authenticate to the API using his secure token.
+**Request** :
 
 ```shell
 curl \
   -X POST \
   -d '{"token": "<secure_connect_token>"}' \
-  "http://<webapp>/api/v1.1/secure-connect/login/"
+  "https://<webapp>/api/v1.1/secure-connect/login/"
 ```
 
-- **response**: `200 OK` with the JSON containing the user's information.
+**Response** : `200 OK` with the JSON containing the user's information.
 
 #### <a name="Blockedusers"></a>Access bloqued users
 
-- **url**: `blocked-users`
-- **accepts**: `GET` request
-- **description**: allows a user (must be of level `admin` or `superuser`) to retrieve the list of all `blocked` users.
-- **request**:
+- **Url** : `blocked-users`
+- **Method** : `GET`
+- **Description** : allows a user (must be of level `admin` or `superuser`) to retrieve the list of all `blocked` users.
+**Request** :
 
 ```shell
 curl \
   -H "Authorization: Token <auth_token>" \
-  "http://<webapp>/api/v1.1/blocked-users/"
+  "https://<webapp>/api/v1.1/blocked-users/"
 ```
 
-- **response**: `200 OK`:
+**Response** : `200 OK`:
 
 ```json
 {
@@ -318,41 +367,41 @@ curl \
     "email": "char"
   },
   "total_objects_count": 4,
-  "create_url": "http://<webapp>/api/v1.1/auth/register/"
+  "create_url": "https://<webapp>/api/v1.1/auth/register/"
 }
 ```
 
 #### Access a specific bloqued user
 
-- **url**: `blocked-users/<user_uid>`
-- **accepts**: `GET` request
-- **description**: allows a user (must be of level `admin` or `superuser`) to retrieve a specific `blocked` user. 
-- **request**:
+- **Url** : `blocked-users/<user_uid>`
+- **Method** : `GET`
+- **Description** : allows a user (must be of level `admin` or `superuser`) to retrieve a specific `blocked` user. 
+**Request** :
 
 ```shell
 curl \
   -H "Authorization: Token <auth_token>" \
-  "http://<webapp>/api/v1.1/blocked-users/<user_uid>/"
+  "https://<webapp>/api/v1.1/blocked-users/<user_uid>/"
 ```
 
-- **response**: `200 OK` with the JSON containing the blocked user's information.
+**Response** : `200 OK` with the JSON containing the blocked user's information.
 
 #### Unblock blocked user(s)
 
-- **url**: `unblock-users/`
-- **accepts**: `POST` request
-- **description**: allows a user (must be of level `admin` or `superuser`) to unblock one or more users. The unblocked users will have a level of `simpleuser`.
-- **request**:
+- **Url** : `unblock-users/`
+- **Method** : `POST`
+- **Description** : allows a user (must be of level `admin` or `superuser`) to unblock one or more users. The unblocked users will have a level of `simpleuser`.
+**Request** :
 
 ```shell
 curl \
   -X POST \
   -H "Authorization: Token <auth_token>" \
   -d '{"user_uids": ["<uid1>", "<uid2>"]}' \
-  "http://<webapp>/api/v1.1/unblock-users/"
+  "https://<webapp>/api/v1.1/unblock-users/"
 ```
 
-- **response**: `200 OK` with the following JSON:
+**Response** : `200 OK` with the following JSON:
 
 ```json
 {

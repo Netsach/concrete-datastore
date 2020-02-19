@@ -21,7 +21,7 @@ The scope passed in the headers of a request is used to filter the response's ob
 curl \
   -X GET \
   -H "Authorization: Token b1cccee29710b53386b964d93847648a526005a8" \
-  "http://<webapp>/api/v1.1/<model-name>/"
+  "https://<webapp>/api/v1.1/<model-name>/"
 ```
 #### Scoped Request
 
@@ -30,7 +30,7 @@ curl \
   -X GET \
   -H "Authorization: Token b1cccee29710b53386b964d93847648a526005a8" \
   -H "X-ENTITY-UID: 7508ffd7-2d10-413e-86b6-4adab3767413" \
-  "http://<webapp>/api/v1.1/<model-name>/"
+  "https://<webapp>/api/v1.1/<model-name>/"
 ```
 The scope passed in the headers of a request is used to filter the response's objects, and allow access only to the objects having this same scope.
 

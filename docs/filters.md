@@ -62,11 +62,11 @@ examples:
 **Filter examples**:
 
 ```
-http://<webapp>/api/v1.1/mymodel/?name=test
-http://<webapp>/api/v1.1/mymodel/?name__isempty=true
-http://<webapp>/api/v1.1/mymodel/?name__in=project1,project2,project3
-http://<webapp>/api/v1.1/mymodel/?price__gte=price
-http://<webapp>/api/v1.1/mymodel/?creation_date__range=date1,date2
+https://<webapp>/api/v1.1/mymodel/?name=test
+https://<webapp>/api/v1.1/mymodel/?name__isempty=true
+https://<webapp>/api/v1.1/mymodel/?name__in=project1,project2,project3
+https://<webapp>/api/v1.1/mymodel/?price__gte=price
+https://<webapp>/api/v1.1/mymodel/?creation_date__range=date1,date2
 ```
 
 
@@ -76,6 +76,6 @@ In order to get a sorted result from the api, you can use the query parameter `?
 
 **Examples**:
 ```
-http://<webapp>/api/v1.1/mymodel/?ordering=name
-http://<webapp>/api/v1.1/mymodel/?ordering=-name
+https://<webapp>/api/v1.1/mymodel/?ordering=name
+https://<webapp>/api/v1.1/mymodel/?ordering=-name
 ```

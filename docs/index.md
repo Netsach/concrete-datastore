@@ -1,5 +1,3 @@
-# Presentation
-
 ## Introduction
 
 This document is a user guide to Concrete Datastore and its features.
