@@ -102,7 +102,6 @@ Refer to [tests/README](tests/README.md) in order to run the tests suit
     - `python3 setup.py sdist`
     - `pip wheel --no-index --no-deps --wheel-dir dist dist/concrete-datastore-$VERSION.tar.gz`
 - upload new version
-    - `scp -P 11092 dist/* debian@packages.netsach.eu:/data/packages/`
-    - NOOOOOOOOO - `python3 -m twine upload dist/*` - OOOOOOOON
+    - `python3 -m twine upload dist/*`
 - push the new tag
     - `git push --follow-tags`
