@@ -33,7 +33,7 @@ def service_status_view(request):
             'plugins': plugins,
             'healthy': True,
             'message': '',
-            'name': 'concrete-server',
+            'name': 'concrete-datastore',
             'license': 'All rights reserved. Netsach 2019.',
         }
     )

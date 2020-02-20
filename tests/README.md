@@ -12,16 +12,22 @@ pip install -e ".[tests]"
 
 ### Run the tests
 
+open a new shell and launch
+
+```shell
+python -m smtpd -n -c DebuggingServer localhost:1025
+```
+
 Invoke Pytest with the following args:
 
 ```shell
-pytest --ds=concrete_datastore.settings.unittest_settings --pyargs -q tests --cov --cov-report html --cov-report term
+pytest --ds=tests.unittest_settings --pyargs -q tests --cov --cov-report html --cov-report term
 ```
 
 You can decide to deactivate coverage
 
 ```shell
-pytest --ds=concrete_datastore.settings.unittest_settings --pyargs -q tests
+pytest --ds=tests.unittest_settings --pyargs -q tests
 ```
 
 You can also decide of which test file(s) you want to run by adding the filename(s) in the command:

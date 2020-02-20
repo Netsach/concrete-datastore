@@ -109,7 +109,7 @@ Veuillez ignorer ce mail si vous n'avez pas demandé à mettre à jour votre mot
 </html>
 """  # nosec
 
-PLATFORM_NAME = 'Concrete Server'
+PLATFORM_NAME = 'Concrete Datastore'
 
 AUTHENTICATION_BACKENDS = [
     'concrete_datastore.authentication.auth.ConcreteBackend',
@@ -243,7 +243,7 @@ INSTALLED_APPS = [
 
 LICENSE = 'GNU GENERAL PUBLIC LICENSE Version 3'
 
-OPENAPI_SPEC_TITLE = os.environ.get('APP_INSTANCE', 'Concrete Server')
+OPENAPI_SPEC_TITLE = os.environ.get('APP_INSTANCE', 'Concrete Datastore')
 
 DEFAULT_LOGGING_FORMAT = (
     "%(asctime)s § %(levelname)5s [%(name)s] : %(message)s "
@@ -345,7 +345,7 @@ PLUGINS_TASKS_FUNC = {
 
 
 EMAIL_CSS = ''
-EMAIL_SENDER_NAME = '<Concrete Server>'
+EMAIL_SENDER_NAME = '<Concrete Datastore>'
 EMAIL_HOST = ''
 # Limit of different values before deactivating filter
 LIMIT_DEACTIVATE_FILTER_IN_ADMIN = 50

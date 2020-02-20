@@ -21,7 +21,7 @@ api_v1_urls = re_path(
 urlpatterns = [
     re_path(r'^oauth/', include('social_django.urls', namespace='social')),
     re_path(r'^status/$', service_status_view, name='service-status-view'),
-    re_path(r'^concrete-server-admin/', admin_site.urls, name='admin'),
+    re_path(r'^concrete-datastore-admin/', admin_site.urls, name='admin'),
     re_path(
         r'^c/',
         include('concrete_datastore.concrete.urls', namespace='concrete'),

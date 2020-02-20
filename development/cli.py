@@ -5,7 +5,7 @@ import sys
 
 def django():
     CONCRETE_SETTINGS_MODULE = os.environ.get(
-        'CONCRETE_SETTINGS', 'concrete_datastore.settings.development'
+        'CONCRETE_SETTINGS', 'development.settings'
     )
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", CONCRETE_SETTINGS_MODULE)

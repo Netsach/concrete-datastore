@@ -4,17 +4,7 @@ from itertools import chain
 from celery import Celery
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings.production')
-try:
-    from django.conf import settings
-
-    # Force access to settings
-    getattr(settings, 'DEBUG')
-except ImportError:
-    print('Using DEBUG settings for celery')
-    os.environ[
-        'DJANGO_SETTINGS_MODULE'
-    ] = 'concrete_datastore.settings.development'
-    from django.conf import settings
+from django.conf import settings
 
 app = Celery('celery_app', backend='rpc://')
 app.config_from_object('django.conf:settings')

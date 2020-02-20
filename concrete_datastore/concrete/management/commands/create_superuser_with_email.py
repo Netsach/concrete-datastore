@@ -44,7 +44,7 @@ class Command(BaseCommand):
             if int(settings.PORT) not in (80, 443):
                 port = ':{}'.format(settings.PORT)
 
-            admin_url = '{}://{}{}/concrete-server-admin/'.format(
+            admin_url = '{}://{}{}/concrete-datastore-admin/'.format(
                 settings.SCHEME, settings.HOSTNAME, port
             )
             email_instance = EmailModel(

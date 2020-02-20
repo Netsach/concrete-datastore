@@ -1,0 +1,1394 @@
+[
+    {
+        "ext.m_search_fields": [
+            "active",
+            "related_url"
+        ],
+        "ext.m_filter_fields": [
+            "active",
+            "name",
+            "related_url"
+        ],
+        "ext.m_list_display": [
+            "active",
+            "name"
+        ],
+        "std.verbose_name": "Alarm",
+        "ext.m_unique_together": [],
+        "ext.m_creation_minimum_level": "authenticated",
+        "ext.m_is_default_public": true,
+        "std.description": "Alarm",
+        "std.fields": [
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": false,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "Active",
+                "ext.force_nested": false,
+                "std.name": "active",
+                "std.type": "data",
+                "std.description": "active",
+                "ext.f_type": "BooleanField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "Message",
+                "ext.force_nested": false,
+                "std.name": "message",
+                "std.type": "data",
+                "std.description": "Message",
+                "ext.f_type": "TextField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 100,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "Name",
+                "ext.force_nested": false,
+                "std.name": "name",
+                "std.type": "data",
+                "std.description": "Name",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "Resource URL",
+                "ext.force_nested": false,
+                "std.name": "related_url",
+                "std.type": "data",
+                "std.description": "Resource URL",
+                "ext.f_type": "TextField"
+            }
+        ],
+        "std.specifier": "Model",
+        "std.verbose_name_plural": "Alarms",
+        "ext.m_delete_minimum_level": "authenticated",
+        "std.name": "Alarm",
+        "ext.m_retrieve_minimum_level": "authenticated",
+        "ext.m_update_minimum_level": "authenticated",
+        "ext.m_unicode": "None"
+    },
+    {
+        "ext.m_search_fields": [
+            "name",
+            "related_url"
+        ],
+        "ext.m_filter_fields": [
+            "name",
+            "related_url"
+        ],
+        "ext.m_list_display": [
+            "name"
+        ],
+        "std.verbose_name": "Alert",
+        "ext.m_unique_together": [],
+        "ext.m_creation_minimum_level": "authenticated",
+        "ext.m_is_default_public": true,
+        "std.description": "Alert",
+        "std.fields": [
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": false,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "Acquited",
+                "ext.force_nested": false,
+                "std.name": "acquited",
+                "std.type": "data",
+                "std.description": "Acquited",
+                "ext.f_type": "BooleanField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "Message",
+                "ext.force_nested": false,
+                "std.name": "message",
+                "std.type": "data",
+                "std.description": "Message",
+                "ext.f_type": "TextField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 250,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "Name",
+                "ext.force_nested": false,
+                "std.name": "name",
+                "std.type": "data",
+                "std.description": "Name",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "Resource URL",
+                "ext.force_nested": false,
+                "std.name": "related_url",
+                "std.type": "data",
+                "std.description": "Resource URL",
+                "ext.f_type": "TextField"
+            }
+        ],
+        "std.specifier": "Model",
+        "std.verbose_name_plural": "Alerts",
+        "ext.m_delete_minimum_level": "authenticated",
+        "std.name": "Alert",
+        "ext.m_retrieve_minimum_level": "authenticated",
+        "ext.m_update_minimum_level": "authenticated",
+        "ext.m_unicode": "name"
+    },
+    {
+        "ext.m_search_fields": [
+            "comment_renamed_text1"
+        ],
+        "ext.m_filter_fields": [
+            "comment_renamed_text1"
+        ],
+        "ext.m_list_display": [
+            "comment_renamed_text1"
+        ],
+        "std.verbose_name": "Comment",
+        "ext.m_unique_together": [],
+        "ext.m_creation_minimum_level": "authenticated",
+        "ext.m_is_default_public": true,
+        "std.description": "Comment",
+        "std.fields": [
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "comment_renamed_text1",
+                "ext.force_nested": false,
+                "std.name": "comment_renamed_text1",
+                "std.type": "data",
+                "std.description": "comment_renamed_text1",
+                "ext.f_type": "TextField"
+            }
+        ],
+        "std.specifier": "Model",
+        "std.verbose_name_plural": "Comments",
+        "ext.m_delete_minimum_level": "authenticated",
+        "std.name": "Comment",
+        "ext.m_retrieve_minimum_level": "authenticated",
+        "ext.m_update_minimum_level": "authenticated",
+        "ext.m_unicode": "comment_text1"
+    },
+    {
+        "ext.m_search_fields": [
+            "organization"
+        ],
+        "ext.m_filter_fields": [
+            "filename",
+            "organization"
+        ],
+        "ext.m_list_display": [
+            "filename",
+            "organization"
+        ],
+        "std.verbose_name": "Dataset",
+        "ext.m_unique_together": [],
+        "ext.m_creation_minimum_level": "authenticated",
+        "ext.m_is_default_public": true,
+        "std.description": "Dataset",
+        "std.fields": [
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "max_length": 5250,
+                    "null": false,
+                    "upload_to": "datasets",
+                    "blank": false
+                },
+                "std.verbose_name": "file",
+                "ext.force_nested": false,
+                "std.name": "file",
+                "std.type": "data",
+                "std.description": "file",
+                "ext.f_type": "FileField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "Filename",
+                "ext.force_nested": false,
+                "std.name": "filename",
+                "std.type": "data",
+                "std.description": "Filename",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 50,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "organization",
+                "ext.force_nested": false,
+                "std.name": "organization",
+                "std.type": "data",
+                "std.description": "Organisation",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "0",
+                    "null": null,
+                    "blank": true
+                },
+                "std.verbose_name": "Size",
+                "ext.force_nested": false,
+                "std.name": "size",
+                "std.type": "data",
+                "std.description": "Size",
+                "ext.f_type": "FloatField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 50,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "status",
+                "ext.force_nested": false,
+                "std.name": "status",
+                "std.type": "data",
+                "std.description": "status",
+                "ext.f_type": "CharField"
+            }
+        ],
+        "std.specifier": "Model",
+        "std.verbose_name_plural": "Datasets",
+        "ext.m_delete_minimum_level": "authenticated",
+        "std.name": "Dataset",
+        "ext.m_retrieve_minimum_level": "authenticated",
+        "ext.m_update_minimum_level": "authenticated",
+        "ext.m_unicode": "organization"
+    },
+    {
+        "ext.m_search_fields": [
+            "name"
+        ],
+        "ext.m_filter_fields": [
+            "name"
+        ],
+        "ext.m_list_display": [
+            "name"
+        ],
+        "std.verbose_name": "Entity",
+        "ext.m_unique_together": [],
+        "ext.m_creation_minimum_level": "authenticated",
+        "ext.m_is_default_public": true,
+        "std.description": "Entities",
+        "std.fields": [
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "max_length": 500,
+                    "null": false,
+                    "upload_to": "background",
+                    "blank": true
+                },
+                "std.verbose_name": "background_file_1",
+                "ext.force_nested": false,
+                "std.name": "background_file_1",
+                "std.type": "data",
+                "std.description": "background_file_1",
+                "ext.f_type": "FileField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "max_length": 500,
+                    "null": false,
+                    "upload_to": "background",
+                    "blank": true
+                },
+                "std.verbose_name": "background_file_2",
+                "ext.force_nested": false,
+                "std.name": "background_file_2",
+                "std.type": "data",
+                "std.description": "background_file_2",
+                "ext.f_type": "FileField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "{}",
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "extra_configuration",
+                "ext.force_nested": false,
+                "std.name": "extra_configuration",
+                "std.type": "data",
+                "std.description": "extra_configuration",
+                "ext.f_type": "TextField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "max_length": 500,
+                    "null": false,
+                    "upload_to": "logo",
+                    "blank": true
+                },
+                "std.verbose_name": "logo_file",
+                "ext.force_nested": false,
+                "std.name": "logo_file",
+                "std.type": "data",
+                "std.description": "logo_file",
+                "ext.f_type": "FileField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 250,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "name",
+                "ext.force_nested": false,
+                "std.name": "name",
+                "std.type": "data",
+                "std.description": "name",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 20,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "prefix",
+                "ext.force_nested": false,
+                "std.name": "prefix",
+                "std.type": "data",
+                "std.description": "prefix",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "max_length": 500,
+                    "null": false,
+                    "upload_to": "thumbnails",
+                    "blank": true
+                },
+                "std.verbose_name": "thumbnail",
+                "ext.force_nested": false,
+                "std.name": "thumbnail",
+                "std.type": "data",
+                "std.description": "thumbnail",
+                "ext.f_type": "FileField"
+            }
+        ],
+        "std.specifier": "Model",
+        "std.verbose_name_plural": "Entities",
+        "ext.m_delete_minimum_level": "authenticated",
+        "std.name": "entity",
+        "ext.m_retrieve_minimum_level": "authenticated",
+        "ext.m_update_minimum_level": "authenticated",
+        "ext.m_unicode": "name"
+    },
+    {
+        "ext.m_search_fields": [
+            "name"
+        ],
+        "ext.m_filter_fields": [
+            "name"
+        ],
+        "ext.m_list_display": [
+            "name"
+        ],
+        "std.verbose_name": "Group",
+        "ext.m_unique_together": [],
+        "ext.m_creation_minimum_level": "authenticated",
+        "ext.m_is_default_public": true,
+        "std.description": "Groups",
+        "std.fields": [
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "related_name": "concrete_groups",
+                    "to": "concrete.User",
+                    "null": false,
+                    "blank": true
+                },
+                "std.verbose_name": "Members",
+                "ext.force_nested": false,
+                "std.name": "members",
+                "std.type": "rel_iterable",
+                "std.description": "Members",
+                "ext.f_type": "ManyToManyField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 250,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "Name",
+                "ext.force_nested": false,
+                "std.name": "name",
+                "std.type": "data",
+                "std.description": "Name",
+                "ext.f_type": "CharField"
+            }
+        ],
+        "std.specifier": "Model",
+        "std.verbose_name_plural": "Groups",
+        "ext.m_delete_minimum_level": "authenticated",
+        "std.name": "Group",
+        "ext.m_retrieve_minimum_level": "authenticated",
+        "ext.m_update_minimum_level": "authenticated",
+        "ext.m_unicode": "name"
+    },
+    {
+        "ext.m_search_fields": [
+            "level",
+            "message",
+            "related_url"
+        ],
+        "ext.m_filter_fields": [
+            "level",
+            "message",
+            "related_url"
+        ],
+        "ext.m_list_display": [
+            "message"
+        ],
+        "std.verbose_name": "Log",
+        "ext.m_unique_together": [],
+        "ext.m_creation_minimum_level": "authenticated",
+        "ext.m_is_default_public": true,
+        "std.description": "Log",
+        "std.fields": [
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "Context",
+                "ext.force_nested": false,
+                "std.name": "context",
+                "std.type": "data",
+                "std.description": "context",
+                "ext.f_type": "TextField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "INFO",
+                    "max_length": 12,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "Niveau",
+                "ext.force_nested": false,
+                "std.name": "level",
+                "std.type": "data",
+                "std.description": "Niveau",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "Message",
+                "ext.force_nested": false,
+                "std.name": "message",
+                "std.type": "data",
+                "std.description": "Message",
+                "ext.f_type": "TextField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "Related URL",
+                "ext.force_nested": false,
+                "std.name": "related_url",
+                "std.type": "data",
+                "std.description": "Related Url",
+                "ext.f_type": "TextField"
+            }
+        ],
+        "std.specifier": "Model",
+        "std.verbose_name_plural": "Logs",
+        "ext.m_delete_minimum_level": "authenticated",
+        "std.name": "Log",
+        "ext.m_retrieve_minimum_level": "authenticated",
+        "ext.m_update_minimum_level": "authenticated",
+        "ext.m_unicode": "message"
+    },
+    {
+        "ext.m_search_fields": [
+            "agentState",
+            "agentVerboseState",
+            "countryFrom",
+            "countryTo",
+            "dataloading_timestamp",
+            "endDate",
+            "endName",
+            "entityOfProd",
+            "indice_mission",
+            "locomotiveState",
+            "locomotiveVerboseState",
+            "ordering",
+            "planningState",
+            "planningVerboseState",
+            "sillonState",
+            "sillonVerboseState",
+            "startDate",
+            "startName",
+            "trainReference1",
+            "trainReference2"
+        ],
+        "ext.m_filter_fields": [
+            "agentState",
+            "agentVerboseState",
+            "borderCross",
+            "countryFrom",
+            "countryTo",
+            "dataloading_timestamp",
+            "endDate",
+            "endDateObj",
+            "endName",
+            "entityOfProd",
+            "indice_mission",
+            "locomotiveState",
+            "locomotiveVerboseState",
+            "missingData",
+            "ordering",
+            "overlap",
+            "planningState",
+            "planningVerboseState",
+            "sillonState",
+            "sillonVerboseState",
+            "startDate",
+            "startDateObj",
+            "startName",
+            "trainReference1",
+            "trainReference2"
+        ],
+        "ext.m_list_display": [
+            "endDate",
+            "startDate",
+            "trainReference1",
+            "trainReference2"
+        ],
+        "std.verbose_name": "Mission",
+        "ext.m_unique_together": [],
+        "ext.m_creation_minimum_level": "authenticated",
+        "ext.m_is_default_public": true,
+        "std.description": "Missions",
+        "std.fields": [
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "agentState",
+                "ext.force_nested": false,
+                "std.name": "agentState",
+                "std.type": "data",
+                "std.description": "agentState",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "\"\"",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": true
+                },
+                "std.verbose_name": "agentVerboseState",
+                "ext.force_nested": false,
+                "std.name": "agentVerboseState",
+                "std.type": "data",
+                "std.description": "agentVerboseState",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": false,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "borderCross",
+                "ext.force_nested": false,
+                "std.name": "borderCross",
+                "std.type": "data",
+                "std.description": "borderCross",
+                "ext.f_type": "BooleanField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "related_name": "missions",
+                    "to": "concrete.Comment",
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "comments",
+                "ext.force_nested": false,
+                "std.name": "comments",
+                "std.type": "rel_iterable",
+                "std.description": "comments",
+                "ext.f_type": "ManyToManyField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "countryFrom",
+                "ext.force_nested": false,
+                "std.name": "countryFrom",
+                "std.type": "data",
+                "std.description": "countryFrom",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "countryTo",
+                "ext.force_nested": false,
+                "std.name": "countryTo",
+                "std.type": "data",
+                "std.description": "countryTo",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "10.0",
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "dataloading_timestamp",
+                "ext.force_nested": false,
+                "std.name": "dataloading_timestamp",
+                "std.type": "data",
+                "std.description": "dataloading_timestamp",
+                "ext.f_type": "FloatField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "endDate",
+                "ext.force_nested": false,
+                "std.name": "endDate",
+                "std.type": "data",
+                "std.description": "endDate",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "null": true
+                },
+                "std.verbose_name": "endDateObj",
+                "ext.force_nested": false,
+                "std.name": "endDateObj",
+                "std.type": "data",
+                "std.description": "endDateObj",
+                "ext.f_type": "DateTimeField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "endName",
+                "ext.force_nested": false,
+                "std.name": "endName",
+                "std.type": "data",
+                "std.description": "endName",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "entityOfProd",
+                "ext.force_nested": false,
+                "std.name": "entityOfProd",
+                "std.type": "data",
+                "std.description": "entityOfProd",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "indice_mission",
+                "ext.force_nested": false,
+                "std.name": "indice_mission",
+                "std.type": "data",
+                "std.description": "indice_mission",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "locomotiveState",
+                "ext.force_nested": false,
+                "std.name": "locomotiveState",
+                "std.type": "data",
+                "std.description": "locomotiveState",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "\"\"",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": true
+                },
+                "std.verbose_name": "locomotiveVerboseState",
+                "ext.force_nested": false,
+                "std.name": "locomotiveVerboseState",
+                "std.type": "data",
+                "std.description": "locomotiveVerboseState",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": {},
+                    "null": true
+                },
+                "std.verbose_name": "mismatch",
+                "ext.force_nested": false,
+                "std.name": "mismatch",
+                "std.type": "data",
+                "std.description": "mismatch",
+                "ext.f_type": "JSONField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {},
+                "std.verbose_name": "missingData",
+                "ext.force_nested": false,
+                "std.name": "missingData",
+                "std.type": "data",
+                "std.description": "missingData",
+                "ext.f_type": "BooleanField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": 1,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "ordering",
+                "ext.force_nested": false,
+                "std.name": "ordering",
+                "std.type": "data",
+                "std.description": "ordering",
+                "ext.f_type": "IntegerField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {},
+                "std.verbose_name": "overlap",
+                "ext.force_nested": false,
+                "std.name": "overlap",
+                "std.type": "data",
+                "std.description": "overlap",
+                "ext.f_type": "BooleanField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "planningState",
+                "ext.force_nested": false,
+                "std.name": "planningState",
+                "std.type": "data",
+                "std.description": "planningState",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "\"\"",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": true
+                },
+                "std.verbose_name": "planningVerboseState",
+                "ext.force_nested": false,
+                "std.name": "planningVerboseState",
+                "std.type": "data",
+                "std.description": "planningVerboseState",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "sillonState",
+                "ext.force_nested": false,
+                "std.name": "sillonState",
+                "std.type": "data",
+                "std.description": "sillonState",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "\"\"",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": true
+                },
+                "std.verbose_name": "sillonVerboseState",
+                "ext.force_nested": false,
+                "std.name": "sillonVerboseState",
+                "std.type": "data",
+                "std.description": "sillonVerboseState",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "startDate",
+                "ext.force_nested": false,
+                "std.name": "startDate",
+                "std.type": "data",
+                "std.description": "startDate",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "null": true
+                },
+                "std.verbose_name": "startDateObj",
+                "ext.force_nested": false,
+                "std.name": "startDateObj",
+                "std.type": "data",
+                "std.description": "startDateObj",
+                "ext.f_type": "DateTimeField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "startName",
+                "ext.force_nested": false,
+                "std.name": "startName",
+                "std.type": "data",
+                "std.description": "startName",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "\"\"",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": true
+                },
+                "std.verbose_name": "trainReference1",
+                "ext.force_nested": false,
+                "std.name": "trainReference1",
+                "std.type": "data",
+                "std.description": "trainReference1",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "\"\"",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": true
+                },
+                "std.verbose_name": "trainReference2",
+                "ext.force_nested": false,
+                "std.name": "trainReference2",
+                "std.type": "data",
+                "std.description": "trainReference2",
+                "ext.f_type": "CharField"
+            }
+        ],
+        "std.specifier": "Model",
+        "std.verbose_name_plural": "Missions",
+        "ext.m_delete_minimum_level": "authenticated",
+        "std.name": "Mission",
+        "ext.m_retrieve_minimum_level": "authenticated",
+        "ext.m_update_minimum_level": "authenticated",
+        "ext.m_unicode": "trainReference1"
+    },
+    {
+        "ext.m_search_fields": [
+            "feed_name",
+            "text"
+        ],
+        "ext.m_filter_fields": [
+            "feed_name",
+            "text"
+        ],
+        "ext.m_list_display": [
+            "feed_name",
+            "text"
+        ],
+        "std.verbose_name": "Note",
+        "ext.m_unique_together": [],
+        "ext.m_creation_minimum_level": "authenticated",
+        "ext.m_is_default_public": true,
+        "std.description": "Notes",
+        "std.fields": [
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 250,
+                    "null": false
+                },
+                "std.verbose_name": "Feed Name",
+                "ext.force_nested": false,
+                "std.name": "feed_name",
+                "std.type": "data",
+                "std.description": "Feed Name",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "text",
+                "ext.force_nested": false,
+                "std.name": "text",
+                "std.type": "data",
+                "std.description": "text",
+                "ext.f_type": "TextField"
+            }
+        ],
+        "std.specifier": "Model",
+        "std.verbose_name_plural": "Notes",
+        "ext.m_delete_minimum_level": "authenticated",
+        "std.name": "Note",
+        "ext.m_retrieve_minimum_level": "authenticated",
+        "ext.m_update_minimum_level": "authenticated",
+        "ext.m_unicode": "text"
+    },
+    {
+        "ext.m_search_fields": [
+            "value"
+        ],
+        "ext.m_filter_fields": [
+            "key",
+            "value"
+        ],
+        "ext.m_list_display": [
+            "key"
+        ],
+        "std.verbose_name": "Statistique",
+        "ext.m_unique_together": [],
+        "ext.m_creation_minimum_level": "authenticated",
+        "ext.m_is_default_public": true,
+        "std.description": "Statistiques",
+        "std.fields": [
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "key",
+                "ext.force_nested": false,
+                "std.name": "key",
+                "std.type": "data",
+                "std.description": "key",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "Value",
+                "ext.force_nested": false,
+                "std.name": "value",
+                "std.type": "data",
+                "std.description": "Value",
+                "ext.f_type": "CharField"
+            }
+        ],
+        "std.specifier": "Model",
+        "std.verbose_name_plural": "Statistiques",
+        "ext.m_delete_minimum_level": "authenticated",
+        "std.name": "Stat",
+        "ext.m_retrieve_minimum_level": "authenticated",
+        "ext.m_update_minimum_level": "authenticated",
+        "ext.m_unicode": "None"
+    },
+    {
+        "ext.m_search_fields": [
+            "consistent",
+            "endDate",
+            "endName",
+            "missions",
+            "reference1",
+            "reference2",
+            "startDate",
+            "startName"
+        ],
+        "ext.m_filter_fields": [
+            "consistent",
+            "endDate",
+            "endDateObj",
+            "endName",
+            "missions",
+            "reference1",
+            "reference2",
+            "startDate",
+            "startDateObj",
+            "startName"
+        ],
+        "ext.m_list_display": [
+            "reference1",
+            "reference2"
+        ],
+        "std.verbose_name": "Train",
+        "ext.m_unique_together": [],
+        "ext.m_creation_minimum_level": "authenticated",
+        "ext.m_is_default_public": true,
+        "std.description": "Train",
+        "std.fields": [
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {},
+                "std.verbose_name": "consistency_checks",
+                "ext.force_nested": false,
+                "std.name": "consistency_checks",
+                "std.type": "data",
+                "std.description": "consistency_checks",
+                "ext.f_type": "JSONField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": false,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "consistent",
+                "ext.force_nested": false,
+                "std.name": "consistent",
+                "std.type": "data",
+                "std.description": "consistent",
+                "ext.f_type": "BooleanField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "endDate",
+                "ext.force_nested": false,
+                "std.name": "endDate",
+                "std.type": "data",
+                "std.description": "endDate",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "null": true
+                },
+                "std.verbose_name": "endDateObj",
+                "ext.force_nested": false,
+                "std.name": "endDateObj",
+                "std.type": "data",
+                "std.description": "endDateObj",
+                "ext.f_type": "DateTimeField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "endName",
+                "ext.force_nested": false,
+                "std.name": "endName",
+                "std.type": "data",
+                "std.description": "endName",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "related_name": "trains",
+                    "to": "concrete.Mission",
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "missions",
+                "ext.force_nested": false,
+                "std.name": "missions",
+                "std.type": "rel_iterable",
+                "std.description": "missions",
+                "ext.f_type": "ManyToManyField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "reference1",
+                "ext.force_nested": false,
+                "std.name": "reference1",
+                "std.type": "data",
+                "std.description": "reference1",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "reference2",
+                "ext.force_nested": false,
+                "std.name": "reference2",
+                "std.type": "data",
+                "std.description": "reference2",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "startDate",
+                "ext.force_nested": false,
+                "std.name": "startDate",
+                "std.type": "data",
+                "std.description": "startDate",
+                "ext.f_type": "CharField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "null": true
+                },
+                "std.verbose_name": "startDateObj",
+                "ext.force_nested": false,
+                "std.name": "startDateObj",
+                "std.type": "data",
+                "std.description": "startDateObj",
+                "ext.f_type": "DateTimeField"
+            },
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "max_length": 255,
+                    "null": false,
+                    "blank": false
+                },
+                "std.verbose_name": "startName",
+                "ext.force_nested": false,
+                "std.name": "startName",
+                "std.type": "data",
+                "std.description": "startName",
+                "ext.f_type": "CharField"
+            }
+        ],
+        "std.specifier": "Model",
+        "std.verbose_name_plural": "Trains",
+        "ext.m_delete_minimum_level": "authenticated",
+        "std.name": "Train",
+        "ext.m_retrieve_minimum_level": "authenticated",
+        "ext.m_update_minimum_level": "authenticated",
+        "ext.m_unicode": "reference1"
+    },
+    {
+        "ext.m_search_fields": [
+            "email"
+        ],
+        "ext.m_filter_fields": [
+            "email"
+        ],
+        "ext.m_list_display": [
+            "first_name",
+            "last_name",
+            "email"
+        ],
+        "std.verbose_name": "User",
+        "ext.m_unique_together": [],
+        "ext.m_creation_minimum_level": "authenticated",
+        "ext.m_is_default_public": true,
+        "std.description": "Users",
+        "std.fields": [],
+        "std.specifier": "Model",
+        "std.verbose_name_plural": "Users",
+        "ext.m_delete_minimum_level": "authenticated",
+        "std.name": "User",
+        "ext.m_retrieve_minimum_level": "authenticated",
+        "ext.m_update_minimum_level": "authenticated",
+        "ext.m_unicode": "email"
+    },
+    {
+        "std.specifier": "Model",
+        "ext.m_search_fields": [],
+        "ext.m_filter_fields": [],
+        "ext.m_list_display": [],
+        "std.verbose_name": "EntityDividerModel",
+        "std.name": "EntityDividerModel",
+        "std.verbose_name_plural": "EntityDividerModel",
+        "std.description": "EntityDividerModel",
+        "std.fields": [
+            {
+                "std.verbose_name": "Cloisonnement",
+                "ext.f_args": {
+                    "max_length": 250
+                },
+                "std.description": "Cloisonnement",
+                "ext.f_type": "CharField",
+                "std.specifier": "Field",
+                "std.type": "data",
+                "std.name": "entity"
+            }
+        ],
+        "ext.m_unicode": "entity"
+    }
+]

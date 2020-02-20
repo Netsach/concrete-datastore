@@ -1,4 +1,5 @@
 # coding: utf-8
+import os
 import warnings
 
 from django.utils.deprecation import RemovedInNextVersionWarning
@@ -34,20 +35,20 @@ REST_FRAMEWORK['PAGINATE_BY'] = 10
 REST_FRAMEWORK['PAGE_SIZE'] = 10
 
 
-# if django.db.utils.OperationalError: FATAL:  role "test_user" does not exist
+# if django.db.utils.OperationalError: FATAL:  role "user-concrete-datastore" does not exist
 # Open a psql shell and
-#  > CREATE USER test_user WITH PASSWORD 'test_user';
-#  > CREATE DATABASE test_db;
-#  > GRANT ALL PRIVILEGES ON DATABASE test_db to test_user;
-#  > ALTER ROLE test_user CREATEDB;
+#  > CREATE USER user-concrete-datastore WITH PASSWORD 'pwd-concrete-datastore';
+#  > CREATE DATABASE db-concrete-datastore-2;
+#  > GRANT ALL PRIVILEGES ON DATABASE db-concrete-datastore-2 to user-concrete-datastore;
+#  > ALTER ROLE user-concrete-datastore CREATEDB;
 
 ADMIN_SHOW_USER_PERMISSIONS = True
 
-POSTGRES_DB = os.environ.get('POSTGRES_DB', 'db-concrete-server-2')
+POSTGRES_DB = os.environ.get('POSTGRES_DB', 'db-concrete-datastore-2')
 
-POSTGRES_USER = os.environ.get('POSTGRES_USER', 'user-concrete-server')
+POSTGRES_USER = os.environ.get('POSTGRES_USER', 'user-concrete-datastore')
 
-POSTGRES_PASSWORD = os.environ.get('POSTGRES_PASSWORD', 'pwd-concrete-server')
+POSTGRES_PASSWORD = os.environ.get('POSTGRES_PASSWORD', 'pwd-concrete-datastore')
 
 POSTGRES_HOST = os.environ.get('POSTGRES_HOST', 'localhost')
 

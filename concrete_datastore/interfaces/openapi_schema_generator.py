@@ -53,7 +53,7 @@ CONCRETE_DEFAULT_LIST_RESP = {
 
 SWAGGER_SETTINGS = {
     'APP_VERSION': concrete_datastore.__version__,
-    'DESCRIPTION': 'Concrete server API.',
+    'DESCRIPTION': 'Concrete datastore API.',
     'CONTACT': {'email': 'contact@netsach.org'},
     'TERMS_OF_SERVICE': '',
     'SECURITY_DEFINITIONS': {

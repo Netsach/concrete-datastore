@@ -18,7 +18,6 @@ from concrete_datastore.api.v1_1.views import (  # pylint:disable=E0611
     ConcreteRoleApiView,
     ConcretePermissionApiView,
     EmailDeviceAuthView,
-    make_deprecated_viewset,
     LDAPLoginApiView,
     TwoFactorLoginView,
     UnBlockUsersApiViewset,
@@ -64,23 +63,6 @@ router.register(
 router.register(
     prefix='email-device', viewset=EmailDeviceAuthView, basename='email-device'
 )
-
-#: TO BE DELETED, retro-compatibility here
-router.register(
-    prefix='concrete-role',
-    viewset=make_deprecated_viewset(ConcreteRoleApiView, 'acl/role'),
-    basename='concrete-role',
-)
-
-#: TO BE DELETED, retro-compatibility here
-router.register(
-    prefix='concrete-permission',
-    viewset=make_deprecated_viewset(
-        ConcretePermissionApiView, 'acl/permission'
-    ),
-    basename='concrete-permission',
-)
-
 
 specific_urlpatterns = [
     re_path(

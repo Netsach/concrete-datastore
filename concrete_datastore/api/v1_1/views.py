@@ -69,7 +69,7 @@ from concrete_datastore.concrete.automation.signals import user_logged_in
 
 UserModel = get_user_model()
 
-logger = logging.getLogger('concrete-server')
+logger = logging.getLogger('concrete-datastore')
 logger_api_auth = logging.getLogger('api_auth_log')
 
 
@@ -467,7 +467,7 @@ def make_deprecated_viewset(viewset, correct_url):
         def list(self, *args, **kwargs):
             warning_message = (
                 "This route will be depricated in the next version of "
-                f"concrete server. Please use '{correct_url}' instead"
+                f"concrete datastore. Please use '{correct_url}' instead"
             )
             warnings.warn(warning_message, DeprecationWarning)
             try:
@@ -478,7 +478,7 @@ def make_deprecated_viewset(viewset, correct_url):
         def get_object(self, *args, **kwargs):
             warning_message = (
                 "This route will be depricated in the next version of "
-                f"concrete server. Please use '{correct_url}' instead"
+                f"concrete datastore. Please use '{correct_url}' instead"
             )
             warnings.warn(warning_message, DeprecationWarning)
             try:
@@ -489,7 +489,7 @@ def make_deprecated_viewset(viewset, correct_url):
         def create(self, *args, **kwargs):
             warning_message = (
                 "This route will be depricated in the next version of "
-                f"concrete server. Please use '{correct_url}' instead"
+                f"concrete datastore. Please use '{correct_url}' instead"
             )
             warnings.warn(warning_message, DeprecationWarning)
             try:
@@ -500,7 +500,7 @@ def make_deprecated_viewset(viewset, correct_url):
         def destroy(self, *args, **kwargs):
             warning_message = (
                 "This route will be depricated in the next version of "
-                f"concrete server. Please use '{correct_url}' instead"
+                f"concrete datastore. Please use '{correct_url}' instead"
             )
             warnings.warn(warning_message, DeprecationWarning)
             try:

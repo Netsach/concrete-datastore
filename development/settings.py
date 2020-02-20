@@ -1,6 +1,11 @@
 # coding: utf-8
+import os
 from concrete_datastore.settings.base import *
 from concrete_datastore.settings.utils import load_datamodel
+
+PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__)) + '/'
+MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media/')
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static/')
 
 SITE_ID = 1
 INTERNAL_IPS = ['127.0.0.1']
@@ -8,17 +13,17 @@ DEBUG = True
 ALLOWED_HOSTS = ('*',)
 SECRET_KEY = 'development_settings_secret_key'  # nosec
 
-# CREATE USER "user-concrete-server" WITH PASSWORD 'pwd-concrete-server';
-# ALTER USER "user-concrete-server" createdb;
-# CREATE DATABASE "db-concrete-server";
-# ALTER DATABASE "db-concrete-server" OWNER TO "user-concrete-server";
-# GRANT ALL PRIVILEGES ON DATABASE "db-concrete-server" to "user-concrete-server";
+# CREATE USER "user-concrete-datastore" WITH PASSWORD 'pwd-concrete-datastore';
+# ALTER USER "user-concrete-datastore" createdb;
+# CREATE DATABASE "db-concrete-datastore";
+# ALTER DATABASE "db-concrete-datastore" OWNER TO "user-concrete-datastore";
+# GRANT ALL PRIVILEGES ON DATABASE "db-concrete-datastore" to "user-concrete-datastore";
 
-POSTGRES_DB = os.environ.get('POSTGRES_DB', 'db-concrete-server-2')
+POSTGRES_DB = os.environ.get('POSTGRES_DB', 'db-concrete-datastore-2')
 
-POSTGRES_USER = os.environ.get('POSTGRES_USER', 'user-concrete-server')
+POSTGRES_USER = os.environ.get('POSTGRES_USER', 'user-concrete-datastore')
 
-POSTGRES_PASSWORD = os.environ.get('POSTGRES_PASSWORD', 'pwd-concrete-server')
+POSTGRES_PASSWORD = os.environ.get('POSTGRES_PASSWORD', 'pwd-concrete-datastore')
 
 POSTGRES_HOST = os.environ.get('POSTGRES_HOST', 'localhost')
 
@@ -37,8 +42,6 @@ DATABASES = {
 
 MIGRATION_MODULES = {'concrete': 'concrete_datastore.concrete.migrations'}
 
-MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media/')
-
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
@@ -51,7 +54,9 @@ HOSTNAME = "localhost"
 PORT = "8000"
 
 META_MODEL_DEFINITIONS = load_datamodel(
-    datamodel_path='datamodel/current-datamodel.json'
+    datamodel_path=os.path.join(
+        PROJECT_ROOT,
+        'datamodel/current-datamodel.json')
 )
 
 DISABLED_MODELS = ()

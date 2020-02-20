@@ -96,7 +96,7 @@ from concrete_datastore.api.v1.exceptions import (
 
 UserModel = get_user_model()
 
-logger = logging.getLogger('concrete-server')
+logger = logging.getLogger('concrete-datastore')
 logger_api_safe = logging.getLogger('api_safe_log')
 logger_api_unsafe = logging.getLogger('api_unsafe_log')
 logger_api_auth = logging.getLogger('api_auth_log')
