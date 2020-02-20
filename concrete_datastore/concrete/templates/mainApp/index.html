@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>CONCRETE</title>
+    <style type="text/css" media="screen">
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  transform-style: preserve-3d;
+}
+
+html,
+body,
+#world {
+  width: 100%;
+  height: 100%;
+}
+
+#world {
+  perspective: 500px;
+  perspective-origin: 50% 40%;
+  position: relative;
+}
+
+#bg {
+  background-color: orange;
+  background: radial-gradient(ellipse at center, rgba(244, 241, 230, 1) 0%, rgba(232, 248, 239, 1) 100%);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: translateZ(-1000px) scale(3);
+}
+
+#mooseRotator {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  animation: mooseRotation 4s infinite linear;
+}
+
+#mooseTranslator {
+  transform: translateX(200px);
+}
+
+#mooseShadow {
+  position: absolute;
+  width: 80px;
+  height: 16px;
+  background-color: rgba(0, 0, 0, .2);
+  left: -40px;
+  top: 0px;
+  animation: mooseShadowBounce .5s infinite;
+  /*-webkit-filter: blur(4px)*/
+}
+
+#moose {
+  position: absolute;
+  left: 0;
+  top: 0;
+  cursor: pointer;
+}
+
+#mooseBody {
+  animation: mooseBounce .4s infinite;
+}
+
+#mooseFront,
+#mooseBack,
+#mooseLeft,
+#mooseRight,
+#mooseTop,
+#mooseBottom {
+  position: absolute;
+  top: 0px;
+  left: 0;
+}
+
+#mooseFront {
+  transform: translateZ(8px);
+}
+
+#mooseBack {
+  transform: translateZ(-8px);
+}
+
+.mooseFrontItem,
+.mooseBackItem,
+.mooseLeftItem,
+.mooseRightItem,
+.mooseTopItem,
+.mooseBottomItem,
+.mooseLegLeftItem,
+.mooseLegRightItem {
+  position: absolute;
+  background-color: black;
+}
+
+.mooseBackItem {
+  background-color: #111;
+}
+
+.mooseLeftItem {
+  transform: rotateY(90deg);
+  background-color: #444;
+}
+
+.mooseRightItem {
+  transform: rotateY(-90deg);
+  background-color: #444;
+}
+
+.mooseTopItem {
+  transform: rotateX(90deg);
+  background-color: #000;
+}
+
+.mooseBottomItem {
+  transform: rotateX(-90deg);
+  background-color: #000;
+}
+
+#mooseFront_a,
+#mooseBack_a {
+  width: 48px;
+  height: 32px;
+  left: -24px;
+  top: -48px;
+}
+
+#mooseFront_b,
+#mooseBack_b {
+  width: 48px;
+  height: 16px;
+  left: -24px;
+  top: -80px;
+}
+
+#mooseFront_c,
+#mooseBack_c {
+  width: 16px;
+  height: 16px;
+  left: -24px;
+  top: -64px;
+}
+
+#mooseFront_d,
+#mooseBack_d {
+  width: 16px;
+  height: 16px;
+  left: 8px;
+  top: -64px;
+}
+
+#mooseFront_e,
+#mooseBack_e {
+  width: 16px;
+  height: 32px;
+  left: -40px;
+  top: -96px;
+}
+
+#mooseFront_f,
+#mooseBack_f {
+  width: 16px;
+  height: 32px;
+  left: 24px;
+  top: -96px;
+}
+
+#mooseLeft_a,
+#mooseRight_a {
+  width: 16px;
+  height: 32px;
+  top: -96px;
+}
+
+#mooseLeft_a {
+  left: -48px;
+}
+
+#mooseRight_a {
+  left: 32px;
+}
+
+#mooseLeft_b,
+#mooseRight_b {
+  width: 16px;
+  height: 48px;
+  top: -64px;
+}
+
+#mooseLeft_b {
+  left: -32px;
+}
+
+#mooseRight_b {
+  left: 16px;
+}
+
+#mooseLeft_c,
+#mooseRight_c,
+#mooseLeft_d,
+#mooseRight_d {
+  width: 16px;
+  height: 16px;
+}
+
+#mooseLeft_c {
+  top: -96px;
+  left: -32px;
+}
+
+#mooseRight_c {
+  top: -96px;
+  left: 16px;
+}
+
+#mooseLeft_d {
+  top: -64px;
+  left: -16px;
+}
+
+#mooseRight_d {
+  top: -64px;
+  left: 0px;
+}
+
+#mooseTop_a,
+#mooseTop_b,
+#mooseTop_c,
+#mooseBottom_a,
+#mooseBottom_b,
+#mooseBottom_c,
+#mooseBottom_d {
+  width: 16px;
+  height: 16px;
+}
+
+#mooseTop_a {
+  top: -104px;
+  left: -40px;
+}
+
+#mooseTop_b {
+  top: -104px;
+  left: 24px;
+}
+
+#mooseTop_c {
+  top: -56px;
+  left: -8px;
+}
+
+#mooseTop_d {
+  width: 48px;
+  height: 16px;
+  top: -88px;
+  left: -24px;
+}
+
+#mooseBottom_a {
+  top: -72px;
+  left: -40px;
+}
+
+#mooseBottom_b {
+  top: -72px;
+  left: 24px;
+}
+
+#mooseBottom_c {
+  top: -72px;
+  left: -8px;
+}
+
+#mooseBottom_d {
+  top: -24px;
+  left: -8px;
+}
+
+#mooseLegLeft_a,
+#mooseLegLeft_b,
+#mooseLegLeft_c,
+#mooseLegLeft_d,
+#mooseLegLeft_e,
+#mooseLegRight_a,
+#mooseLegRight_b,
+#mooseLegRight_c,
+#mooseLegRight_d,
+#mooseLegRight_e,
+#mooseLegLeft_f,
+#mooseLegRight_f {
+  width: 16px;
+  height: 16px;
+}
+
+#mooseLegLeft_a {
+  left: -24px;
+  top: 16px;
+}
+
+#mooseLegRight_a {
+  left: 8px;
+  top: 16px;
+}
+
+#mooseLegLeft_b {
+  left: -32px;
+  top: 8px;
+}
+
+#mooseLegRight_b {
+  left: 0px;
+  top: 8px;
+}
+
+#mooseLegLeft_c {
+  left: -16px;
+  top: 8px;
+}
+
+#mooseLegRight_c {
+  left: 16px;
+  top: 8px;
+}
+
+#mooseLegLeft_d {
+  left: -24px;
+  top: 8px;
+  transform: translateZ(8px);
+}
+
+#mooseLegRight_d {
+  left: 8px;
+  top: 8px;
+  transform: translateZ(8px);
+}
+
+#mooseLegLeft_e {
+  left: -24px;
+  top: 8px;
+  transform: translateZ(-8px);
+}
+
+#mooseLegRight_e {
+  left: 8px;
+  top: 8px;
+  transform: translateZ(-8px);
+}
+
+#mooseLegLeft_f {
+  left: -24px;
+}
+
+#mooseLegRight_f {
+  left: 8px;
+}
+
+#mooseLegLeft {
+  animation: legLeft .4s -.2s infinite linear;
+  position: absolute;
+  top: -16px;
+}
+
+#mooseLegRight {
+  animation: legLeft .4s infinite linear;
+  position: absolute;
+  top: -16px;
+}
+
+@keyframes mooseRotation {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(-360deg);
+  }
+}
+
+@keyframes mooseBounce {
+  0% {
+    top: 0px;
+    transform: rotateZ(-8deg);
+  }
+  50% {
+    top: -32px;
+    transform: rotateZ(8deg);
+  }
+  100% {
+    top: 0px;
+    transform: rotateZ(-8deg);
+  }
+}
+
+@keyframes mooseShadowBounce {
+  0% {
+    transform: scale(0.8) rotateX(90deg);
+  }
+  50% {
+    transform: scale(0.6) rotateX(90deg);
+  }
+  100% {
+    transform: scale(0.8) rotateX(90deg);
+  }
+}
+
+@keyframes legLeft {
+  0% {
+    transform: translateY(0px) translateZ(-16px);
+  }
+  25% {
+    transform: translateY(-8px) translateZ(0px);
+  }
+  50% {
+    transform: translateY(0px) translateZ(16px);
+  }
+  75% {
+    transform: translateY(0px) translateZ(0px);
+  }
+  100% {
+    transform: translateY(0px) translateZ(-16px);
+  }
+}
+    </style>
+</head>
+<body>
+
+<div id="bg"></div>
+
+
+<div id="world">
+
+
+  <div id="mooseRotator">
+
+    <div id="mooseTranslator">
+
+      <div id="mooseShadow"></div>
+
+      <div id="moose">
+
+        <div id="mooseBody">
+
+          <div id="mooseFront">
+            <div id="mooseFront_a" class="mooseFrontItem"></div>
+            <div id="mooseFront_b" class="mooseFrontItem"></div>
+            <div id="mooseFront_c" class="mooseFrontItem"></div>
+            <div id="mooseFront_d" class="mooseFrontItem"></div>
+            <div id="mooseFront_e" class="mooseFrontItem"></div>
+            <div id="mooseFront_f" class="mooseFrontItem"></div>
+          </div>
+
+          <div id="mooseBack">
+            <div id="mooseBack_a" class="mooseBackItem"></div>
+            <div id="mooseBack_b" class="mooseBackItem"></div>
+            <div id="mooseBack_c" class="mooseBackItem"></div>
+            <div id="mooseBack_d" class="mooseBackItem"></div>
+            <div id="mooseBack_e" class="mooseBackItem"></div>
+            <div id="mooseBack_f" class="mooseBackItem"></div>
+          </div>
+
+          <div id="mooseLeft">
+            <div id="mooseLeft_a" class="mooseLeftItem"></div>
+            <div id="mooseLeft_b" class="mooseLeftItem"></div>
+            <div id="mooseLeft_c" class="mooseLeftItem"></div>
+            <div id="mooseLeft_d" class="mooseLeftItem"></div>
+          </div>
+
+          <div id="mooseRight">
+            <div id="mooseRight_a" class="mooseRightItem"></div>
+            <div id="mooseRight_b" class="mooseRightItem"></div>
+            <div id="mooseRight_c" class="mooseRightItem"></div>
+            <div id="mooseRight_d" class="mooseRightItem"></div>
+          </div>
+
+          <div id="mooseTop">
+            <div id="mooseTop_a" class="mooseTopItem"></div>
+            <div id="mooseTop_b" class="mooseTopItem"></div>
+            <div id="mooseTop_c" class="mooseTopItem"></div>
+            <div id="mooseTop_d" class="mooseTopItem"></div>
+          </div>
+
+          <div id="mooseBottom">
+            <div id="mooseBottom_a" class="mooseBottomItem"></div>
+            <div id="mooseBottom_b" class="mooseBottomItem"></div>
+            <div id="mooseBottom_c" class="mooseBottomItem"></div>
+            <div id="mooseBottom_d" class="mooseBottomItem"></div>
+          </div>
+
+        </div>
+
+        <div id="mooseLegLeft">
+
+          <div id="mooseLegLeft_a" class="mooseLegLeftItem mooseBottomItem"></div>
+          <div id="mooseLegLeft_b" class="mooseLegLeftItem mooseLeftItem"></div>
+          <div id="mooseLegLeft_c" class="mooseLegLeftItem mooseRightItem"></div>
+          <div id="mooseLegLeft_d" class="mooseLegLeftItem mooseFrontItem"></div>
+          <div id="mooseLegLeft_e" class="mooseLegLeftItem mooseBackItem"></div>
+          <div id="mooseLegLeft_f" class="mooseLegLeftItem mooseTopItem"></div>
+        </div>
+
+        <div id="mooseLegRight">
+          <div id="mooseLegRight_a" class="mooseLegRightItem mooseBottomItem"></div>
+          <div id="mooseLegRight_b" class="mooseLegRightItem mooseLeftItem"></div>
+          <div id="mooseLegRight_c" class="mooseLegRightItem mooseRightItem"></div>
+          <div id="mooseLegRight_d" class="mooseLegRightItem mooseFrontItem"></div>
+          <div id="mooseLegRight_e" class="mooseLegRightItem mooseBackItem"></div>
+          <div id="mooseLegRight_f" class="mooseLegRightItem mooseTopItem"></div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,1 +1,125 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+env2/
+env3/
+build/
+develop-eggs/
+ns_eggs/
+ns-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+*.log.*
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Virtualenv shortcut
+activate
+
+# MR Developer
+.mr.developer.cfg
+
+# Buildout scripts
+bin/
+profiles/user.cfg
+tmp/
+
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.setup_done
+
+# Django project structure
+concrete_datastore/webApp/static/
+concrete_datastore/webApp/media/
+concrete_datastore/webApp/db.sqlite3
+tmp/
+*.sublime-workspace
+
+theme-dist/
+
+src_html5/theme-flat-dream/.tmp/
+
+notebooks/.ipynb_checkpoints
+notebooks/Untitled*
+
+app-dist
+html5-dist
+
+node_modules
+bower_components
+.tmp
+.temp
+ns-eggs
+.setup-done
+.virtualenv2
+.virtualenv3
+coverage/
+rendered/
+redis.sock*
+concrete_datastore/concrete/migrations/0*
+.ci-setup-done
+.virtualenv2-ci
+env-ci/
+.integration-setup
+datamodel/*
+.installed-requirements.txt
+bin
+local-migrations/
+docker-compose-backup.yml
+
+celerybeat-schedule.db
+pip-wheel-metadata
+
 Makefile
+
+concrete_datastore/settings/media/
+concrete_datastore/settings/static/
+

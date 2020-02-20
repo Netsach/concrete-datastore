@@ -1,0 +1,61 @@
+<h1>{{platform_name}}</h1>
+
+<div class="container">
+    <h2>Unsubscribe from notifications</h2>
+    <div>
+        {% if error_message %}
+            <p><strong>You have nothing to unsubscribe from.</strong></p>
+        {% else %}
+            Hello <strong>{{ user_email }}</strong>
+            <br>
+            <br>
+            You are about to unsubscribe from notifications.
+            <br>
+            <br>
+            Do you want to unsubscribe from:
+
+            <form action="{% url 'concrete:unsubscribe_notifications_result' token %}" method="post">
+                <ul>
+                    {% csrf_token %}
+                    <li>
+                        <input type="checkbox" name="all" id="all" value=1>
+                        <label for="all">All (You will never be notified again)</label>
+                    </li>
+                    {% for scope in scopes %}
+                        <li>
+                            <input type="checkbox" name="scope" id="{{ scope.uid }}" value="{{ scope.uid }}">
+                            <label for="{{ scope.uid }}">{{ scope.name }}</label><br>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <button type="submit">Validate</button>
+            </form>
+    </div>
+</div>
+<style>
+    h1{
+        text-align: center;
+    }
+    .container{
+        width: 800px;
+        margin: auto;
+    }
+    .container, h1, h2, button{
+        font-family: sans-serif;
+    }
+    ul{
+        list-style-type: none;
+    }
+    button[type="submit"]{
+        padding: 5px 10px;
+        font-size: 15px;
+        background: #0095e4;
+        color: #fff;
+        border: 1px solid #eee;
+        cursor: pointer;
+    }
+    button[type="submit"]:hover{
+        background: #0066A2;
+    }
+</style>
+{% endif %}

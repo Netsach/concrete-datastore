@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+<style>
+#header {
+    background-color: #132452;
+    color: white;
+}
+
+#branding h1 {
+    color: white;
+}
+
+#branding h1, #branding h1 a:link, #branding h1 a:visited {
+    color: white;
+}
+
+.module h2, .module caption, .inline-group h2 {
+    background:#2A3C6E;
+    color: white;
+}
+
+div.breadcrumbs {
+    background: #2A3C6E;
+    color: white;
+}
+
+.selector-chosen h2 {
+    background: #2A3C6E;
+}
+</style>
+{% endblock %}
+
+{% block welcome-msg %}
+    {% trans 'Welcome,' %}
+    <strong>{{ user.email }}</strong>.
+{% endblock %}

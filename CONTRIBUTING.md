@@ -50,13 +50,13 @@ pip install -e ".[dev,security,lint,lint_py3]"
 #### format all files:
 
 ```shell
-black --config pyproject.toml .
+black --line-length=79 --skip-string-normalization concrete_datastore
 ```
 
 #### check if all files ar well formatted:
 
 ```shell
-black --check --config pyproject.toml .
+black --check --line-length=79 --skip-string-normalization concrete_datastore
 ```
 
 ### Ensure lint
@@ -66,7 +66,7 @@ black --check --config pyproject.toml .
 [see pylint github project page](https://github.com/PyCQA/pylint)
 
 ```shell
-pylint -E concrete_datastore
+pylint -E concrete_datastore --disable=no-member
 ```
 
 ### Ensure bandit
@@ -78,6 +78,10 @@ pylint -E concrete_datastore
 ```shell
 bandit concrete_datastore -r --exclude tests
 ```
+
+### Ensure unittests
+
+Refer to [tests/README](tests/README.md) in order to run the tests suit
 
 
 ### Release a new version

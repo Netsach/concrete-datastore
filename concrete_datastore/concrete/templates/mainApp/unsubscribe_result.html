@@ -1,0 +1,26 @@
+<h1>{{platform_name}}</h1>
+
+<br>
+<br>
+<div class="container">
+
+    <h2>Unsubscribe from notifications</h2>
+    {% if error_message %}
+        <p><strong>Something went wrong when unsubscribing</strong></p>
+    {% else %}
+        Your choice has been taken into account.
+    {% endif %}
+</div>
+<style>
+    *{
+        font-family: sans-serif;
+    }
+    h1{
+        text-align: center;
+    }
+
+    .container{
+        width: 800px;
+        margin: auto;
+    }
+</style>

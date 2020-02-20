@@ -37,7 +37,7 @@ Used to register to the application.
 -  `email_format` is optional and has a default value of DEFAULT_REGISTER_EMAIL_FORMAT (in settings)
 -  `url_format` is optional and has a default value of `"/#/set-password/{token}/{email}/"`
 
-**Use cases**:
+**Use cases** :
 
 -  A user can set `password1` and `password2` in order to register whith his own password.
 -  A user can register without setting passwords (if the settings ALLOW_SEND_EMAIL_ON_REGISTER is enabled), and he will recieve a link in an email. This link contains the email adress used to register with and a token used to reset password. He can then reset his password using this token
@@ -156,7 +156,7 @@ Used to register to the application.
 - `"The password must contain at least X digit(s)."`
 - `"The password must contain at least X lower character(s)."`
 - `"The password must contain at least X upper character(s)."`
-- `"The password must contain at least X special character(s) from these : (list_of_special_characters)"`
+- `"The password must contain at least X special character(s) from these : (<list_of_special_characters>)"`
 
 `<code>` can be:
 
@@ -211,8 +211,27 @@ Used to collect a Token for a registered User.
     "first_name": "",
     "last_name": "",
     "level": "simpleuser",
+    "is_verified": true,
+    "groups": [],
+    "external_auth": false,
+    "<scope_model_field>": []
 }
 ```
+
+**Response format**:
+
+-  `uid`: unique id of the user
+-  `email`: user's email
+-  `url`: url to get user's account information
+-  `token`: user's authentication token
+-  `first_name`: user's first name
+-  `last_name`: user's last name
+-  `level`: user's level
+-  `is_verified`: this field is `false` if the Multi Factor Authentication is activated **AND** the user did not validate the MFA. Otherwise it is `true`
+-  `groups`: list of groups to which the user belongs
+-  `external_auth`: whether the user was authenticated by an external authentication source (LDAP, External Backend, ...)
+-  `<scope_model_field>`: list of user's scopes
+
 
 #### Error Responses
 
@@ -281,18 +300,41 @@ Used to get information about the user.
 
 ```json
 {
-    "public": true,
     "uid": "49297d80-e924-479a-8fcc-27e15f7a12e7",
+    "email": "johndoe@netsach.com"
+    "first_name": "Doe",
+    "last_name": "John",
     "modification_date": "2018-11-26T15:54:34Z",
     "creation_date": "2018-11-26T15:54:34Z",
+    "public": true,
     "url": "https://<webapp>/api/v1.1/user/49297d80-e924-479a-8fcc-27e15f7a12e7/",
     "verbose_name": "johndoe@netsach.com",
-    "last_name": "John",
-    "first_name": "Doe",
+    "<scope_model_field>": [],
     "level": "simpleuser",
-    "email": "johndoe@netsach.com"
+    "unsubscribe_notification_url": "http://<webapp>/c/unsubscribe-notifications/707ca2da-0ea0-4a90-9fba-d5337fa72555",
+    "unsubscribe_all": false,
+    "unsubscribe_to": [],
+    "external_auth": false
 }
 ```
+
+**Response format**:
+
+-  `uid`: unique id of the user
+-  `email`: user's email
+-  `first_name`: user's first name
+-  `last_name`: user's last name
+-  `modification_date`: datetime of last modification
+-  `creation_date`: datetime of creation
+-  `public`: whether the user is public or not
+-  `url`: url to get user's account information
+-  `verbose_name`: user's email
+-  `<scope_model_field>`: list of user's scopes
+-  `level`: user's level
+-  `unsubscribe_notification_url`: url to unsubscribe user form notifications
+-  `unsubscribe_all`: user is unsubscribed to all notifications
+-  `unsubscribe_to`: list of scope notifications that the user is unsubscribed to
+-  `external_auth`: whether the user was authenticated by an external authentication source (LDAP, External Backend, ...)
 
 #### Error Responses
 

@@ -18,7 +18,7 @@ A `GET` on the root url of the model MyModel will retrieve all instances of this
 
 - **Method** : `GET`
 
-- **Endpoint**: `https://<webapp>/api/v1.1/my-model/`
+- **Endpoint** : `https://<webapp>/api/v1.1/my-model/`
 
 - **Example** :
 
@@ -80,7 +80,7 @@ A `POST` on the root url of the model MyModel will create a new instance of this
 
 - **Method** : `POST`
 
-- **Endpoint**: `https://<webapp>/api/v1.1/my-model/`
+- **Endpoint** : `https://<webapp>/api/v1.1/my-model/`
 
 - **Example** :
 
@@ -104,7 +104,7 @@ A `GET` on the url of a given instance of model MyModel will retrieve the fields
 
 - **Method** : `GET`
 
-- **Endpoint**: `https://<webapp>/api/v1.1/my-model/<uid>/`
+- **Endpoint** : `https://<webapp>/api/v1.1/my-model/<uid>/`
 
 - **Example** :
 
@@ -126,7 +126,7 @@ A `PATCH` on the url of a given instance of model MyModel will update the fields
 
 - **Method** : `PATCH`
 
-- **Endpoint**: `https://<webapp>/api/v1.1/my-model/<uid>/`
+- **Endpoint** : `https://<webapp>/api/v1.1/my-model/<uid>/`
 
 - **Example** :
 
@@ -148,7 +148,7 @@ A `PUT` on the url of a given instance of model MyModel will update the fields o
 
 - **Method** : `PUT`
 
-- **Endpoint**: `https://<webapp>/api/v1.1/my-model/<uid>/`
+- **Endpoint** : `https://<webapp>/api/v1.1/my-model/<uid>/`
 
 - **Example** :
 
@@ -170,7 +170,7 @@ A `DELETE` on the url of a given instance of model MyModel will retrieve the fie
 
 - **Method** : `DELETE`
 
-- **Endpoint**: `https://<webapp>/api/v1.1/my-model/<uid>/`
+- **Endpoint** : `https://<webapp>/api/v1.1/my-model/<uid>/`
 
 - **Example** :
 
@@ -185,7 +185,7 @@ curl \
 
 **Response** : with status code HTTP `204 (NO CONTENT)`, the response body is empty.
 
-This operation could fail, if the instance is a related to a protected instance, it cannot be deleted. In this case, the status code HTTP is `412 (PRECONDITION FAILED)`.
+This operation could fail, if the instance is a related to a protected instance, it cannot be deleted. In this case, the status code HTTP is `412 (PRECONDITION FAILED)` with the error code `"PROTECTED_RELATION"` in the response.
 
 
 ### Specific API endpoints
@@ -206,7 +206,7 @@ This operation could fail, if the instance is a related to a protected instance,
 
 - **Url** : `account/me/` 
 - **Method** : `GET`
-- **Description** : allows a user to retrieve its own information on the API
+- **Description** : allows a user to retrieve his own information on the API
 
 **Request** :
 
@@ -216,7 +216,26 @@ curl \
   "https://<webapp>/api/v1.1/account/me/"
 ```
 
-**Response** : `200 OK` with the JSON containing the user's information.
+**Response** : `200 (OK)` with the JSON containing the user's information.
+
+#### Change user information on Account Me
+
+- **Url** : `account/me/` 
+- **Method** : `GET`
+- **Description** : allows a user to update his own information on the API
+
+**Request** :
+
+```shell
+curl \
+  -X PATCH \
+  -H "Authorization: Token <auth_token>" \
+  -d "<JSON data to update>" \
+  "https://<webapp>/api/v1.1/account/me/"
+```
+
+**Response** : `200 (OK)` with the JSON containing the user's information.
+
 
 #### Change Password
 
@@ -226,22 +245,24 @@ curl \
 
 **Request** : Two use cases can be found for this endpoint:
 
-if a user's password has expired, this user will receive a `password_change_token` when attempting to log in the plateform with his expired password. He can use this token to change his own password:
+_With a `password_change_token`_ : A user which password expired or who forgot his password he can use a `password_change_token` to change his password. (This token is either returned by login with an expired password, or sent in email after attempting a reset password)
 
 ```shell
 curl \
   -X POST \
-  -d '{"email": "<user_email>","password1":"<new_password>","password2":"<new_password>","password_modification_token":"<token_returned_by_login>"}' \
+  -d '{"email": "<user_email>","password1":"<new_password>","password2":"<new_password>","password_change_token":"<token_returned_by_login>"}' \
   "https://<webapp>/api/v1.1/auth/change-password/"
 ```
 
-**Response** : `200 OK` with the JSON containing the user's information.
+**Response** : `200 (OK)` with the JSON containing the user's information.
 
-if a user of a level manager or above wants to change another user's password. Thus, the requester should satisfy either one of these conditions:
+_Without a `password_change_token`_ : A user can change his own password any time he wants if he is logger to the API.
+
+Besides, a user of a level manager or above (requester) is able to change another user's password (target). Thus, he (the requester) should satisfy either one of these conditions:
 
 -  is superuser
 -  is admin and the password that he attempts to changes belongs to a manager or a simple user
--  is manager and he has the same scope that the targeted user (if datamodel is not scoped, no manager can change another user's password)
+-  is manager, the target is a simple user and he has the same scope that the targeted user (if datamodel is not scoped, no manager can change any other user's password)
 
 ```shell
 curl \
@@ -251,7 +272,7 @@ curl \
   "https://<webapp>/api/v1.1/auth/change-password/"
 ```
 
-**Response** : `200 OK` with the following JSON:
+**Response** : `200 (OK)` with the following JSON:
 
 ```json
 {
@@ -265,6 +286,85 @@ curl \
 - **Url** : `auth/reset-password/` 
 - **Method** : `POST`
 - **Description** : allows a user to request a reset of his own password if he has forgotten it (see [authentication](authentication.md) section).
+
+#### Two Factor Login
+
+- **Url** : `auth/two-factor/login/` (only for API v1.1) 
+- **Method** : `POST`
+- **Description** : If MultiFactorAuthentication is enabled (USE_TWO_FACTOR_AUTH is True in settings), allows a user to confirm his authentication to the API.
+
+**Request** :
+
+```shell
+curl \
+  -X POST \
+  -d '{"email": "<user_email>", "token": "<mfa_temp_token>", "verification_code": "<mfa_verification_code>"}' \
+  "https://<webapp>/api/v1.1/secure-connect/retrieve-token/"
+```
+
+**Response** : `200 (OK)` with the JSON containing the user's information.
+
+**Response** : `401 (UNAUTHORIZED)` if the email does not exist with the following JSON:
+```json
+{
+    'message': 'Wrong auth credentials',
+    "_errors": ["WRONG_AUTH_CREDENTIALS"],
+}
+```
+
+**Response** : `401 (UNAUTHORIZED)` if the the token in invalid with the following JSON:
+```json
+{
+    'message': 'MFA temp token invalid',
+    "_errors": ["MFA_TEMP_TOKEN_INVALID"],
+}
+```
+
+**Response** : `401 (UNAUTHORIZED)` if the the token has expired with the following JSON:
+```json
+{
+    'message': 'MFA temp token expired',
+    "_errors": ["MFA_TEMP_TOKEN_EXPIRED"],
+}
+```
+
+**Response** : `401 (UNAUTHORIZED)` if the the MFA code is invalid with the following JSON:
+```json
+{
+    'message': 'Wrong verification code',
+    "_errors": ["WRONG_VERIFICATION_CODE"],
+}
+```
+
+#### LDAP Login
+
+- **Url** : `auth/ldap/login/`
+- **Method** : `POST`
+- **Description** : allows a user to authenticate using LDAP authentication.
+**Request** :
+
+```shell
+curl \
+  -X POST \
+  -d '{"username": "<user_username>", "password": "<user_password>"}' \
+  "https://<webapp>/api/v1.1/secure-connect/retrieve-token/"
+```
+
+**Response** : `200 (OK)` with the JSON containing the user's information.
+
+**Response** : `401 (UNAUTHORIZED)` if the user does not exist with the following JSON:
+```json
+{
+    'message': 'Wrong auth credentials',
+    "_errors": ["WRONG_AUTH_CREDENTIALS"],
+}
+```
+
+```json
+{
+    "message": "Token created and email sent"
+}
+```
 
 #### Secure Connect
 
@@ -290,11 +390,21 @@ curl \
 }
 ```
 
+**Response** : `400 (BAD REQUEST)` if the user does not exist with the following JSON:
+
+```json
+{
+    "message": "Wrong email address",
+    "_errors": ["WRONG_EMAIL_ADDRESS"],
+}
+```
+
 ##### Generate Token
 
 - **Url** : `secure-connect/generate-token/`
 - **Method** : `POST`
 - **Description** : allows a **superuser** to retrieve a user's token.
+
 **Request** :
 
 ```shell
@@ -313,6 +423,15 @@ curl \
 }
 ```
 
+**Response** : `400 (BAD REQUEST)` if the user does not exist with the following JSON:
+
+```json
+{
+    "message": "Wrong email address",
+    "_errors": ["WRONG_EMAIL_ADDRESS"],
+}
+```
+
 ##### Login
 
 - **Url** : `secure-connect/login/`
@@ -327,7 +446,25 @@ curl \
   "https://<webapp>/api/v1.1/secure-connect/login/"
 ```
 
-**Response** : `200 OK` with the JSON containing the user's information.
+**Response** : `401 (UNAUTHORIZED)` if the token is invalid with the following JSON:
+
+```json
+{
+    'message': 'Invalid token',
+    "_errors": ["INVALID_TOKEN"],
+}
+```
+
+**Response** : `403 (FORBIDDEN)` if the token has expired with the following JSON:
+
+```json
+{
+    "message": "Token has expired",
+    "_errors": ["TOKEN_HAS_EXPIRED"],
+}
+```
+
+**Response** : `200 (OK)` with the JSON containing the user's information.
 
 #### <a name="Blockedusers"></a>Access bloqued users
 
@@ -342,7 +479,7 @@ curl \
   "https://<webapp>/api/v1.1/blocked-users/"
 ```
 
-**Response** : `200 OK`:
+**Response** : `200 (OK)`:
 
 ```json
 {
@@ -384,7 +521,7 @@ curl \
   "https://<webapp>/api/v1.1/blocked-users/<user_uid>/"
 ```
 
-**Response** : `200 OK` with the JSON containing the blocked user's information.
+**Response** : `200 (OK)` with the JSON containing the blocked user's information.
 
 #### Unblock blocked user(s)
 
@@ -401,7 +538,7 @@ curl \
   "https://<webapp>/api/v1.1/unblock-users/"
 ```
 
-**Response** : `200 OK` with the following JSON:
+**Response** : `200 (OK)` with the following JSON:
 
 ```json
 {
