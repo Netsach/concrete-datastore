@@ -38,17 +38,19 @@ REST_FRAMEWORK['PAGE_SIZE'] = 10
 # if django.db.utils.OperationalError: FATAL:  role "user-concrete-datastore" does not exist
 # Open a psql shell and
 #  > CREATE USER "user-concrete-datastore" WITH PASSWORD 'pwd-concrete-datastore';
-#  > CREATE DATABASE "db-concrete-datastore-2";
-#  > GRANT ALL PRIVILEGES ON DATABASE "db-concrete-datastore-2" to "user-concrete-datastore";
+#  > CREATE DATABASE "db-concrete-datastore";
+#  > GRANT ALL PRIVILEGES ON DATABASE "db-concrete-datastore" to "user-concrete-datastore";
 #  > ALTER ROLE "user-concrete-datastore" CREATEDB;
 
 ADMIN_SHOW_USER_PERMISSIONS = True
 
-POSTGRES_DB = os.environ.get('POSTGRES_DB', 'db-concrete-datastore-2')
+POSTGRES_DB = os.environ.get('POSTGRES_DB', 'db-concrete-datastore')
 
 POSTGRES_USER = os.environ.get('POSTGRES_USER', 'user-concrete-datastore')
 
-POSTGRES_PASSWORD = os.environ.get('POSTGRES_PASSWORD', 'pwd-concrete-datastore')
+POSTGRES_PASSWORD = os.environ.get(
+    'POSTGRES_PASSWORD', 'pwd-concrete-datastore'
+)
 
 POSTGRES_HOST = os.environ.get('POSTGRES_HOST', 'localhost')
 

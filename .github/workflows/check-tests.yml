@@ -10,7 +10,17 @@ jobs:
       max-parallel: 2
       matrix:
         python-version: [3.6,3.7,3.8]
-
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: db-concrete-datastore
+          POSTGRES_USER: user-concrete-datastore
+          POSTGRES_PASSWORD: pwd-concrete-datastore
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+        ports:
+        - 5432:5432
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python ${{ matrix.python-version }}
