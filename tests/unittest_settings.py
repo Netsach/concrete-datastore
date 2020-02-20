@@ -37,10 +37,10 @@ REST_FRAMEWORK['PAGE_SIZE'] = 10
 
 # if django.db.utils.OperationalError: FATAL:  role "user-concrete-datastore" does not exist
 # Open a psql shell and
-#  > CREATE USER user-concrete-datastore WITH PASSWORD 'pwd-concrete-datastore';
-#  > CREATE DATABASE db-concrete-datastore-2;
-#  > GRANT ALL PRIVILEGES ON DATABASE db-concrete-datastore-2 to user-concrete-datastore;
-#  > ALTER ROLE user-concrete-datastore CREATEDB;
+#  > CREATE USER "user-concrete-datastore" WITH PASSWORD 'pwd-concrete-datastore';
+#  > CREATE DATABASE "db-concrete-datastore-2";
+#  > GRANT ALL PRIVILEGES ON DATABASE "db-concrete-datastore-2" to "user-concrete-datastore";
+#  > ALTER ROLE "user-concrete-datastore" CREATEDB;
 
 ADMIN_SHOW_USER_PERMISSIONS = True
 

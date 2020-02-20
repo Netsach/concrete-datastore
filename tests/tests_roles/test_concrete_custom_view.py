@@ -57,8 +57,8 @@ class CustomConcreteAPIViewTestCase(APITestCase):
         self.retrieve_role.users.add(self.superuser)
 
         self.project_1 = Project.objects.create(name="instance1")
-        self.role_url = '/api/v1.1/concrete-role/'
-        self.permission_url = '/api/v1.1/concrete-permission/'
+        self.role_url = '/api/v1.1/acl/role/'
+        self.permission_url = '/api/v1.1/acl/permission/'
 
     def test_json_response_for_list_roles(self):
         resp = self.client.get(
