@@ -14,10 +14,10 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_DB: db-test-concrete-server
-          POSTGRES_USER: user-test-concrete-server
-          POSTGRES_PASSWORD: pwd-test-concrete-server
-          POSTGRES_HOST: postgres
+          POSTGRES_DB: db-concrete-datastore
+          POSTGRES_USER: user-concrete-datastore
+          POSTGRES_PASSWORD: pwd-concrete-datastore
+          POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
         ports:
         - 5432:5432
