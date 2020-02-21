@@ -2,7 +2,7 @@
 
 For all the routes listed below, the API response has the following **failure status codes**:
 
-- `401 UNAUTHORIZED`: if the user has not the rigths to access the data.
+- `401 UNAUTHORIZED`: if the user has not the rights to access the data.
 - `403 FORBIDDEN`: if the user is not authenticated to the API.
 - `404 NOT FOUND`: if the url is not found.
 
