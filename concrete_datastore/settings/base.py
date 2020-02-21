@@ -95,7 +95,9 @@ SECURE_TOKEN_MESSAGE_BODY = """
 </html>
 """  # nosec
 
-DEFAULT_RESET_PASSWORD_URL_FORMAT = '/#/reset-password/{token}/{email}/'  # nosec
+DEFAULT_RESET_PASSWORD_URL_FORMAT = (
+    '/#/reset-password/{token}/{email}/'  # nosec
+)
 
 AUTH_CONFIRM_RESET_PASSWORD_EMAIL_BODY = """
 <html>
