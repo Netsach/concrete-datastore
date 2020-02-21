@@ -101,7 +101,7 @@ Used to register to the application.
 }
 ```
 
-**Condition** : If the `url_format` has not the rigth format.
+**Condition** : If the `url_format` has not the right format.
 
 **Code** : `400 BAD REQUEST`
 
@@ -113,7 +113,7 @@ Used to register to the application.
 }
 ```
 
-**Condition** : If the `email_format` has not the rigth format.
+**Condition** : If the `email_format` has not the right format.
 
 **Code** : `400 BAD REQUEST`
 
