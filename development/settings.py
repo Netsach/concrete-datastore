@@ -63,10 +63,10 @@ META_MODEL_DEFINITIONS = load_datamodel(
 
 DISABLED_MODELS = ()
 
-EMAIL_HOST = os.environ.get("EMAIL_HOST", 'localhost')
+EMAIL_HOST = os.environ.get("EMAIL_HOST", '')
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", '')
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", '')
-EMAIL_PORT = os.environ.get("EMAIL_PORT", 1025)
+EMAIL_PORT = os.environ.get("EMAIL_PORT", 587)
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_TIMEOUT = None

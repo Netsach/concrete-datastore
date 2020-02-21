@@ -95,6 +95,8 @@ SECURE_TOKEN_MESSAGE_BODY = """
 </html>
 """  # nosec
 
+DEFAULT_RESET_PASSWORD_URL_FORMAT = '/#/reset-password/{token}/{email}/'
+
 AUTH_CONFIRM_RESET_PASSWORD_EMAIL_BODY = """
 <html>
 <body>
@@ -446,6 +448,10 @@ USERNAME_AUTH_KEY = 'email'
 BACKEND_GROUP_CREATION_RULE = 'concrete_datastore.api.v1.authentication.default_backend_group_creation_rule'
 
 ALLOW_SEND_EMAIL_ON_REGISTER = True
+
+REGISTER_EMAIL_SUBJECT = "Account created"
+
+DEFAULT_REGISTER_URL_FORMAT = '/#/set-password/{token}/{email}/'
 
 DEFAULT_REGISTER_EMAIL_FORMAT = """
 <html>

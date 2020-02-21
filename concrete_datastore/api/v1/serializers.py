@@ -64,7 +64,11 @@ class RegisterSerializer(serializers.Serializer):
     password1 = serializers.CharField(required=False, allow_null=True)
     password2 = serializers.CharField(required=False, allow_null=True)
     email_format = serializers.CharField(required=False, allow_null=True)
-    url_format = serializers.CharField(required=False, allow_null=True)
+    url_format = serializers.CharField(
+        required=False,
+        allow_null=True,
+        default=settings.DEFAULT_REGISTER_URL_FORMAT,
+    )
 
     class Meta:
         fields = (
@@ -77,20 +81,24 @@ class RegisterSerializer(serializers.Serializer):
 
     def validate_url_format(self, value):
         if value is None:
-            return '/#/set-password/{token}/{email}/'
+            return settings.DEFAULT_REGISTER_URL_FORMAT
         return value
 
 
 class ResetPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    url_format = serializers.CharField(required=False, allow_null=True)
+    url_format = serializers.CharField(
+        required=False,
+        allow_null=True,
+        default=settings.DEFAULT_RESET_PASSWORD_URL_FORMAT,
+    )
 
     class Meta:
         fields = ("email", "url_format")
 
     def validate_url_format(self, value):
         if value is None:
-            return '/#/reset-password/{token}/{email}/'
+            return settings.DEFAULT_RESET_PASSWORD_URL_FORMAT
         return value
 
 

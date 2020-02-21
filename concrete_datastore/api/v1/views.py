@@ -984,7 +984,7 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
                     confirmation.send_link(body=email_body)
             else:
                 Email.objects.create(
-                    subject='Set password',
+                    subject=settings.REGISTER_EMAIL_SUBJECT,
                     resource_status='to-send',
                     resource_message='',
                     body=email_body,
