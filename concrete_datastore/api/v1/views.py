@@ -966,9 +966,11 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
                 'HTTP_REFERER', settings.AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO
             )
 
-            email_format = serializer.validated_data.get(
-                'email_format', settings.DEFAULT_REGISTER_EMAIL_FORMAT
+            email_format = (
+                serializer.validated_data.get('email_format')
+                or settings.DEFAULT_REGISTER_EMAIL_FORMAT
             )
+
             link = urljoin(referer, uri)
 
             email_body = email_format.format(link=link)

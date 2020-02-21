@@ -109,7 +109,7 @@ concrete_datastore/concrete/migrations/0*
 .virtualenv2-ci
 env-ci/
 .integration-setup
-datamodel/*
+development/datamodel/*
 .installed-requirements.txt
 bin
 local-migrations/

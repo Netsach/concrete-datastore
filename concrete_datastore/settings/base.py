@@ -445,7 +445,7 @@ USERNAME_AUTH_KEY = 'email'
 # Backend login group creation rule
 BACKEND_GROUP_CREATION_RULE = 'concrete_datastore.api.v1.authentication.default_backend_group_creation_rule'
 
-ALLOW_SEND_EMAIL_ON_REGISTER = False
+ALLOW_SEND_EMAIL_ON_REGISTER = True
 
 DEFAULT_REGISTER_EMAIL_FORMAT = """
 <html>
