@@ -10,6 +10,7 @@
 
 - fixed password change token expiry computation
 - fixed register serializer to allow null values of url_format and email_format
+- register email subject in settings
 
 ### Removed
 

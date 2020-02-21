@@ -447,6 +447,8 @@ BACKEND_GROUP_CREATION_RULE = 'concrete_datastore.api.v1.authentication.default_
 
 ALLOW_SEND_EMAIL_ON_REGISTER = True
 
+REGISTER_EMAIL_SUBJECT = "Account created"
+
 DEFAULT_REGISTER_EMAIL_FORMAT = """
 <html>
 <body>
