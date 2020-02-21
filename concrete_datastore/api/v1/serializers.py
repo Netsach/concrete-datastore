@@ -75,13 +75,10 @@ class RegisterSerializer(serializers.Serializer):
             "url_format",
         )
 
-    @property
-    def validated_data(self):
-        _validated_data = super().validated_data
-        if _validated_data.get('url_format') is None:
-            _validated_data['url_format'] = '/#/set-password/{token}/{email}/'
-
-        return _validated_data
+    def validate_url_format(self, value):
+        if value is None:
+            return '/#/set-password/{token}/{email}/'
+        return value
 
 
 class ResetPasswordSerializer(serializers.Serializer):
@@ -91,15 +88,10 @@ class ResetPasswordSerializer(serializers.Serializer):
     class Meta:
         fields = ("email", "url_format")
 
-    @property
-    def validated_data(self):
-        _validated_data = super().validated_data
-        if _validated_data.get('url_format') is None:
-            _validated_data[
-                'url_format'
-            ] = '/#/reset-password/{token}/{email}/'
-
-        return _validated_data
+    def validate_url_format(self, value):
+        if value is None:
+            return '/#/reset-password/{token}/{email}/'
+        return value
 
 
 class UserSerializer(serializers.ModelSerializer):
