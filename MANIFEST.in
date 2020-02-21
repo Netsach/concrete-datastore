@@ -6,6 +6,7 @@ prune concrete_datastore/settings/static/
 prune concrete_datastore/settings/media/
 prune concrete_datastore/settings/logs/
 graft docs
+prune development
 prune tests
 global-exclude __pycache__
 global-exclude *.py[co]
