@@ -95,7 +95,7 @@ SECURE_TOKEN_MESSAGE_BODY = """
 </html>
 """  # nosec
 
-DEFAULT_RESET_PASSWORD_URL_FORMAT = '/#/reset-password/{token}/{email}/'
+DEFAULT_RESET_PASSWORD_URL_FORMAT = '/#/reset-password/{token}/{email}/'  # nosec
 
 AUTH_CONFIRM_RESET_PASSWORD_EMAIL_BODY = """
 <html>
@@ -451,7 +451,7 @@ ALLOW_SEND_EMAIL_ON_REGISTER = True
 
 REGISTER_EMAIL_SUBJECT = "Account created"
 
-DEFAULT_REGISTER_URL_FORMAT = '/#/set-password/{token}/{email}/'
+DEFAULT_REGISTER_URL_FORMAT = '/#/set-password/{token}/{email}/'  # nosec
 
 DEFAULT_REGISTER_EMAIL_FORMAT = """
 <html>
