@@ -61,12 +61,10 @@ class SecureLoginSerializer(serializers.Serializer):
 
 class RegisterSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    password1 = serializers.CharField(required=False)
-    password2 = serializers.CharField(required=False)
-    email_format = serializers.CharField(required=False)
-    url_format = serializers.CharField(
-        required=False, default='/#/set-password/{token}/{email}/'
-    )
+    password1 = serializers.CharField(required=False, allow_null=True)
+    password2 = serializers.CharField(required=False, allow_null=True)
+    email_format = serializers.CharField(required=False, allow_null=True)
+    url_format = serializers.CharField(required=False, allow_null=True)
 
     class Meta:
         fields = (
@@ -77,15 +75,23 @@ class RegisterSerializer(serializers.Serializer):
             "url_format",
         )
 
+    def validate_url_format(self, value):
+        if value is None:
+            return '/#/set-password/{token}/{email}/'
+        return value
+
 
 class ResetPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    url_format = serializers.CharField(
-        required=False, default='/#/reset-password/{token}/{email}/'
-    )
+    url_format = serializers.CharField(required=False, allow_null=True)
 
     class Meta:
         fields = ("email", "url_format")
+
+    def validate_url_format(self, value):
+        if value is None:
+            return '/#/reset-password/{token}/{email}/'
+        return value
 
 
 class UserSerializer(serializers.ModelSerializer):

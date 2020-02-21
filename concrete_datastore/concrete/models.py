@@ -63,7 +63,7 @@ def compute_auth_token_expiry():
 
 def compute_pwd_change_token_expiry():
     now = pendulum.now('utc')
-    return now.add(minutes=settings.PASSWORD_CHANGE_TOKEN_EXPIRY_HOURS)
+    return now.add(hours=settings.PASSWORD_CHANGE_TOKEN_EXPIRY_HOURS)
 
 
 class AuthToken(Token):

@@ -19,11 +19,13 @@ SECRET_KEY = 'development_settings_secret_key'  # nosec
 # ALTER DATABASE "db-concrete-datastore" OWNER TO "user-concrete-datastore";
 # GRANT ALL PRIVILEGES ON DATABASE "db-concrete-datastore" to "user-concrete-datastore";
 
-POSTGRES_DB = os.environ.get('POSTGRES_DB', 'db-concrete-datastore-2')
+POSTGRES_DB = os.environ.get('POSTGRES_DB', 'db-concrete-datastore')
 
 POSTGRES_USER = os.environ.get('POSTGRES_USER', 'user-concrete-datastore')
 
-POSTGRES_PASSWORD = os.environ.get('POSTGRES_PASSWORD', 'pwd-concrete-datastore')
+POSTGRES_PASSWORD = os.environ.get(
+    'POSTGRES_PASSWORD', 'pwd-concrete-datastore'
+)
 
 POSTGRES_HOST = os.environ.get('POSTGRES_HOST', 'localhost')
 
@@ -55,16 +57,16 @@ PORT = "8000"
 
 META_MODEL_DEFINITIONS = load_datamodel(
     datamodel_path=os.path.join(
-        PROJECT_ROOT,
-        'datamodel/current-datamodel.json')
+        PROJECT_ROOT, 'datamodel/current-datamodel.json'
+    )
 )
 
 DISABLED_MODELS = ()
 
-EMAIL_HOST = os.environ.get("EMAIL_HOST", '')
+EMAIL_HOST = os.environ.get("EMAIL_HOST", 'localhost')
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", '')
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", '')
-EMAIL_PORT = os.environ.get("EMAIL_PORT", 587)
+EMAIL_PORT = os.environ.get("EMAIL_PORT", 1025)
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_TIMEOUT = None
