@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- admin view rearranged
 
 ### Removed
 
