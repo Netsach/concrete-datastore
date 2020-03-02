@@ -29,6 +29,12 @@ from concrete_datastore.concrete.meta import get_meta_definition_by_model_name
 concrete = apps.get_app_config('concrete')
 
 
+class ProcessRegisterSerializer(serializers.Serializer):
+    application = serializers.CharField(max_length=200, required=True)
+    instance = serializers.CharField(max_length=200, required=True)
+    token = serializers.CharField(max_length=40, required=True)
+
+
 def make_serializer_class(
     meta_model,
     api_namespace=DEFAULT_API_NAMESPACE,

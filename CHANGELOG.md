@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- add process autoregister
 
 ### Changed
 

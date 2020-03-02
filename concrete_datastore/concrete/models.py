@@ -439,7 +439,9 @@ class HasPermissionAbstractUser(models.Model):
             self.save()
 
     def get_level(self):
-        if self.is_superuser:
+        if self.is_active is False:
+            return 'Blocked'
+        elif self.is_superuser:
             return 'SuperUser'
         elif self.admin:
             return 'Admin'

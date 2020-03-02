@@ -23,6 +23,7 @@ from concrete_datastore.api.v1_1.views import (  # pylint:disable=E0611
     UnBlockUsersApiViewset,
     BlockedUsersApiViewset,
     AccountMeApiView,
+    ProcessRegisterApiView,
 )
 from concrete_datastore.api.v1_1 import views, API_NAMESPACE
 
@@ -112,6 +113,11 @@ specific_urlpatterns = [
         r'secure-connect/generate-token',
         GenerateSecureTokenApiView.as_view(),
         name='generate-secure-token',
+    ),
+    re_path(
+        r'process/register/',
+        ProcessRegisterApiView.as_view(),
+        name='process-register',
     ),
     re_path(
         r'unblock-users',
