@@ -68,10 +68,10 @@ TYPE_EQ = {
 EMPTY_VALUES_MAP = {
     'TextField': {'empty_value': '', 'field_type': str},
     'CharField': {'empty_value': '', 'field_type': str},
-    'IntegerField': {'empty_value': 0, 'field_type': int},
-    'FloatField': {'empty_value': 0.0, 'field_type': float},
-    'DecimalField': {'empty_value': Decimal(0), 'field_type': Decimal},
-    'JSONField': {'empty_value': {}, 'field_type': dict},
-    'BigIntegerField': {'empty_value': 0, 'field_type': int},
     'BooleanField': {'empty_value': None, 'field_type': bool},
+    #:  For numeric fields, we allow any numeric value
+    'BigIntegerField': {'empty_value': None, 'field_type': int},
+    'IntegerField': {'empty_value': None, 'field_type': int},
+    'FloatField': {'empty_value': None, 'field_type': float},
+    'DecimalField': {'empty_value': None, 'field_type': Decimal},
 }
