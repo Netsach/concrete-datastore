@@ -1,0 +1,47 @@
+{% extends "admin/index.html" %}
+{% load i18n admin_urls static admin_list %}
+{% block content %}
+<div id="content-main">
+
+{% if app_list %}
+    {% for models_group in app_list %}
+        <div class="app-{{ models_group.app_label }} module">
+        <table>
+        {% if models_group.group_name %}
+        <caption>{{ models_group.group_name }}</caption>
+        {% else %}
+        <caption>{{ models_group.name }}</caption>
+        {% endif %}
+        {% for model in models_group.models %}
+            <tr class="model-{{ model.object_name|lower }}">
+            {% if model.admin_url %}
+                <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+            {% else %}
+                <th scope="row">{{ model.name }}</th>
+            {% endif %}
+
+            {% if model.add_url %}
+                <td><a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a></td>
+            {% else %}
+                <td>&nbsp;</td>
+            {% endif %}
+
+            {% if model.admin_url %}
+                {% if model.view_only %}
+                <td><a href="{{ model.admin_url }}" class="viewlink">{% trans 'View' %}</a></td>
+                {% else %}
+                <td><a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a></td>
+                {% endif %}
+            {% else %}
+                <td>&nbsp;</td>
+            {% endif %}
+            </tr>
+        {% endfor %}
+        </table>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>{% trans "You don't have permission to view or edit anything." %}</p>
+{% endif %}
+</div>
+{% endblock %}
