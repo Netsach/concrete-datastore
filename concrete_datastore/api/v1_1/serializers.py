@@ -88,7 +88,6 @@ def make_serializer_class(
     class Meta:
         model = concrete.models[meta_model.get_model_name().lower()]
         fields = _fields
-
         read_only_fields = (
             ['created_by', 'admin', 'is_staff']
             + fk_read_only_fields

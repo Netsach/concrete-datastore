@@ -1,44 +1,23 @@
 # coding: utf-8
+
 from django.apps import apps
 from django.conf import settings
 from django.contrib import admin
-from django_otp.admin import OTPAdminSite
 from django.utils.translation import ugettext_lazy as _
 
 from concrete_datastore.concrete.meta import list_of_meta
 from concrete_datastore.admin.admin_models import MetaUserAdmin, MetaAdmin
-from concrete_datastore.admin.admin_form import (
-    MyAuthForm,
-    OTPAuthenticationForm,
-)
+from concrete_datastore.admin.admin_site import get_admin_site
 from concrete_datastore.concrete.models import (
-    SecureConnectToken,
     ConcreteRole,
     AuthToken,
     ConcretePermission,
-    EmailDevice,
-    TemporaryToken,
 )
 from concrete_datastore.concrete.models import (
     divider,
     divider_field_name,
     UNDIVIDED_MODEL,
 )
-
-
-def get_admin_site():
-    admin_site = admin.site
-    login_form = MyAuthForm
-    if settings.USE_TWO_FACTOR_AUTH:
-        admin_site = OTPAdminSite(name='admin')
-        admin_site.login_template = "admin/mfa-login.html"
-        login_form = OTPAuthenticationForm
-        #:  the default "admin.site" contains already auth.Group
-        #:  and auth.Site models registered. We copy them
-        #:  into our custom admin site
-        admin_site._registry = admin.site._registry.copy()
-    admin_site.login_form = login_form
-    return admin_site
 
 
 main_app = apps.get_app_config('concrete')
@@ -125,14 +104,6 @@ for meta_model in list_of_meta:
     )
 
 
-class SecureConnectTokenAdmin(admin.ModelAdmin):
-    list_display = ['value', 'user', 'expired']
-    search_fields = ['user']
-
-
-admin_site.register(SecureConnectToken, SecureConnectTokenAdmin)
-
-
 @admin.register(AuthToken, site=admin_site)
 class AuthTokenAdmin(admin.ModelAdmin):
     ordering = ('expiration_date',)
@@ -154,52 +125,6 @@ class SaveModelMixin:
         if change is False:
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
-
-
-@admin.register(EmailDevice, site=admin_site)
-class EmailDeviceAdmin(admin.ModelAdmin, SaveModelMixin):
-    """
-    :class:`~django.contrib.admin.ModelAdmin` for
-    :class:`~django_otp.plugins.otp_email.models.EmailDevice`.
-    """
-
-    fieldsets = [
-        ('Identity', {'fields': ('user', 'name', 'email', 'confirmed')}),
-        ('Configuration', {'fields': ('key',)}),
-        ('Dates', {'fields': ('creation_date', 'modification_date')}),
-        ('Permissions', {'fields': ('created_by',)}),
-    ]
-    list_display = [
-        'user',
-        'name',
-        'email',
-        'confirmed',
-        'creation_date',
-        'modification_date',
-    ]
-
-    readonly_fields = [
-        'key',
-        'created_by',
-        'creation_date',
-        'modification_date',
-    ]
-
-
-@admin.register(TemporaryToken, site=admin_site)
-class TemporaryTokenAdmin(admin.ModelAdmin):
-    fields = ('key', 'user', 'expired', 'creation_date', 'modification_date')
-    ordering = ('-modification_date', '-creation_date')
-    list_display = (
-        'key',
-        'user',
-        'expired',
-        'creation_date',
-        'modification_date',
-    )
-    list_filter = ('user', 'expired', 'creation_date', 'modification_date')
-
-    readonly_fields = ('key', 'creation_date', 'modification_date')
 
 
 @admin.register(ConcretePermission, site=admin_site)
