@@ -19,7 +19,7 @@ from concrete_datastore.concrete.models import (
 )
 from concrete_datastore.api.v1.validators import (
     validate_file,
-    validate_required,
+    get_validate_field_function,
     is_field_required,
 )
 from concrete_datastore.concrete.meta import meta_registered
@@ -435,7 +435,9 @@ def make_serializer_class(
                 return ''
 
     for name, field in enum_fields:
-        attrs.update({f'validate_{name}': validate_required(field=field)})
+        attrs.update(
+            {f'validate_{name}': get_validate_field_function(field=field)}
+        )
         if field.type.startswith("rel_i"):
             x = field.f_args["to"].split('.')
             field_model = apps.get_model(app_label=x[0], model_name=x[1])

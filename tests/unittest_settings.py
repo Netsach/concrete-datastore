@@ -812,7 +812,7 @@ META_MODEL_DEFINITIONS = (
             },
             {
                 "std.specifier": "Field",
-                "ext.f_args": {"default": 0, "null": False, "blank": False},
+                "ext.f_args": {"null": False, "blank": False},
                 "std.verbose_name": "nb_articles",
                 "ext.force_nested": False,
                 "std.name": "nb_articles",
@@ -843,7 +843,7 @@ META_MODEL_DEFINITIONS = (
                 "std.description": "sold",
                 "std.type": "data",
                 "ext.f_type": "BooleanField",
-                "ext.f_args": {'default': False, 'blank': False},
+                "ext.f_args": {'blank': False, 'default': False},
             },
         ],
         "std.specifier": "Model",

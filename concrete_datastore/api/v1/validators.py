@@ -8,7 +8,7 @@ def validate_file(fieldfile_obj):
         raise ValidationError("Error : missing file.")
 
 
-def validate_required(field):
+def get_validate_field_function(field):
     # a field's value is considered INVALID if this field
     # is not allowed to be blank AND the value is empty
     empty_value = EMPTY_VALUES_MAP.get(field.f_type, {}).get(

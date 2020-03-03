@@ -1,6 +1,4 @@
 # coding: utf-8
-from decimal import Decimal
-
 ATLEAST_LEVEL_ATTRS = {
     'simpleuser': {'is_active': True},
     'manager': {'is_staff': True},
@@ -68,10 +66,4 @@ TYPE_EQ = {
 EMPTY_VALUES_MAP = {
     'TextField': {'empty_value': '', 'field_type': str},
     'CharField': {'empty_value': '', 'field_type': str},
-    'BooleanField': {'empty_value': None, 'field_type': bool},
-    #:  For numeric fields, we allow any numeric value
-    'BigIntegerField': {'empty_value': None, 'field_type': int},
-    'IntegerField': {'empty_value': None, 'field_type': int},
-    'FloatField': {'empty_value': None, 'field_type': float},
-    'DecimalField': {'empty_value': None, 'field_type': Decimal},
 }
