@@ -8,6 +8,7 @@
 
 ### Changed
 
+- In CharField and TextField serializers, the field is required only if `blank` is `False` AND default value is not an empty string. Otherwise it is not required.
 - admin view rearranged
 
 ### Removed

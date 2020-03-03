@@ -1,5 +1,4 @@
 # coding: utf-8
-
 ATLEAST_LEVEL_ATTRS = {
     'simpleuser': {'is_active': True},
     'manager': {'is_staff': True},
@@ -62,4 +61,9 @@ TYPE_EQ = {
     'DateTimeField': 'datetime',
     'DateField': 'date',
     'BigIntegerField': 'int',
+}
+
+EMPTY_VALUES_MAP = {
+    'TextField': {'empty_value': '', 'field_type': str},
+    'CharField': {'empty_value': '', 'field_type': str},
 }
