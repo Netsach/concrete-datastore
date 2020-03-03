@@ -28,9 +28,11 @@ from concrete_datastore.api.v1_1.permissions import (
     BlockedUsersPermission,
 )
 from concrete_datastore.concrete.meta import list_of_meta
-from concrete_datastore.api.v1.serializers import UserSerializer
-from concrete_datastore.api.v1_1.serializers import (
+from concrete_datastore.api.v1.serializers import (
+    UserSerializer,
     make_serializer_class,
+)
+from concrete_datastore.api.v1_1.serializers import (
     make_account_me_serialier,
     ConcreteRoleSerializer,
     ConcretePermissionSerializer,

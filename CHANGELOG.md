@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- changed serializer fields validations
 
 ### Removed
 
