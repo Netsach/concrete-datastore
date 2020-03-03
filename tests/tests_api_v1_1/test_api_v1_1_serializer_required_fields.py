@@ -13,6 +13,7 @@ class SerializerRequiredFieldsTestCase(APITestCase):
     In this test class we will be creating 'ItemPack' instances
     with different data passed in the request in order to validate
     serializer required fields and validators.
+
     This model has the following fields with the following constraints:
         - field 'name' is required and cannot be NULL
         - field 'description' is not required
@@ -20,10 +21,10 @@ class SerializerRequiredFieldsTestCase(APITestCase):
         - field 'nb_articles' is required and cannot be NULL
         - field 'cost' is not required BUT if found, cannot be NULL
         - field 'sold' is not required BUT if found, cannot be NULL
-    The errors that may accur are the following:
+
+    The errors that may occur are the following:
         - ['This field is required.'] => 'required' validation
         - ['This field may not be blank.'] => 'empty_value' validation
-
     """
 
     def setUp(self):
@@ -42,42 +43,6 @@ class SerializerRequiredFieldsTestCase(APITestCase):
         )
         self.token = resp.data['token']
         self.url = '/api/v1.1/item-pack/'
-
-    def test_required_fields(self):
-        #:  If name is not in request data
-        resp = self.client.post(
-            self.url, data={}, HTTP_AUTHORIZATION=f'Token {self.token}'
-        )
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertNotIn('description', resp.data)
-        self.assertNotIn('status', resp.data)
-        self.assertNotIn('cost', resp.data)
-        self.assertNotIn('sold', resp.data)
-        self.assertDictEqual(
-            resp.data,
-            {
-                'name': ['This field is required.'],
-                'nb_articles': ['This field is required.'],
-            },
-        )
-        resp = self.client.post(
-            self.url,
-            data=json.dumps({}),
-            HTTP_AUTHORIZATION=f'Token {self.token}',
-            content_type="application/json",
-        )
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertNotIn('description', resp.data)
-        self.assertNotIn('status', resp.data)
-        self.assertNotIn('cost', resp.data)
-        self.assertNotIn('sold', resp.data)
-        self.assertDictEqual(
-            resp.data,
-            {
-                'name': ['This field is required.'],
-                'nb_articles': ['This field is required.'],
-            },
-        )
 
     def test_valid_fields(self):
         #:  If no 'application/json' header is passed to request
@@ -134,6 +99,41 @@ class SerializerRequiredFieldsTestCase(APITestCase):
             },
         )
 
+    def test_required_fields(self):
+        resp = self.client.post(
+            self.url, data={}, HTTP_AUTHORIZATION=f'Token {self.token}'
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotIn('description', resp.data)
+        self.assertNotIn('status', resp.data)
+        self.assertNotIn('cost', resp.data)
+        self.assertNotIn('sold', resp.data)
+        self.assertDictEqual(
+            resp.data,
+            {
+                'name': ['This field is required.'],
+                'nb_articles': ['This field is required.'],
+            },
+        )
+        resp = self.client.post(
+            self.url,
+            data=json.dumps({}),
+            HTTP_AUTHORIZATION=f'Token {self.token}',
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotIn('description', resp.data)
+        self.assertNotIn('status', resp.data)
+        self.assertNotIn('cost', resp.data)
+        self.assertNotIn('sold', resp.data)
+        self.assertDictEqual(
+            resp.data,
+            {
+                'name': ['This field is required.'],
+                'nb_articles': ['This field is required.'],
+            },
+        )
+
     def test_valid_data(self):
         self.assertEqual(ItemPack.objects.count(), 0)
         resp = self.client.post(
@@ -147,3 +147,4 @@ class SerializerRequiredFieldsTestCase(APITestCase):
         self.assertEqual(item_pack.status, 'PENDING')  # default value
         self.assertEqual(item_pack.sold, False)  # default value
         self.assertEqual(item_pack.cost, Decimal(10))  # default value
+        self.assertEqual(item_pack.description, '')  # default value
