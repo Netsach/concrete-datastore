@@ -92,14 +92,14 @@ def get_admin_site():
 
     def get_app_list(self, request):
         app_dict = self._build_app_dict(request)
-
+        if not app_dict:
+            return []
         # Sort the apps alphabetically.
         app_list = sorted(app_dict.values(), key=lambda x: x['name'].lower())
 
         # Sort the models alphabetically within each app.
         for app in app_list:
             app['models'].sort(key=lambda x: x['name'])
-
         concrete_app_filter = filter(
             lambda x: x['app_label'].lower() == 'concrete', app_list
         )

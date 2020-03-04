@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Fix error when an user not authenticated access the admin views
 
 ### Changed
 
