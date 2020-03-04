@@ -4,7 +4,7 @@
 
 ### Added
 
-- Fix error when an user not authenticated access the admin views
+- nothing added
 
 ### Changed
 
@@ -13,6 +13,12 @@
 ### Removed
 
 - nothing removed
+
+## [1.4.0] - 2020-03-04
+
+### Added
+
+- Fix error when an user not authenticated access the admin views
 
 ## [1.3.0] - 2020-03-03
 
