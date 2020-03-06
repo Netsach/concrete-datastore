@@ -117,7 +117,7 @@ specific_urlpatterns = [
     re_path(
         r'process/register/',
         ProcessRegisterApiView.as_view(),
-        name='process-register',
+        name='register-as-process',
     ),
     re_path(
         r'unblock-users',
