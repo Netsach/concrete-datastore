@@ -18,6 +18,7 @@ from concrete_datastore.concrete.models import (
     divider_field_name,
     UNDIVIDED_MODEL,
 )
+from concrete_datastore.interfaces.csv import csv_streaming_response
 
 
 main_app = apps.get_app_config('concrete')
@@ -85,6 +86,17 @@ for meta_model in list_of_meta:
 
         return get_list_filter
 
+    def export_csv(self, request, queryset):
+        return csv_streaming_response(
+            request, queryset, queryset.model._meta.fields
+        )
+
+    export_csv.short_description = 'Export CSV (UTF-8)'
+
+    def make_actions():
+        actions = ["export_csv"]
+        return actions
+
     model = main_app.models[meta_model.get_model_name().lower()]
 
     attrs.update(
@@ -92,6 +104,8 @@ for meta_model in list_of_meta:
             'list_display': list_display,
             'search_fields': meta_model.get_property('m_search_fields') or [],
             'get_list_filter': make_list_filter(meta_model, model),
+            'actions': make_actions(),
+            'export_csv': export_csv,
         }
     )
     admin_site.register(
