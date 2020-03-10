@@ -4,7 +4,7 @@
 
 ### Added
 
-- CSV Export added in admin actions
+- nothing added
 
 ### Changed
 
@@ -13,6 +13,12 @@
 ### Removed
 
 - nothing removed
+
+## [1.5.0] - 2020-03-10
+
+### Added
+
+- CSV Export added in admin actions
 
 ## [1.4.0] - 2020-03-04
 
