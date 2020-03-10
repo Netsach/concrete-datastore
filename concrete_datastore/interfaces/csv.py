@@ -16,9 +16,10 @@ def csv_data_generator(iterable: Iterable[Dict], fields: Iterable[str]):
 
     # Yields rows
     for item in iterable:
-        yield '{}\n'.format(
+        value = '{}\n'.format(
             ';'.join(['"{}"'.format(item.get(field, '')) for field in fields])
         ).encode('utf-8')
+        yield value
 
 
 def csv_streaming_response(

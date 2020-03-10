@@ -87,8 +87,9 @@ for meta_model in list_of_meta:
         return get_list_filter
 
     def export_csv(self, request, queryset):
+        fields = [f.name for f in queryset.model._meta.fields]
         return csv_streaming_response(
-            request, queryset, queryset.model._meta.fields
+            request, queryset.values(*fields), fields
         )
 
     export_csv.short_description = 'Export CSV (UTF-8)'
