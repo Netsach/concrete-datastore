@@ -24,7 +24,6 @@ from django.contrib.auth import authenticate, get_user_model
 from django.http.request import QueryDict
 from django.utils import timezone
 from django.apps import apps
-from django.http import StreamingHttpResponse
 from django.conf import settings
 
 from rest_framework.decorators import action
@@ -92,6 +91,7 @@ from concrete_datastore.api.v1.exceptions import (
     PasswordInsecureValidationError,
     WrongEntityUIDError,
 )
+from concrete_datastore.interfaces.csv import csv_streaming_response
 
 
 UserModel = get_user_model()
@@ -203,21 +203,6 @@ def apply_filter_since(queryset, timestamp_start, timestamp_end=None):
         )
     )
     return queryset, timestamp_end
-
-
-def csv_data_generator(queryset, fields):
-    # Yields header
-    yield '{}\n'.format(
-        ';'.join(['"{}"'.format(field) for field in fields])
-    ).encode('utf-8')
-
-    # Yields rows
-    for instance in queryset:
-        yield '{}\n'.format(
-            ';'.join(
-                ['"{}"'.format(instance.get(field, '')) for field in fields]
-            )
-        ).encode('utf-8')
 
 
 class SecurityRulesMixin(object):
@@ -1212,17 +1197,8 @@ class PaginatedViewSet(object):
         queryset = self.filter_queryset(self.get_queryset())
         export_queryset = queryset.values(*export_fields)
 
-        now = timezone.now()
-        file_name = 'export_{}_{}.csv'.format(
-            request.parser_context["view"].model_class.__name__,
-            now.strftime("%Y-%m-%d_%H-%M"),
-        )
-        response = StreamingHttpResponse(
-            csv_data_generator(export_queryset, export_fields),
-            content_type="text/csv",
-        )
-        response['Content-Disposition'] = 'attachment; filename="{}"'.format(
-            file_name
+        response = csv_streaming_response(
+            request, export_queryset, export_fields
         )
 
         return response
