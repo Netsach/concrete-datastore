@@ -24,7 +24,7 @@ As opposed to a classic database server such as PostgreSQL or MySQL where querie
 
 ## Quick start
 
-![Term sheet sample](https://concrete-datastore.netsach.org/en/latest/assets/mini-term-sample.svg)
+![Term sheet sample](./docs/assets/mini-term-sample.svg)
 
 ```shell
 git clone https://github.com/Netsach/concrete-datastore.git

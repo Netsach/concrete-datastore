@@ -44,7 +44,7 @@ def purge_users_with_wrong_usernames(user_model):
 
     email_list = list(correspondances.keys())
     if len(email_list) == 0:
-        logger_archive_users.debug('No migration required for users')
+        logger_archive_users.debug('No migration required for legacy users')
         return
     for email, users in multi_correspondances.items():
         for user in users:
