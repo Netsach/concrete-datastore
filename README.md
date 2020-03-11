@@ -34,9 +34,9 @@ export DATAMODEL_FILE=./development/datamodel/sample-datamodel.yaml
 python3 -m venv env
 source env/bin/activate
 pip install -e ".[dev,security,lint,lint_py3]"
-django makemigrations
-django migrate
-django runserver
+concrete-datastore makemigrations
+concrete-datastore migrate
+concrete-datastore runserver
 ```
 
 ## Features
