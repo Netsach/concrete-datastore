@@ -33,7 +33,7 @@ docker run --name postgres-concrete-datastore -d -p 5432:5432 postgres
 export DATAMODEL_FILE=./development/datamodel/sample-datamodel.yaml
 python3 -m venv env
 source env/bin/activate
-pip install -e ".[dev,security,lint,lint_py3]"
+pip install -e ".[full]"
 concrete-datastore makemigrations
 concrete-datastore migrate
 concrete-datastore runserver
