@@ -22,6 +22,23 @@ As opposed to a classic database server such as PostgreSQL or MySQL where querie
 
 `concrete-datastore` can be seen as a NoSQL server or as a Firebase alternative.
 
+## Quick start
+
+![Term sheet sample](https://concrete-datastore.netsach.org/en/latest/assets/mini-term-sample.svg)
+
+```shell
+git clone https://github.com/Netsach/concrete-datastore.git
+cd concrete-datastore
+docker run --name postgres-concrete-datastore -d -p 5432:5432 postgres
+export DATAMODEL_FILE=./development/datamodel/sample-datamodel.yaml
+python3 -m venv env
+source env/bin/activate
+pip install -e ".[dev,security,lint,lint_py3]"
+django makemigrations
+django migrate
+django runserver
+```
+
 ## Features
 
 `concrete-datastore` comes with a lot of built-in features such as:
