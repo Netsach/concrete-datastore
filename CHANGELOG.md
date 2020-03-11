@@ -8,7 +8,10 @@
 
 ### Changed
 
-- nothing changed
+- Changed sample datamodel with a simpler one
+- Added mini term sheet for README.md
+- Reduced log level for legacy behavior
+- Explicitly pass exception for legacy behavior
 
 ### Removed
 
