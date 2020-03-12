@@ -44,7 +44,7 @@ def purge_users_with_wrong_usernames(user_model):
 
     email_list = list(correspondances.keys())
     if len(email_list) == 0:
-        logger_archive_users.info('No changes needed on Users')
+        logger_archive_users.debug('No migration required for legacy users')
         return
     for email, users in multi_correspondances.items():
         for user in users:
@@ -62,7 +62,8 @@ class Config(AppConfig):
         try:
             purge_users_with_wrong_usernames(user_model=user_model)
         except Exception:
-            logger_archive_users.info(
+            #: legacy process when upgrading from concrete-server
+            logger_archive_users.debug(
                 'App Concrete not yet loaded, skipping User checks ...'
             )
 

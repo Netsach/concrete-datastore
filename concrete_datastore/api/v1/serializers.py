@@ -17,7 +17,11 @@ from concrete_datastore.concrete.models import (
     DIVIDER_MODEL,
     TemporaryToken,
 )
-from concrete_datastore.api.v1.validators import validate_file
+from concrete_datastore.api.v1.validators import (
+    validate_file,
+    get_field_validator,
+    is_field_required,
+)
 from concrete_datastore.concrete.meta import meta_registered
 from concrete_datastore.concrete.meta import get_meta_definition_by_model_name
 from concrete_datastore.api.v1 import DEFAULT_API_NAMESPACE
@@ -330,6 +334,7 @@ def make_serializer_class(
     # TODO: rajouter les <name>_uid dans _fields
     fk_read_only_fields = []
     for name, field in enum_fields:
+
         if field.type.startswith("rel_"):
             _fields += ['{}_uid'.format(name)]
             fk_read_only_fields += [name]
@@ -343,10 +348,10 @@ def make_serializer_class(
             + fk_read_only_fields
             + [f for f in _all_fields if f.startswith('resource_')]
         )
-        extra_kwargs = {}
-        for name, field in enum_fields:
-            if field.f_args.get('blank', False) is False:
-                extra_kwargs[name] = {'required': True}
+        extra_kwargs = {
+            name: {'required': is_field_required(field)}
+            for name, field in enum_fields
+        }
 
         # TODO: DEACTIVATED by LCO on 06/11/18
         # vars_model = vars(model)
@@ -361,6 +366,7 @@ def make_serializer_class(
 
     # TODO : if field is relational, expose pk and url serialized
     for name, field in enum_fields:
+
         if field.f_type == 'FileField':
             attrs.update(
                 {
@@ -429,6 +435,7 @@ def make_serializer_class(
                 return ''
 
     for name, field in enum_fields:
+        attrs.update({f'validate_{name}': get_field_validator(field=field)})
         if field.type.startswith("rel_i"):
             x = field.f_args["to"].split('.')
             field_model = apps.get_model(app_label=x[0], model_name=x[1])

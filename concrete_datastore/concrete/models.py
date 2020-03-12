@@ -230,6 +230,9 @@ class TemporaryToken(models.Model):
 
 
 class ConcreteRole(models.Model):
+    class Meta:
+        verbose_name = 'Role'
+
     uid = models.UUIDField(default=uuid.uuid4, primary_key=True)
     name = models.CharField(
         unique=True, blank=False, null=False, max_length=255
@@ -258,6 +261,9 @@ class ConcreteRole(models.Model):
 
 
 class ConcretePermission(models.Model):
+    class Meta:
+        verbose_name = 'Permission'
+
     uid = models.UUIDField(default=uuid.uuid4, primary_key=True)
     model_name = models.CharField(
         unique=True, blank=False, null=False, max_length=255
