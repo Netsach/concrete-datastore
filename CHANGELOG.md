@@ -4,6 +4,20 @@
 
 ### Added
 
+- nothing added
+
+### Changed
+
+- nothing changed
+
+### Removed
+
+- nothing removed
+
+## [1.6.0] - 2020-03-20
+
+### Added
+
 - Add url to allow a process to register itself to the datatsore
 
 ### Changed
@@ -12,10 +26,6 @@
 - Added mini term sheet for README.md
 - Reduced log level for legacy behavior
 - Explicitly pass exception for legacy behavior
-
-### Removed
-
-- nothing removed
 
 ## [1.5.0] - 2020-03-10
 
