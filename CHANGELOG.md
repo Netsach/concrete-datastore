@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Add url to allow a process to register itself to the datatsore
 
 ### Changed
 

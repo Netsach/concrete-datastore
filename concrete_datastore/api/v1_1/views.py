@@ -1,5 +1,6 @@
 # coding: utf-8
 import sys
+import uuid
 import logging
 import pendulum
 import warnings
@@ -21,6 +22,9 @@ from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_401_UNAUTHORIZED,
     HTTP_200_OK,
+    HTTP_202_ACCEPTED,
+    HTTP_201_CREATED,
+    HTTP_409_CONFLICT,
 )
 
 from concrete_datastore.api.v1_1.permissions import (
@@ -36,6 +40,7 @@ from concrete_datastore.api.v1_1.serializers import (
     make_account_me_serialier,
     ConcreteRoleSerializer,
     ConcretePermissionSerializer,
+    ProcessRegisterSerializer,
     LDAPAuthLoginSerializer,
     EmailDeviceSerializer,
     TwoFactorLoginSerializer,
@@ -65,6 +70,7 @@ from concrete_datastore.concrete.models import (
     ConcreteRole,
     ConcretePermission,
     EmailDevice,
+    AuthToken,
 )
 from concrete_datastore.concrete.automation.signals import user_logged_in
 
@@ -131,6 +137,72 @@ class LDAPLoginApiView(generics.GenericAPIView):
             instance=user, api_namespace=self.api_namespace
         )
         return Response(data=serializer.data, status=HTTP_200_OK)
+
+
+class ProcessRegisterApiView(generics.GenericAPIView):
+    serializer_class = ProcessRegisterSerializer
+
+    def post(self, request, *args, **kwargs):
+
+        """
+        1. Check if the token is not already created and that it is valid
+        2. Check if the user(process) is not already created with a different token
+        """
+        serializer = self.serializer_class(data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                data={'message': serializer.errors},
+                status=HTTP_400_BAD_REQUEST,
+            )
+        application = serializer.validated_data["application"]
+        instance = serializer.validated_data["instance"]
+        email = "{}_{}@netsach.com".format(application, instance).lower()
+        logger.info(f'Process {application} {instance} is trying to register')
+        token = serializer.validated_data["token"]
+        auth_token = AuthToken.objects.filter(key=token, expired=False).first()
+        if auth_token:
+            # If the emails match, it is authorized
+            if auth_token.user.email == email:
+                data = {
+                    "msg": "Process successfully registered",
+                    "token": token,
+                    "level": auth_token.user.get_level(),
+                }
+                return Response(data=data, status=HTTP_202_ACCEPTED)
+            # If they do not match, conflict
+            else:
+                data = {
+                    "msg": "Email address already used with a different token"
+                }
+                return Response(data=data, status=HTTP_409_CONFLICT)
+
+        password = str(uuid.uuid4())
+        user, created = UserModel.objects.get_or_create(email=email)
+        if created:
+            user.set_password(password)
+            user.set_level('blocked')
+            user.save()
+        else:
+            # If the email address already has a token, unauthorize
+            existing_token = user.auth_tokens.exclude(key=token).first()
+            if existing_token is not None:
+                data = {
+                    "msg": "Email address already used with a different token"
+                }
+                return Response(data=data, status=HTTP_409_CONFLICT)
+        now = pendulum.now('utc')
+        now_plus_100_years = now.add(years=100)
+        AuthToken.objects.create(
+            key=token, user=user, expiration_date=now_plus_100_years
+        )
+
+        data = {
+            "msg": "Process successfully registered",
+            "token": token,
+            "level": user.get_level(),
+        }
+
+        return Response(status=HTTP_202_ACCEPTED, data=data)
 
 
 class ApiModelViewSet(ApiV1ModelViewSet):

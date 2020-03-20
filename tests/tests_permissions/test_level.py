@@ -57,4 +57,4 @@ class UserLeveleTest(TestCase):
         self.assertFalse(u.admin)
         self.assertFalse(u.is_active)
         self.assertEqual(u.level, 'blocked')
-        self.assertEqual(u.get_level(), 'SimpleUser')
+        self.assertEqual(u.get_level(), 'Blocked')
