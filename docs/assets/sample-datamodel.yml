@@ -64,7 +64,7 @@ manifest:
             name: groups
         name: Project
         uid: 3c025f8d-2ad2-45fe-a873-22accf3dff1e
-        representation_field: ""
+        representation_field: name
         is_default_public: false
     version: 1.0.0
     attributes: []
