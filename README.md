@@ -30,14 +30,19 @@ As opposed to a classic database server such as PostgreSQL or MySQL where querie
 git clone https://github.com/Netsach/concrete-datastore.git
 cd concrete-datastore
 docker run --name postgres-concrete-datastore -d -p 5432:5432 postgres
-export DATAMODEL_FILE=./development/datamodel/sample-datamodel.yaml
+export DATAMODEL_FILE=./docs/assets/sample-datamodel.yml
 python3 -m venv env
 source env/bin/activate
 pip install -e ".[full]"
 concrete-datastore makemigrations
 concrete-datastore migrate
+concrete-datastore createsuperuser
 concrete-datastore runserver
 ```
+
+Now browse to [http://127.0.0.1:8000/concrete-datastore-admin/](http://127.0.0.1:8000/concrete-datastore-admin/)
+
+You can now create a token to use the API (or use the login endpoint).
 
 ## Features
 
