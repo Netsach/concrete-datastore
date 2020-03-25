@@ -198,8 +198,8 @@ def apply_filter_since(queryset, timestamp_start, timestamp_end=None):
 
     queryset = queryset.filter(
         modification_date__range=(
-            pendulum.from_timestamp(timestamp_start)._datetime,
-            pendulum.from_timestamp(timestamp_end)._datetime,
+            pendulum.from_timestamp(timestamp_start),
+            pendulum.from_timestamp(timestamp_end),
         )
     )
     return queryset, timestamp_end
@@ -1319,8 +1319,8 @@ class PaginatedViewSet(object):
 
                 excl_modified_instances = excl_modified_instances.exclude(
                     creation_date__range=(
-                        pendulum.from_timestamp(timestamp_start)._datetime,
-                        pendulum.from_timestamp(timestamp_end)._datetime,
+                        pendulum.from_timestamp(timestamp_start),
+                        pendulum.from_timestamp(timestamp_end),
                     )
                 )
 

@@ -366,8 +366,7 @@ class FilterDatesTestClass(APITestCase):
             },
         )
         self.token = resp.data['token']
-        self.date = pendulum.from_format("2017-10-28", '%Y-%m-%d')
-        self.datetime = pendulum.parse("2017-10-28T")
+        self.date = pendulum.from_format("2017-10-28", 'YYYY-MM-DD')
         url_date = '/api/v1/date-utc/'
         for i in range(10):
             self.client.post(

@@ -1,15 +1,19 @@
 # coding: utf-8
-from mock import MagicMock
 import uuid
-from rest_framework.test import APITestCase
-from collections import OrderedDict
-from rest_framework import status
 import pendulum
+from collections import OrderedDict
+from mock import MagicMock
+
+from django.test import override_settings
+
+from rest_framework.test import APITestCase
+from rest_framework import status
 
 from concrete_datastore.api.v1.filters import (
     FilterSupportingOrBackend,
     FilterSupportingRangeBackend,
 )
+from concrete_datastore.api.v1.datetime import format_datetime
 from concrete_datastore.concrete.models import (
     User,
     UserConfirmation,
@@ -19,7 +23,6 @@ from concrete_datastore.concrete.models import (
     DIVIDER_MODEL,
     Category,
 )
-from django.test import override_settings
 
 
 @override_settings(DEBUG=True)
@@ -36,11 +39,7 @@ class FilterSupportingComparaisonBackendTestCase(APITestCase):
         UserConfirmation.objects.create(user=self.user, confirmed=True).save()
         url = '/api/v1.1/auth/login/'
         resp = self.client.post(
-            url,
-            {
-                "email": "johndoe@netsach.org",
-                "password": "plop",
-            },
+            url, {"email": "johndoe@netsach.org", "password": "plop"}
         )
         self.token = resp.data['token']
         for i in range(5):
@@ -83,11 +82,7 @@ class FilterSupportingOrBackendTestClass(APITestCase):
         UserConfirmation.objects.create(user=self.user, confirmed=True).save()
         url = '/api/v1.1/auth/login/'
         resp = self.client.post(
-            url,
-            {
-                "email": "johndoe@netsach.org",
-                "password": "plop",
-            },
+            url, {"email": "johndoe@netsach.org", "password": "plop"}
         )
         self.token = resp.data['token']
 
@@ -165,9 +160,6 @@ class FilterSupportingOrBackendTestClass(APITestCase):
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-
-
-from django.test import override_settings
 
 
 @override_settings(DEBUG=True)
@@ -262,9 +254,6 @@ class FilterSupportingRangeBackendTestClass(APITestCase):
         self.assertNotEqual(res, queryset)
 
 
-from django.test import override_settings
-
-
 @override_settings(DEBUG=True)
 class FilterWithInvalidFields(APITestCase):
     def setUp(self):
@@ -340,9 +329,6 @@ class FilterWithInvalidFields(APITestCase):
         )
 
 
-from django.test import override_settings
-
-
 @override_settings(DEBUG=True)
 class FilterDatesTestClass(APITestCase):
     def setUp(self):
@@ -364,8 +350,7 @@ class FilterDatesTestClass(APITestCase):
             },
         )
         self.token = resp.data['token']
-        self.date = pendulum.from_format("2017-10-28", '%Y-%m-%d')
-        self.datetime = pendulum.parse("2017-10-28T")
+        self.date = pendulum.from_format("2017-10-28", 'YYYY-MM-DD')
         url_date = '/api/v1.1/date-utc/'
         for i in range(10):
             self.client.post(
@@ -385,13 +370,9 @@ class FilterDatesTestClass(APITestCase):
 
     def test_filter_range_date_and_datetime_fields(self):
         start_date = self.date.add(days=-1).to_date_string()
-        start_datetime = (
-            self.date.add(days=-1).to_iso8601_string().split('+')[0] + 'Z'
-        )
+        start_datetime = format_datetime(self.date.add(days=-1))
         end_date = self.date.add(days=3).to_date_string()
-        end_datetime = (
-            self.date.add(days=3).to_iso8601_string().split('+')[0] + 'Z'
-        )
+        end_datetime = format_datetime(self.date.add(days=3))
         url_date = '/api/v1.1/date-utc/?date__range={},{}&datetime__range={},{}'.format(
             start_date, end_date, start_datetime, end_datetime
         )
@@ -423,9 +404,6 @@ class FilterDatesTestClass(APITestCase):
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-
-
-from django.test import override_settings
 
 
 @override_settings(DEBUG=True)
@@ -500,9 +478,6 @@ class FilterDividedModelByDivider(APITestCase):
             url_projects, HTTP_AUTHORIZATION='Token {}'.format(self.token_a)
         )
         self.assertEqual(len(resp.json()['results']), 2)
-
-
-from django.test import override_settings
 
 
 @override_settings(DEBUG=True)
@@ -600,9 +575,6 @@ class FilterUsersByDivider(APITestCase):
         self.assertEqual(resp.data["total_objects_count"], 0)
 
 
-from django.test import override_settings
-
-
 @override_settings(DEBUG=True)
 class FilterWithForeignKeyNone(APITestCase):
     def setUp(self):
@@ -651,9 +623,6 @@ class FilterWithForeignKeyNone(APITestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data["total_objects_count"], 2)
-
-
-from django.test import override_settings
 
 
 @override_settings(DEBUG=True)

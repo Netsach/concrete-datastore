@@ -545,7 +545,7 @@ class HasPermissionAbstractUser(models.Model):
         password_has_expiry = expiry > 0
         now = pendulum.now()
         d = self.password_modification_date
-        last_password_modification = pendulum.create(d.year, d.month, d.day)
+        last_password_modification = pendulum.datetime(d.year, d.month, d.day)
 
         return (
             password_has_expiry

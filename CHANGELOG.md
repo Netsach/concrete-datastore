@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Pendulum version updgraded to v2.0
 
 ### Removed
 
