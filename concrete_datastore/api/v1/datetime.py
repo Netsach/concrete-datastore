@@ -12,6 +12,6 @@ def ensure_pendulum(value):
     d = value
     if isinstance(d, str):
         d = pendulum.parse(d)
-    if not isinstance(d, pendulum.DateTime):
+    if not isinstance(d, pendulum.Date):
         d = pendulum.instance(d)
     return d
