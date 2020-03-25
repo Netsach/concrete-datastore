@@ -12,8 +12,7 @@ from django.conf import settings
 from django.apps import apps
 
 
-logger_archive_users = logging.getLogger('archive-concrete-users')
-logger_update_pendulum = logging.getLogger('update-pendulum-v2')
+logger = logging.getLogger('system-logger')
 
 
 def email_to_username(email):  # nosec
@@ -29,7 +28,7 @@ def archive_legacy(user, email_list):
     previous_email = user.email
     user.email = new_email
     user.save()
-    logger_archive_users.info(
+    logger.info(
         f'User {user.uid}: changed email form '
         f'{previous_email} to {new_email}'
     )
@@ -49,7 +48,7 @@ def purge_users_with_wrong_usernames(user_model):
 
     email_list = list(correspondances.keys())
     if len(email_list) == 0:
-        logger_archive_users.debug('No migration required for legacy users')
+        logger.debug('No migration required for legacy users')
         return
     for email, users in multi_correspondances.items():
         for user in users:
@@ -67,9 +66,7 @@ def alter_migration_content(file):
                 b'pendulum.pendulum.Pendulum', b'pendulum'
             ).replace(b'import pendulum.pendulum', b'import pendulum')
     if file_changed is True:
-        logger_update_pendulum.debug(
-            f'Updating pendulum import for migration file {file}'
-        )
+        logger.debug(f'Updating pendulum import for migration file {file}')
         with open(file, 'wb') as fd:
             fd.write(content)
 
@@ -99,16 +96,14 @@ class Config(AppConfig):
     verbose_name = _('NS concrete')
 
     def ready(self):
-        logger_update_pendulum.debug(
-            'Checking for pendulum updates in migrations'
-        )
+        logger.debug('Checking for pendulum updates in migrations')
         update_pendulum_for_migrations()
         user_model = apps.get_model('concrete', 'User')
         try:
             purge_users_with_wrong_usernames(user_model=user_model)
         except Exception:
             #: legacy process when upgrading from concrete-server
-            logger_archive_users.debug(
+            logger.debug(
                 'App Concrete not yet loaded, skipping User checks ...'
             )
 
