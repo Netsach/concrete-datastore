@@ -1,5 +1,6 @@
 # coding: utf-8
 import os
+import glob
 import hashlib
 import logging
 from importlib import import_module
@@ -81,11 +82,7 @@ def get_migration_files():
 
     migration_files = []
     for migration_dir in migrations_dir:
-        for root, dirs, files in os.walk(migration_dir):
-            migration_files.extend(
-                os.path.join(root, f) for f in files if f.endswith('.py')
-            )
-            break
+        migration_files.extend([f for f in glob.glob(migration_dir + "/*.py")])
 
     return migration_files
 
