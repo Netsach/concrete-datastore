@@ -8,7 +8,7 @@ import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
-import pendulum
+import pendulum.pendulum
 import uuid
 
 
@@ -583,7 +583,7 @@ class Migration(migrations.Migration):
                 ('created', models.DateTimeField(auto_now_add=True, verbose_name='Created')),
                 ('expired', models.BooleanField(default=False)),
                 ('expiration_date', models.DateTimeField(default=concrete_datastore.concrete.models.compute_auth_token_expiry)),
-                ('last_action_date', models.DateTimeField(default=pendulum.now)),
+                ('last_action_date', models.DateTimeField(default=pendulum.pendulum.Pendulum.now)),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='auth_tokens', to=settings.AUTH_USER_MODEL, verbose_name='User')),
             ],
             options={

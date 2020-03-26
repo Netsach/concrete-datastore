@@ -1,18 +1,14 @@
 # coding: utf-8
-import os
-import glob
 import hashlib
 import logging
-from importlib import import_module
 from collections import defaultdict
 
 from django.utils.translation import ugettext_lazy as _
 from django.apps import AppConfig
-from django.conf import settings
 from django.apps import apps
 
 
-logger = logging.getLogger('system-logger')
+logger_archive_users = logging.getLogger('archive-concrete-users')
 
 
 def email_to_username(email):  # nosec
@@ -28,7 +24,7 @@ def archive_legacy(user, email_list):
     previous_email = user.email
     user.email = new_email
     user.save()
-    logger.info(
+    logger_archive_users.info(
         f'User {user.uid}: changed email form '
         f'{previous_email} to {new_email}'
     )
@@ -48,46 +44,12 @@ def purge_users_with_wrong_usernames(user_model):
 
     email_list = list(correspondances.keys())
     if len(email_list) == 0:
-        logger.debug('No migration required for legacy users')
+        logger_archive_users.debug('No migration required for legacy users')
         return
     for email, users in multi_correspondances.items():
         for user in users:
             if user.username != email_to_username(email):
                 archive_legacy(user=user, email_list=email_list)
-
-
-def alter_migration_content(file):
-    file_changed = False
-    with open(file, 'rb') as fd:
-        content = fd.read()
-        if b'import pendulum.pendulum' in content:
-            file_changed = True
-            content = content.replace(
-                b'pendulum.pendulum.Pendulum', b'pendulum'
-            ).replace(b'import pendulum.pendulum', b'import pendulum')
-    if file_changed is True:
-        logger.debug(f'Updating pendulum import for migration file {file}')
-        with open(file, 'wb') as fd:
-            fd.write(content)
-
-
-def get_migration_files():
-    migrations_dir = set()
-    for migration_module in settings.MIGRATION_MODULES.values():
-        module = import_module(migration_module)
-        migrations_dir.add(os.path.dirname(module.__file__))
-
-    migration_files = []
-    for migration_dir in migrations_dir:
-        migration_files.extend([f for f in glob.glob(migration_dir + "/*.py")])
-
-    return migration_files
-
-
-def update_pendulum_for_migrations():
-    migration_files = get_migration_files()
-    for migration_file in migration_files:
-        alter_migration_content(file=migration_file)
 
 
 class Config(AppConfig):
@@ -96,14 +58,12 @@ class Config(AppConfig):
     verbose_name = _('NS concrete')
 
     def ready(self):
-        logger.debug('Checking for pendulum updates in migrations')
-        update_pendulum_for_migrations()
         user_model = apps.get_model('concrete', 'User')
         try:
             purge_users_with_wrong_usernames(user_model=user_model)
         except Exception:
             #: legacy process when upgrading from concrete-server
-            logger.debug(
+            logger_archive_users.debug(
                 'App Concrete not yet loaded, skipping User checks ...'
             )
 

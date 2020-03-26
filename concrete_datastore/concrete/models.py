@@ -75,7 +75,7 @@ class AuthToken(Token):
     )
     expired = models.BooleanField(default=False)
     expiration_date = models.DateTimeField(default=compute_auth_token_expiry)
-    last_action_date = models.DateTimeField(default=pendulum.now)
+    last_action_date = models.DateTimeField(default=timezone.now)
 
 
 def default_key():
