@@ -8,7 +8,6 @@ import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
-import pendulum.pendulum
 import uuid
 
 
@@ -16,34 +15,94 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ('auth', '0011_update_proxy_permissions'),
-    ]
+    dependencies = [('auth', '0011_update_proxy_permissions')]
 
     operations = [
         migrations.CreateModel(
             name='User',
             fields=[
-                ('password', models.CharField(max_length=128, verbose_name='password')),
-                ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
-                ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
-                ('is_staff', models.BooleanField(default=False, help_text='Designates whether the user can log into this admin site.', verbose_name='staff status')),
-                ('is_active', models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
-                ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'password',
+                    models.CharField(max_length=128, verbose_name='password'),
+                ),
+                (
+                    'last_login',
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name='last login'
+                    ),
+                ),
+                (
+                    'is_superuser',
+                    models.BooleanField(
+                        default=False,
+                        help_text='Designates that this user has all permissions without explicitly assigning them.',
+                        verbose_name='superuser status',
+                    ),
+                ),
+                (
+                    'is_staff',
+                    models.BooleanField(
+                        default=False,
+                        help_text='Designates whether the user can log into this admin site.',
+                        verbose_name='staff status',
+                    ),
+                ),
+                (
+                    'is_active',
+                    models.BooleanField(
+                        default=True,
+                        help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.',
+                        verbose_name='active',
+                    ),
+                ),
+                (
+                    'date_joined',
+                    models.DateTimeField(
+                        default=django.utils.timezone.now,
+                        verbose_name='date joined',
+                    ),
+                ),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=False)),
                 ('admin', models.BooleanField(default=False)),
-                ('password_modification_date', models.DateField(default=datetime.date.today)),
-                ('password_modification_token', models.UUIDField(default=uuid.uuid4)),
-                ('subscription_notification_token', models.UUIDField(default=uuid.uuid4, editable=False)),
+                (
+                    'password_modification_date',
+                    models.DateField(default=datetime.date.today),
+                ),
+                (
+                    'password_modification_token',
+                    models.UUIDField(default=uuid.uuid4),
+                ),
+                (
+                    'subscription_notification_token',
+                    models.UUIDField(default=uuid.uuid4, editable=False),
+                ),
                 ('login_counter', models.IntegerField(default=0)),
                 ('external_auth', models.BooleanField(default=False)),
-                ('first_name', models.CharField(blank=True, default='', max_length=250)),
-                ('last_name', models.CharField(blank=True, default='', max_length=250)),
+                (
+                    'first_name',
+                    models.CharField(blank=True, default='', max_length=250),
+                ),
+                (
+                    'last_name',
+                    models.CharField(blank=True, default='', max_length=250),
+                ),
                 ('unsubscribe_all', models.BooleanField(default=False)),
-                ('email', models.EmailField(max_length=254, unique=True, verbose_name='email address')),
+                (
+                    'email',
+                    models.EmailField(
+                        max_length=254,
+                        unique=True,
+                        verbose_name='email address',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'User',
@@ -51,17 +110,25 @@ class Migration(migrations.Migration):
                 'ordering': ('-modification_date', '-creation_date'),
             },
             managers=[
-                ('objects', concrete_datastore.concrete.models.UserManager()),
+                ('objects', concrete_datastore.concrete.models.UserManager())
             ],
         ),
         migrations.CreateModel(
             name='Category',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=False)),
-                ('name', models.CharField(blank=True, default='', max_length=50)),
+                (
+                    'name',
+                    models.CharField(blank=True, default='', max_length=50),
+                ),
                 ('additional_filtering', models.BooleanField(default=False)),
             ],
             options={
@@ -73,14 +140,32 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='DefaultDivider',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
-                ('name', models.CharField(default='Default Divider', max_length=250)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
+                (
+                    'name',
+                    models.CharField(
+                        default='Default Divider', max_length=250
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
             name='DeletedModel',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name='ID',
+                    ),
+                ),
                 ('uid', models.UUIDField()),
                 ('model_name', models.CharField(default='', max_length=255)),
                 ('modification_date', models.DateTimeField(auto_now=True)),
@@ -90,11 +175,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ExpectedSkill',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=False)),
-                ('name', models.CharField(blank=True, default='', max_length=200)),
+                (
+                    'name',
+                    models.CharField(blank=True, default='', max_length=200),
+                ),
                 ('score', models.IntegerField(blank=True, default=0)),
                 ('description', models.TextField(blank=True, default='')),
                 ('additional_filtering', models.BooleanField(default=False)),
@@ -108,19 +201,79 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Group',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=False)),
-                ('name', models.CharField(blank=True, default='', max_length=250)),
+                (
+                    'name',
+                    models.CharField(blank=True, default='', max_length=250),
+                ),
                 ('additional_filtering', models.BooleanField(default=False)),
-                ('can_admin_groups', models.ManyToManyField(blank=True, related_name='group_administrable_groups', to='concrete.Group')),
-                ('can_admin_users', models.ManyToManyField(blank=True, related_name='administrable_groups', to=settings.AUTH_USER_MODEL)),
-                ('can_view_groups', models.ManyToManyField(blank=True, related_name='group_viewable_groups', to='concrete.Group')),
-                ('can_view_users', models.ManyToManyField(blank=True, related_name='viewable_groups', to=settings.AUTH_USER_MODEL)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_groups', to=settings.AUTH_USER_MODEL)),
-                ('defaultdivider', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='divider_groups', to='concrete.DefaultDivider')),
-                ('members', models.ManyToManyField(blank=True, related_name='concrete_groups', to=settings.AUTH_USER_MODEL)),
+                (
+                    'can_admin_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_administrable_groups',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_admin_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='administrable_groups',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'can_view_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_viewable_groups',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_view_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='viewable_groups',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_groups',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'defaultdivider',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='divider_groups',
+                        to='concrete.DefaultDivider',
+                    ),
+                ),
+                (
+                    'members',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='concrete_groups',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'Group',
@@ -131,16 +284,60 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Village',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=False)),
-                ('name', models.CharField(blank=True, default='', max_length=250)),
-                ('can_admin_groups', models.ManyToManyField(blank=True, related_name='group_administrable_villages', to='concrete.Group')),
-                ('can_admin_users', models.ManyToManyField(blank=True, related_name='administrable_villages', to=settings.AUTH_USER_MODEL)),
-                ('can_view_groups', models.ManyToManyField(blank=True, related_name='group_viewable_villages', to='concrete.Group')),
-                ('can_view_users', models.ManyToManyField(blank=True, related_name='viewable_villages', to=settings.AUTH_USER_MODEL)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_villages', to=settings.AUTH_USER_MODEL)),
+                (
+                    'name',
+                    models.CharField(blank=True, default='', max_length=250),
+                ),
+                (
+                    'can_admin_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_administrable_villages',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_admin_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='administrable_villages',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'can_view_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_viewable_villages',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_view_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='viewable_villages',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_villages',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'ville',
@@ -151,30 +348,92 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='UserConfirmation',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('confirmed', models.BooleanField(default=False)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('redirect_to', models.URLField(null=True)),
                 ('link_sent', models.BooleanField(default=False)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='confirmations', to=settings.AUTH_USER_MODEL)),
+                (
+                    'user',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='confirmations',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
             name='TestDataLeak',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=False)),
                 ('value', models.TextField(blank=True, default='a value')),
                 ('additional_filtering', models.BooleanField(default=False)),
-                ('can_admin_groups', models.ManyToManyField(blank=True, related_name='group_administrable_testdataleaks', to='concrete.Group')),
-                ('can_admin_users', models.ManyToManyField(blank=True, related_name='administrable_testdataleaks', to=settings.AUTH_USER_MODEL)),
-                ('can_view_groups', models.ManyToManyField(blank=True, related_name='group_viewable_testdataleaks', to='concrete.Group')),
-                ('can_view_users', models.ManyToManyField(blank=True, related_name='viewable_testdataleaks', to=settings.AUTH_USER_MODEL)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_testdataleaks', to=settings.AUTH_USER_MODEL)),
-                ('defaultdivider', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='divider_testdataleaks', to='concrete.DefaultDivider')),
+                (
+                    'can_admin_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_administrable_testdataleaks',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_admin_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='administrable_testdataleaks',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'can_view_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_viewable_testdataleaks',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_view_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='viewable_testdataleaks',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_testdataleaks',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'defaultdivider',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='divider_testdataleaks',
+                        to='concrete.DefaultDivider',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'TestDataLeak',
@@ -185,11 +444,27 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TemporaryToken',
             fields=[
-                ('key', models.CharField(max_length=40, primary_key=True, serialize=False, verbose_name='Key')),
+                (
+                    'key',
+                    models.CharField(
+                        max_length=40,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name='Key',
+                    ),
+                ),
                 ('expired', models.BooleanField(default=False)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('modification_date', models.DateTimeField(auto_now=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='temporary_tokens', to=settings.AUTH_USER_MODEL, verbose_name='User')),
+                (
+                    'user',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='temporary_tokens',
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name='User',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'Temporary Token',
@@ -199,22 +474,93 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Skill',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=False)),
-                ('name', models.CharField(blank=True, default='', max_length=200)),
+                (
+                    'name',
+                    models.CharField(blank=True, default='', max_length=200),
+                ),
                 ('score', models.IntegerField(blank=True, default=0)),
                 ('description', models.TextField(blank=True, default='')),
                 ('additional_filtering', models.BooleanField(default=False)),
-                ('can_admin_groups', models.ManyToManyField(blank=True, related_name='group_administrable_skills', to='concrete.Group')),
-                ('can_admin_users', models.ManyToManyField(blank=True, related_name='administrable_skills', to=settings.AUTH_USER_MODEL)),
-                ('can_view_groups', models.ManyToManyField(blank=True, related_name='group_viewable_skills', to='concrete.Group')),
-                ('can_view_users', models.ManyToManyField(blank=True, related_name='viewable_skills', to=settings.AUTH_USER_MODEL)),
-                ('category', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='skills', to='concrete.Category')),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_skills', to=settings.AUTH_USER_MODEL)),
-                ('defaultdivider', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='divider_skills', to='concrete.DefaultDivider')),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='skills', to=settings.AUTH_USER_MODEL)),
+                (
+                    'can_admin_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_administrable_skills',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_admin_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='administrable_skills',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'can_view_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_viewable_skills',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_view_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='viewable_skills',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'category',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='skills',
+                        to='concrete.Category',
+                    ),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_skills',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'defaultdivider',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='divider_skills',
+                        to='concrete.DefaultDivider',
+                    ),
+                ),
+                (
+                    'user',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='skills',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'Skill',
@@ -225,30 +571,92 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SecureConnectToken',
             fields=[
-                ('value', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'value',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('expired', models.BooleanField(default=False)),
                 ('mail_sent', models.BooleanField(default=False)),
                 ('url', models.URLField(blank=True, null=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='secure_connect_tokens', to=settings.AUTH_USER_MODEL)),
+                (
+                    'user',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='secure_connect_tokens',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
             name='ScopedModel',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=True)),
                 ('name', models.CharField(default='', max_length=255)),
                 ('additional_filtering', models.BooleanField(default=False)),
-                ('can_admin_groups', models.ManyToManyField(blank=True, related_name='group_administrable_scopedmodels', to='concrete.Group')),
-                ('can_admin_users', models.ManyToManyField(blank=True, related_name='administrable_scopedmodels', to=settings.AUTH_USER_MODEL)),
-                ('can_view_groups', models.ManyToManyField(blank=True, related_name='group_viewable_scopedmodels', to='concrete.Group')),
-                ('can_view_users', models.ManyToManyField(blank=True, related_name='viewable_scopedmodels', to=settings.AUTH_USER_MODEL)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_scopedmodels', to=settings.AUTH_USER_MODEL)),
-                ('defaultdivider', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='divider_scopedmodels', to='concrete.DefaultDivider')),
+                (
+                    'can_admin_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_administrable_scopedmodels',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_admin_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='administrable_scopedmodels',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'can_view_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_viewable_scopedmodels',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_view_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='viewable_scopedmodels',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_scopedmodels',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'defaultdivider',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='divider_scopedmodels',
+                        to='concrete.DefaultDivider',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'ScopedModel',
@@ -259,18 +667,68 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='RoleModel',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=False)),
                 ('name', models.CharField(default='', max_length=255)),
                 ('additional_filtering', models.BooleanField(default=False)),
-                ('can_admin_groups', models.ManyToManyField(blank=True, related_name='group_administrable_rolemodels', to='concrete.Group')),
-                ('can_admin_users', models.ManyToManyField(blank=True, related_name='administrable_rolemodels', to=settings.AUTH_USER_MODEL)),
-                ('can_view_groups', models.ManyToManyField(blank=True, related_name='group_viewable_rolemodels', to='concrete.Group')),
-                ('can_view_users', models.ManyToManyField(blank=True, related_name='viewable_rolemodels', to=settings.AUTH_USER_MODEL)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_rolemodels', to=settings.AUTH_USER_MODEL)),
-                ('defaultdivider', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='divider_rolemodels', to='concrete.DefaultDivider')),
+                (
+                    'can_admin_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_administrable_rolemodels',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_admin_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='administrable_rolemodels',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'can_view_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_viewable_rolemodels',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_view_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='viewable_rolemodels',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_rolemodels',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'defaultdivider',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='divider_rolemodels',
+                        to='concrete.DefaultDivider',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'RoleModel',
@@ -281,31 +739,120 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ResetPasswordToken',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='reset_password_tokens', to=settings.AUTH_USER_MODEL)),
+                (
+                    'user',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='reset_password_tokens',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
             name='Project',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=False)),
-                ('name', models.CharField(blank=True, default='', max_length=200)),
+                (
+                    'name',
+                    models.CharField(blank=True, default='', max_length=200),
+                ),
                 ('archived', models.BooleanField(blank=True, default=False)),
                 ('description', models.TextField(blank=True, default='')),
-                ('picture', models.FileField(blank=True, null=True, upload_to='', validators=[concrete_datastore.api.v1.validators.validate_file])),
+                (
+                    'picture',
+                    models.FileField(
+                        blank=True,
+                        null=True,
+                        upload_to='',
+                        validators=[
+                            concrete_datastore.api.v1.validators.validate_file
+                        ],
+                    ),
+                ),
                 ('additional_filtering', models.BooleanField(default=False)),
-                ('can_admin_groups', models.ManyToManyField(blank=True, related_name='group_administrable_projects', to='concrete.Group')),
-                ('can_admin_users', models.ManyToManyField(blank=True, related_name='administrable_projects', to=settings.AUTH_USER_MODEL)),
-                ('can_view_groups', models.ManyToManyField(blank=True, related_name='group_viewable_projects', to='concrete.Group')),
-                ('can_view_users', models.ManyToManyField(blank=True, related_name='viewable_projects', to=settings.AUTH_USER_MODEL)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_projects', to=settings.AUTH_USER_MODEL)),
-                ('defaultdivider', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='divider_projects', to='concrete.DefaultDivider')),
-                ('expected_skills', models.ManyToManyField(blank=True, related_name='projects', to='concrete.ExpectedSkill')),
-                ('members', models.ManyToManyField(blank=True, related_name='projects', to=settings.AUTH_USER_MODEL)),
+                (
+                    'can_admin_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_administrable_projects',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_admin_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='administrable_projects',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'can_view_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_viewable_projects',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_view_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='viewable_projects',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_projects',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'defaultdivider',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='divider_projects',
+                        to='concrete.DefaultDivider',
+                    ),
+                ),
+                (
+                    'expected_skills',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='projects',
+                        to='concrete.ExpectedSkill',
+                    ),
+                ),
+                (
+                    'members',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='projects',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'Project',
@@ -316,16 +863,57 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='NotScopedModel',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=True)),
                 ('name', models.CharField(default='', max_length=255)),
-                ('can_admin_groups', models.ManyToManyField(blank=True, related_name='group_administrable_notscopedmodels', to='concrete.Group')),
-                ('can_admin_users', models.ManyToManyField(blank=True, related_name='administrable_notscopedmodels', to=settings.AUTH_USER_MODEL)),
-                ('can_view_groups', models.ManyToManyField(blank=True, related_name='group_viewable_notscopedmodels', to='concrete.Group')),
-                ('can_view_users', models.ManyToManyField(blank=True, related_name='viewable_notscopedmodels', to=settings.AUTH_USER_MODEL)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_notscopedmodels', to=settings.AUTH_USER_MODEL)),
+                (
+                    'can_admin_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_administrable_notscopedmodels',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_admin_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='administrable_notscopedmodels',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'can_view_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_viewable_notscopedmodels',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_view_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='viewable_notscopedmodels',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_notscopedmodels',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'NotScopedModel',
@@ -336,19 +924,77 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='JsonField',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=False)),
-                ('name', models.CharField(blank=True, default='', max_length=50)),
-                ('json_field', django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=dict)),
+                (
+                    'name',
+                    models.CharField(blank=True, default='', max_length=50),
+                ),
+                (
+                    'json_field',
+                    django.contrib.postgres.fields.jsonb.JSONField(
+                        blank=True, default=dict
+                    ),
+                ),
                 ('additional_filtering', models.BooleanField(default=False)),
-                ('can_admin_groups', models.ManyToManyField(blank=True, related_name='group_administrable_jsonfields', to='concrete.Group')),
-                ('can_admin_users', models.ManyToManyField(blank=True, related_name='administrable_jsonfields', to=settings.AUTH_USER_MODEL)),
-                ('can_view_groups', models.ManyToManyField(blank=True, related_name='group_viewable_jsonfields', to='concrete.Group')),
-                ('can_view_users', models.ManyToManyField(blank=True, related_name='viewable_jsonfields', to=settings.AUTH_USER_MODEL)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_jsonfields', to=settings.AUTH_USER_MODEL)),
-                ('defaultdivider', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='divider_jsonfields', to='concrete.DefaultDivider')),
+                (
+                    'can_admin_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_administrable_jsonfields',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_admin_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='administrable_jsonfields',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'can_view_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_viewable_jsonfields',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_view_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='viewable_jsonfields',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_jsonfields',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'defaultdivider',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='divider_jsonfields',
+                        to='concrete.DefaultDivider',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'Crud',
@@ -359,16 +1005,60 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Fusee',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=False)),
-                ('name', models.CharField(blank=True, default='', max_length=250)),
-                ('can_admin_groups', models.ManyToManyField(blank=True, related_name='group_administrable_fusees', to='concrete.Group')),
-                ('can_admin_users', models.ManyToManyField(blank=True, related_name='administrable_fusees', to=settings.AUTH_USER_MODEL)),
-                ('can_view_groups', models.ManyToManyField(blank=True, related_name='group_viewable_fusees', to='concrete.Group')),
-                ('can_view_users', models.ManyToManyField(blank=True, related_name='viewable_fusees', to=settings.AUTH_USER_MODEL)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_fusees', to=settings.AUTH_USER_MODEL)),
+                (
+                    'name',
+                    models.CharField(blank=True, default='', max_length=250),
+                ),
+                (
+                    'can_admin_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_administrable_fusees',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_admin_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='administrable_fusees',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'can_view_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_viewable_fusees',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_view_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='viewable_fusees',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_fusees',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'Fusée',
@@ -379,53 +1069,138 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='expectedskill',
             name='can_admin_groups',
-            field=models.ManyToManyField(blank=True, related_name='group_administrable_expectedskills', to='concrete.Group'),
+            field=models.ManyToManyField(
+                blank=True,
+                related_name='group_administrable_expectedskills',
+                to='concrete.Group',
+            ),
         ),
         migrations.AddField(
             model_name='expectedskill',
             name='can_admin_users',
-            field=models.ManyToManyField(blank=True, related_name='administrable_expectedskills', to=settings.AUTH_USER_MODEL),
+            field=models.ManyToManyField(
+                blank=True,
+                related_name='administrable_expectedskills',
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
             model_name='expectedskill',
             name='can_view_groups',
-            field=models.ManyToManyField(blank=True, related_name='group_viewable_expectedskills', to='concrete.Group'),
+            field=models.ManyToManyField(
+                blank=True,
+                related_name='group_viewable_expectedskills',
+                to='concrete.Group',
+            ),
         ),
         migrations.AddField(
             model_name='expectedskill',
             name='can_view_users',
-            field=models.ManyToManyField(blank=True, related_name='viewable_expectedskills', to=settings.AUTH_USER_MODEL),
+            field=models.ManyToManyField(
+                blank=True,
+                related_name='viewable_expectedskills',
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
             model_name='expectedskill',
             name='category',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='expected_skills', to='concrete.Category'),
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='expected_skills',
+                to='concrete.Category',
+            ),
         ),
         migrations.AddField(
             model_name='expectedskill',
             name='created_by',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_expectedskills', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='owned_expectedskills',
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
             model_name='expectedskill',
             name='defaultdivider',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='divider_expectedskills', to='concrete.DefaultDivider'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='divider_expectedskills',
+                to='concrete.DefaultDivider',
+            ),
         ),
         migrations.CreateModel(
             name='Entity',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=False)),
-                ('name', models.CharField(default='entity name', max_length=250)),
+                (
+                    'name',
+                    models.CharField(default='entity name', max_length=250),
+                ),
                 ('additional_filtering', models.BooleanField(default=False)),
-                ('can_admin_groups', models.ManyToManyField(blank=True, related_name='group_administrable_entitys', to='concrete.Group')),
-                ('can_admin_users', models.ManyToManyField(blank=True, related_name='administrable_entitys', to=settings.AUTH_USER_MODEL)),
-                ('can_view_groups', models.ManyToManyField(blank=True, related_name='group_viewable_entitys', to='concrete.Group')),
-                ('can_view_users', models.ManyToManyField(blank=True, related_name='viewable_entitys', to=settings.AUTH_USER_MODEL)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_entitys', to=settings.AUTH_USER_MODEL)),
-                ('defaultdivider', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='divider_entitys', to='concrete.DefaultDivider')),
+                (
+                    'can_admin_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_administrable_entitys',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_admin_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='administrable_entitys',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'can_view_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_viewable_entitys',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_view_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='viewable_entitys',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_entitys',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'defaultdivider',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='divider_entitys',
+                        to='concrete.DefaultDivider',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'Entity',
@@ -436,39 +1211,162 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='EmailDevice',
             fields=[
-                ('name', models.CharField(help_text='The human-readable name of this device.', max_length=64)),
-                ('confirmed', models.BooleanField(default=True, help_text='Is this device ready for use?')),
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
-                ('key', models.CharField(default=concrete_datastore.concrete.models.default_key, help_text='A hex-encoded secret key of up to 20 bytes.', max_length=80, validators=[concrete_datastore.concrete.models.key_validator])),
-                ('email', models.CharField(default='', help_text='Email address to send verification code.', max_length=250)),
+                (
+                    'name',
+                    models.CharField(
+                        help_text='The human-readable name of this device.',
+                        max_length=64,
+                    ),
+                ),
+                (
+                    'confirmed',
+                    models.BooleanField(
+                        default=True, help_text='Is this device ready for use?'
+                    ),
+                ),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
+                (
+                    'key',
+                    models.CharField(
+                        default=concrete_datastore.concrete.models.default_key,
+                        help_text='A hex-encoded secret key of up to 20 bytes.',
+                        max_length=80,
+                        validators=[
+                            concrete_datastore.concrete.models.key_validator
+                        ],
+                    ),
+                ),
+                (
+                    'email',
+                    models.CharField(
+                        default='',
+                        help_text='Email address to send verification code.',
+                        max_length=250,
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_emaildevices', to=settings.AUTH_USER_MODEL)),
-                ('user', models.ForeignKey(help_text='The user that this device belongs to.', on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_emaildevices',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'user',
+                    models.ForeignKey(
+                        help_text='The user that this device belongs to.',
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
-            options={
-                'abstract': False,
-            },
+            options={'abstract': False},
         ),
         migrations.CreateModel(
             name='Email',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=False)),
-                ('subject', models.CharField(blank=True, default='', max_length=250)),
-                ('resource_status', models.CharField(blank=True, choices=[('to-send', 'Email should be sent'), ('send-in-progress', 'Email sending'), ('send-error', 'Error during sending'), ('sent', 'Email sent')], default='to-send', max_length=250)),
-                ('resource_message', models.CharField(blank=True, default='', max_length=250)),
+                (
+                    'subject',
+                    models.CharField(blank=True, default='', max_length=250),
+                ),
+                (
+                    'resource_status',
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ('to-send', 'Email should be sent'),
+                            ('send-in-progress', 'Email sending'),
+                            ('send-error', 'Error during sending'),
+                            ('sent', 'Email sent'),
+                        ],
+                        default='to-send',
+                        max_length=250,
+                    ),
+                ),
+                (
+                    'resource_message',
+                    models.CharField(blank=True, default='', max_length=250),
+                ),
                 ('body', models.TextField(blank=True, default='')),
                 ('additional_filtering', models.BooleanField(default=False)),
-                ('can_admin_groups', models.ManyToManyField(blank=True, related_name='group_administrable_emails', to='concrete.Group')),
-                ('can_admin_users', models.ManyToManyField(blank=True, related_name='administrable_emails', to=settings.AUTH_USER_MODEL)),
-                ('can_view_groups', models.ManyToManyField(blank=True, related_name='group_viewable_emails', to='concrete.Group')),
-                ('can_view_users', models.ManyToManyField(blank=True, related_name='viewable_emails', to=settings.AUTH_USER_MODEL)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_emails', to=settings.AUTH_USER_MODEL)),
-                ('defaultdivider', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='divider_emails', to='concrete.DefaultDivider')),
-                ('receiver', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='received_emails', to=settings.AUTH_USER_MODEL)),
+                (
+                    'can_admin_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_administrable_emails',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_admin_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='administrable_emails',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'can_view_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_viewable_emails',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_view_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='viewable_emails',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_emails',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'defaultdivider',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='divider_emails',
+                        to='concrete.DefaultDivider',
+                    ),
+                ),
+                (
+                    'receiver',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='received_emails',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'Email',
@@ -479,19 +1377,69 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='DateUtc',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=False)),
                 ('datetime', models.DateTimeField(blank=True, null=True)),
                 ('date', models.DateField(blank=True, null=True)),
                 ('additional_filtering', models.BooleanField(default=False)),
-                ('can_admin_groups', models.ManyToManyField(blank=True, related_name='group_administrable_dateutcs', to='concrete.Group')),
-                ('can_admin_users', models.ManyToManyField(blank=True, related_name='administrable_dateutcs', to=settings.AUTH_USER_MODEL)),
-                ('can_view_groups', models.ManyToManyField(blank=True, related_name='group_viewable_dateutcs', to='concrete.Group')),
-                ('can_view_users', models.ManyToManyField(blank=True, related_name='viewable_dateutcs', to=settings.AUTH_USER_MODEL)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_dateutcs', to=settings.AUTH_USER_MODEL)),
-                ('defaultdivider', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='divider_dateutcs', to='concrete.DefaultDivider')),
+                (
+                    'can_admin_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_administrable_dateutcs',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_admin_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='administrable_dateutcs',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'can_view_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_viewable_dateutcs',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_view_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='viewable_dateutcs',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_dateutcs',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'defaultdivider',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='divider_dateutcs',
+                        to='concrete.DefaultDivider',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'DateUtc',
@@ -502,18 +1450,71 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Crud',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=False)),
-                ('name', models.CharField(blank=True, default='', max_length=50)),
+                (
+                    'name',
+                    models.CharField(blank=True, default='', max_length=50),
+                ),
                 ('additional_filtering', models.BooleanField(default=False)),
-                ('can_admin_groups', models.ManyToManyField(blank=True, related_name='group_administrable_cruds', to='concrete.Group')),
-                ('can_admin_users', models.ManyToManyField(blank=True, related_name='administrable_cruds', to=settings.AUTH_USER_MODEL)),
-                ('can_view_groups', models.ManyToManyField(blank=True, related_name='group_viewable_cruds', to='concrete.Group')),
-                ('can_view_users', models.ManyToManyField(blank=True, related_name='viewable_cruds', to=settings.AUTH_USER_MODEL)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_cruds', to=settings.AUTH_USER_MODEL)),
-                ('defaultdivider', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='divider_cruds', to='concrete.DefaultDivider')),
+                (
+                    'can_admin_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_administrable_cruds',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_admin_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='administrable_cruds',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'can_view_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_viewable_cruds',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_view_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='viewable_cruds',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_cruds',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'defaultdivider',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='divider_cruds',
+                        to='concrete.DefaultDivider',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'Crud',
@@ -524,67 +1525,184 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ConcreteRole',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('name', models.CharField(max_length=255, unique=True)),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_concreteroles', to=settings.AUTH_USER_MODEL)),
-                ('users', models.ManyToManyField(blank=True, related_name='concrete_roles', to=settings.AUTH_USER_MODEL)),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_concreteroles',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='concrete_roles',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
             name='ConcretePermission',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('model_name', models.CharField(max_length=255, unique=True)),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
-                ('create_roles', models.ManyToManyField(blank=True, related_name='create_permissions', to='concrete.ConcreteRole')),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_concretepermissions', to=settings.AUTH_USER_MODEL)),
-                ('delete_roles', models.ManyToManyField(blank=True, related_name='delete_permissions', to='concrete.ConcreteRole')),
-                ('retrieve_roles', models.ManyToManyField(blank=True, related_name='retrieve_permissions', to='concrete.ConcreteRole')),
-                ('update_roles', models.ManyToManyField(blank=True, related_name='update_permissions', to='concrete.ConcreteRole')),
+                (
+                    'create_roles',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='create_permissions',
+                        to='concrete.ConcreteRole',
+                    ),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_concretepermissions',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'delete_roles',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='delete_permissions',
+                        to='concrete.ConcreteRole',
+                    ),
+                ),
+                (
+                    'retrieve_roles',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='retrieve_permissions',
+                        to='concrete.ConcreteRole',
+                    ),
+                ),
+                (
+                    'update_roles',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='update_permissions',
+                        to='concrete.ConcreteRole',
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
             model_name='category',
             name='can_admin_groups',
-            field=models.ManyToManyField(blank=True, related_name='group_administrable_categorys', to='concrete.Group'),
+            field=models.ManyToManyField(
+                blank=True,
+                related_name='group_administrable_categorys',
+                to='concrete.Group',
+            ),
         ),
         migrations.AddField(
             model_name='category',
             name='can_admin_users',
-            field=models.ManyToManyField(blank=True, related_name='administrable_categorys', to=settings.AUTH_USER_MODEL),
+            field=models.ManyToManyField(
+                blank=True,
+                related_name='administrable_categorys',
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
             model_name='category',
             name='can_view_groups',
-            field=models.ManyToManyField(blank=True, related_name='group_viewable_categorys', to='concrete.Group'),
+            field=models.ManyToManyField(
+                blank=True,
+                related_name='group_viewable_categorys',
+                to='concrete.Group',
+            ),
         ),
         migrations.AddField(
             model_name='category',
             name='can_view_users',
-            field=models.ManyToManyField(blank=True, related_name='viewable_categorys', to=settings.AUTH_USER_MODEL),
+            field=models.ManyToManyField(
+                blank=True,
+                related_name='viewable_categorys',
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
             model_name='category',
             name='created_by',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_categorys', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='owned_categorys',
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
             model_name='category',
             name='defaultdivider',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='divider_categorys', to='concrete.DefaultDivider'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='divider_categorys',
+                to='concrete.DefaultDivider',
+            ),
         ),
         migrations.CreateModel(
             name='AuthToken',
             fields=[
-                ('key', models.CharField(max_length=40, primary_key=True, serialize=False, verbose_name='Key')),
-                ('created', models.DateTimeField(auto_now_add=True, verbose_name='Created')),
+                (
+                    'key',
+                    models.CharField(
+                        max_length=40,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name='Key',
+                    ),
+                ),
+                (
+                    'created',
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name='Created'
+                    ),
+                ),
                 ('expired', models.BooleanField(default=False)),
-                ('expiration_date', models.DateTimeField(default=concrete_datastore.concrete.models.compute_auth_token_expiry)),
-                ('last_action_date', models.DateTimeField(default=pendulum.pendulum.Pendulum.now)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='auth_tokens', to=settings.AUTH_USER_MODEL, verbose_name='User')),
+                (
+                    'expiration_date',
+                    models.DateTimeField(
+                        default=concrete_datastore.concrete.models.compute_auth_token_expiry
+                    ),
+                ),
+                (
+                    'last_action_date',
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
+                (
+                    'user',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='auth_tokens',
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name='User',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'Token',
@@ -595,39 +1713,117 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='user',
             name='defaultdividers',
-            field=models.ManyToManyField(blank=True, related_name='divider_users', to='concrete.DefaultDivider'),
+            field=models.ManyToManyField(
+                blank=True,
+                related_name='divider_users',
+                to='concrete.DefaultDivider',
+            ),
         ),
         migrations.AddField(
             model_name='user',
             name='groups',
-            field=models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.Group', verbose_name='groups'),
+            field=models.ManyToManyField(
+                blank=True,
+                help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
+                related_name='user_set',
+                related_query_name='user',
+                to='auth.Group',
+                verbose_name='groups',
+            ),
         ),
         migrations.AddField(
             model_name='user',
             name='unsubscribe_to',
-            field=models.ManyToManyField(blank=True, related_name='unsubscribed_users', to='concrete.DefaultDivider'),
+            field=models.ManyToManyField(
+                blank=True,
+                related_name='unsubscribed_users',
+                to='concrete.DefaultDivider',
+            ),
         ),
         migrations.AddField(
             model_name='user',
             name='user_permissions',
-            field=models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.Permission', verbose_name='user permissions'),
+            field=models.ManyToManyField(
+                blank=True,
+                help_text='Specific permissions for this user.',
+                related_name='user_set',
+                related_query_name='user',
+                to='auth.Permission',
+                verbose_name='user permissions',
+            ),
         ),
         migrations.CreateModel(
             name='UniqueTogetherModel',
             fields=[
-                ('uid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
+                (
+                    'uid',
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
                 ('modification_date', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('public', models.BooleanField(default=False)),
-                ('name', models.CharField(blank=True, default='', max_length=250)),
-                ('field1', models.CharField(blank=True, default='', max_length=250)),
+                (
+                    'name',
+                    models.CharField(blank=True, default='', max_length=250),
+                ),
+                (
+                    'field1',
+                    models.CharField(blank=True, default='', max_length=250),
+                ),
                 ('additional_filtering', models.BooleanField(default=False)),
-                ('can_admin_groups', models.ManyToManyField(blank=True, related_name='group_administrable_uniquetogethermodels', to='concrete.Group')),
-                ('can_admin_users', models.ManyToManyField(blank=True, related_name='administrable_uniquetogethermodels', to=settings.AUTH_USER_MODEL)),
-                ('can_view_groups', models.ManyToManyField(blank=True, related_name='group_viewable_uniquetogethermodels', to='concrete.Group')),
-                ('can_view_users', models.ManyToManyField(blank=True, related_name='viewable_uniquetogethermodels', to=settings.AUTH_USER_MODEL)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='owned_uniquetogethermodels', to=settings.AUTH_USER_MODEL)),
-                ('defaultdivider', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='divider_uniquetogethermodels', to='concrete.DefaultDivider')),
+                (
+                    'can_admin_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_administrable_uniquetogethermodels',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_admin_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='administrable_uniquetogethermodels',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'can_view_groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='group_viewable_uniquetogethermodels',
+                        to='concrete.Group',
+                    ),
+                ),
+                (
+                    'can_view_users',
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name='viewable_uniquetogethermodels',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='owned_uniquetogethermodels',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'defaultdivider',
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='divider_uniquetogethermodels',
+                        to='concrete.DefaultDivider',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'UniqueTogetherModel',
