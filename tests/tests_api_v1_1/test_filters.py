@@ -20,6 +20,7 @@ from concrete_datastore.concrete.models import (
     Category,
 )
 from django.test import override_settings
+from concrete_datastore.api.v1.datetime import format_datetime
 
 
 @override_settings(DEBUG=True)
@@ -364,8 +365,7 @@ class FilterDatesTestClass(APITestCase):
             },
         )
         self.token = resp.data['token']
-        self.date = pendulum.from_format("2017-10-28", '%Y-%m-%d')
-        self.datetime = pendulum.parse("2017-10-28T")
+        self.date = pendulum.from_format("2017-10-28", 'YYYY-MM-DD')
         url_date = '/api/v1.1/date-utc/'
         for i in range(10):
             self.client.post(
@@ -385,13 +385,9 @@ class FilterDatesTestClass(APITestCase):
 
     def test_filter_range_date_and_datetime_fields(self):
         start_date = self.date.add(days=-1).to_date_string()
-        start_datetime = (
-            self.date.add(days=-1).to_iso8601_string().split('+')[0] + 'Z'
-        )
+        start_datetime = format_datetime(self.date.add(days=-1))
         end_date = self.date.add(days=3).to_date_string()
-        end_datetime = (
-            self.date.add(days=3).to_iso8601_string().split('+')[0] + 'Z'
-        )
+        end_datetime = format_datetime(self.date.add(days=3))
         url_date = '/api/v1.1/date-utc/?date__range={},{}&datetime__range={},{}'.format(
             start_date, end_date, start_datetime, end_datetime
         )

@@ -1,17 +1,17 @@
 # coding: utf-8
 import pendulum
 
-api_format = '%Y-%m-%dT%H:%M:%SZ'
+api_format = 'YYYY-MM-DDTHH:mm:ss\Z'
 
 
 def format_datetime(dt):
-    return ensure_pendulum(dt).format(api_format, formatter='classic')
+    return ensure_pendulum(dt).format(api_format)
 
 
 def ensure_pendulum(value):
     d = value
     if isinstance(d, str):
         d = pendulum.parse(d)
-    if not isinstance(d, pendulum.pendulum.Pendulum):
+    if not isinstance(d, pendulum.Date):
         d = pendulum.instance(d)
     return d

@@ -75,7 +75,7 @@ class AuthToken(Token):
     )
     expired = models.BooleanField(default=False)
     expiration_date = models.DateTimeField(default=compute_auth_token_expiry)
-    last_action_date = models.DateTimeField(default=pendulum.now)
+    last_action_date = models.DateTimeField(default=timezone.now)
 
 
 def default_key():
@@ -545,7 +545,7 @@ class HasPermissionAbstractUser(models.Model):
         password_has_expiry = expiry > 0
         now = pendulum.now()
         d = self.password_modification_date
-        last_password_modification = pendulum.create(d.year, d.month, d.day)
+        last_password_modification = pendulum.datetime(d.year, d.month, d.day)
 
         return (
             password_has_expiry
