@@ -8,11 +8,17 @@
 
 ### Changed
 
-- Pendulum version updgraded to v2.0
+- nothing changed
 
 ### Removed
 
 - nothing removed
+
+## [1.7.0] - 2020-03-30
+
+### Changed
+
+- Pendulum version updgraded to v2.0
 
 ## [1.6.0] - 2020-03-20
 
