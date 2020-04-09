@@ -52,6 +52,13 @@ if settings.DEBUG:
             r'^s/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}
         ),
     ]
+if settings.USE_CORE_AUTOMATION:
+    # ImportError if the import fails
+    import ns_core
+    urlpatterns += [
+        re_path(r'^core/', include('ns_core.coreApp.urls', namespace='core'))
+    ]
+
 
 urlpatterns += [
     re_path(
