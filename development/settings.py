@@ -51,7 +51,7 @@ INSTALLED_APPS += [
     'debug_toolbar',
     'django_filters',
     'ns_core.coreApp',
-    'test_core.mainApp',
+    'gcmcn_core.mainApp',
 ]
 
 MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
@@ -117,3 +117,6 @@ ONCE = {
     'settings': {'url': BROKER_URL, 'default_timeout': 60},
 }
 # INSTALLED_PLUGINS['ns_core'] = '4.4.0'
+USE_CORE_AUTOMATION = True
+
+DEFAULT_TIME_BEFORE_CONNECTION = 30
