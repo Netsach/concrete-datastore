@@ -37,11 +37,7 @@ class FilterSupportingComparaisonBackendTestCase(APITestCase):
         UserConfirmation.objects.create(user=self.user, confirmed=True).save()
         url = '/api/v1.1/auth/login/'
         resp = self.client.post(
-            url,
-            {
-                "email": "johndoe@netsach.org",
-                "password": "plop",
-            },
+            url, {"email": "johndoe@netsach.org", "password": "plop"}
         )
         self.token = resp.data['token']
         for i in range(5):
@@ -84,11 +80,7 @@ class FilterSupportingOrBackendTestClass(APITestCase):
         UserConfirmation.objects.create(user=self.user, confirmed=True).save()
         url = '/api/v1.1/auth/login/'
         resp = self.client.post(
-            url,
-            {
-                "email": "johndoe@netsach.org",
-                "password": "plop",
-            },
+            url, {"email": "johndoe@netsach.org", "password": "plop"}
         )
         self.token = resp.data['token']
 
@@ -306,7 +298,8 @@ class FilterWithInvalidFields(APITestCase):
             {
                 'message': 'filter against {} is not allowed'.format(
                     requested_filter
-                )
+                ),
+                '_errors': ["INVALID_QUERY"],
             },
         )
 
