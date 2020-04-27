@@ -3,7 +3,6 @@ from django.urls import re_path, include
 from django.conf import settings
 from django.views.static import serve
 from django.views.generic import TemplateView
-
 from concrete_datastore.admin.admin import admin_site
 from .views import service_status_view, OpenApiView
 
@@ -55,9 +54,11 @@ if settings.DEBUG:
 if settings.USE_CORE_AUTOMATION:
     # ImportError if the import fails
     import ns_core
+    from ns_core.coreApp.admin_site import admin_site as core_admin_site
 
     urlpatterns += [
-        re_path(r'^core/', include('ns_core.coreApp.urls', namespace=''))
+        re_path(r'^core/', include('ns_core.coreApp.urls', namespace='')),
+        re_path(r'^core-admin/', core_admin_site.urls, name='core-admin'),
     ]
 
 
