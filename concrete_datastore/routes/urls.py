@@ -54,7 +54,9 @@ if settings.DEBUG:
 if settings.USE_CORE_AUTOMATION:
     # ImportError if the import fails
     import ns_core  # pylint: disable = import-error
-    from ns_core.coreApp.admin_site import admin_site as core_admin_site  # pylint: disable = import-error
+    from ns_core.coreApp.admin_site import (  # pylint: disable = import-error
+        admin_site as core_admin_site,
+    )
 
     urlpatterns += [
         re_path(r'^core/', include('ns_core.coreApp.urls', namespace='')),
