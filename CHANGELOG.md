@@ -4,7 +4,7 @@
 
 ### Added
 
-- Enable the use of Workflows within a core installed in concrete
+- nothing added
 
 ### Changed
 
@@ -13,6 +13,12 @@
 ### Removed
 
 - nothing removed
+
+## [1.8.0] - 2020-04-28
+
+### Added
+
+- Enable the use of Workflows within a core installed in concrete
 
 ## [1.7.0] - 2020-03-30
 
