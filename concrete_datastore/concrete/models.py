@@ -255,8 +255,7 @@ class ConcreteRole(models.Model):
         # default=timezone.now
     )
 
-    # public = models.BooleanField(default=public_default_value)
-    def __str__(self):
+    def __str__(self):  # pylint: disable = invalid-str-returned
         return self.name
 
 
@@ -291,7 +290,7 @@ class ConcretePermission(models.Model):
     modification_date = models.DateTimeField(auto_now=True)
     creation_date = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
+    def __str__(self):  # pylint: disable = invalid-str-returned
         return self.model_name
 
 
