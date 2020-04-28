@@ -4,7 +4,6 @@ from functools import update_wrapper
 from django.conf import settings
 from django.contrib.admin.sites import AdminSite
 from django_otp.admin import OTPAdminSite
-from django.contrib import admin
 
 from concrete_datastore.admin.admin_form import (
     MyAuthForm,
@@ -17,17 +16,6 @@ AUTH_MODEL_NAMES_LOWER = ('users', 'groups', 'tokens', 'permissions', 'roles')
 
 
 def get_admin_site():
-    admin_site = admin.site
-    login_form = MyAuthForm
-    if settings.USE_TWO_FACTOR_AUTH:
-        admin_site = OTPAdminSite(name='admin')
-        admin_site.login_template = "admin/mfa-login.html"
-        login_form = OTPAuthenticationForm
-        #:  the default "admin.site" contains already auth.Group
-        #:  and auth.Site models registered. We copy them
-        #:  into our custom admin site
-        admin_site._registry = admin.site._registry.copy()
-    admin_site.login_form = login_form
     if settings.USE_TWO_FACTOR_AUTH:
         admin_site = OTPAdminSite
         admin_site_kwargs = {'name': 'admin'}
@@ -159,4 +147,4 @@ def get_admin_site():
         'get_urls': get_urls,
     }
 
-    return type('CustomAdminSite', (admin_site,), attrs)(**admin_site_kwargs)
+    return type('CustomAdminSite', (admin_site,), attrs)(**admin_site_kwargs)  # pylint: disable = unexpected-keyword-arg

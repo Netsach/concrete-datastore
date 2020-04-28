@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Enable the use of Workflows within a core installed in concrete
 
 ### Changed
 
