@@ -3,7 +3,7 @@ import os
 from itertools import chain
 from celery import Celery
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'development.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings.production')
 from django.conf import settings
 
 app = Celery('celery_app', backend='rpc://')

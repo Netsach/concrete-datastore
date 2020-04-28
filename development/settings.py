@@ -47,12 +47,7 @@ MIGRATION_MODULES = {'concrete': 'concrete_datastore.concrete.migrations'}
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-INSTALLED_APPS += [
-    'debug_toolbar',
-    'django_filters',
-    'ns_core.coreApp',
-    'gcmcn_core.mainApp',
-]
+INSTALLED_APPS += ['debug_toolbar', 'django_filters']
 
 MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
 
@@ -83,40 +78,3 @@ DEFAULT_CHARSET = 'utf-8'
 ALLOWED_INCLUDE_ROOTS = ()
 
 SERVER_EMAIL = EMAIL_HOST_USER
-
-CELERYBEAT_SCHEDULE['run_resource_watchers'] = {
-    'task': 'ns_core.coreApp.automation.periodics.async_run_resource_watchers',
-    'schedule': timedelta(seconds=10),
-    'options': {'queue': 'run_resource_watchers'},
-}
-
-CELERYBEAT_SCHEDULE['run_job_scheduler'] = {
-    'task': 'ns_core.coreApp.automation.periodics.async_run_job_scheduler',
-    'schedule': timedelta(seconds=10),
-    'options': {'queue': 'run_job_scheduler'},
-}
-CELERYBEAT_SCHEDULE['run_update_workflows'] = {
-    'task': 'ns_core.coreApp.automation.periodics.async_run_update_workflows',
-    'schedule': timedelta(seconds=10),
-    'options': {'queue': 'run_update_workflows'},
-}
-
-CELERYBEAT_SCHEDULE['run_checks'] = {
-    'task': 'ns_core.coreApp.automation.periodics.async_run_checks',
-    'schedule': timedelta(seconds=3600),
-    'options': {'queue': 'run_checks'},
-}
-CELERYBEAT_SCHEDULE['sync_jobs_states']: {
-    'task': 'ns_core.coreApp.automation.periodics.async_sync_jobs_states',
-    'schedule': timedelta(seconds=1800),
-    'options': {'queue': 'sync_jobs_states'},
-}
-
-ONCE = {
-    'backend': 'celery_once.backends.Redis',
-    'settings': {'url': BROKER_URL, 'default_timeout': 60},
-}
-# INSTALLED_PLUGINS['ns_core'] = '4.4.0'
-USE_CORE_AUTOMATION = True
-
-DEFAULT_TIME_BEFORE_CONNECTION = 30
