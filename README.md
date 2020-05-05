@@ -68,4 +68,4 @@ You can create manually the `datamodel` file following the examples and the docu
 See the [official documentation](http://concrete-datastore.netsach.org/)
 
 ## FAQs
-If you are trying out the concrete-datastore yourself and it's not working as expected, please check our [FAQs](/FAQS.md).
+If you are trying out the `concrete-datastore` yourself and it's not working as expected, please check our [FAQs](/FAQS.md).
