@@ -21,7 +21,7 @@ When you try out the `concrete-datastore` yourself, you might stumble across one
 If you do not already have an PostgreSQL server running and you want to use docker, you need to download and install it. Please see the [official page](https://docs.docker.com/get-docker/) for more information.
 
 ## I do not have *virtualenv* installed
-*virtualenv* is auseful tool that enables you to create isolated Python environments. Simply install it with *pip*:
+*virtualenv* is a useful tool that enables you to create isolated Python environments. Simply install it with *pip*:
 
 ``` shell
 pip install virtualenv
@@ -35,24 +35,14 @@ If you change the virtual environment with virtualenv, running the `source env/b
 nano ~/.zshrc
 ```
 
-In this file, you firstly need to change the theme from the default theme pygmalion to robbyrussell:
-``` shell
-ZSH_THEME="robbyrussell"
-```
-
-Afterwards, add the *virtualenv* plugin to zsh, therefore add it to the following line:
+Add the *virtualenv* plugin to zsh, therefore add it to the following line:
 ``` shell
 plugins=(... virtualenv)
 ```
 
-Add the end of the file, add the following:
+If you don't see the name of the environment on the left, consider changing the zsh theme, for example to robbyrussel:
 ``` shell
-export VIRTUAL_ENV_DISABLE_PROMPT=
-```
-
-Run the following command to apply the changes:
-``` shell
-source ~/.zshrc
+ZSH_THEME="robbyrussell"
 ```
 
 ## I can not pip install: UNKNOWN error
