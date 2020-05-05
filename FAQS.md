@@ -2,7 +2,20 @@
 
 When you try out the concrete-datastore` yourself, you might stumble across one of the following issues. We try to keep the list up to date. If you can not make it work or you find other impediments, please don't hesitate to contact us. We will try to find a solution and include it here.
 
-[[_TOC_]]
+## Table of Contents
+
+<!-- MarkdownTOC autolink="true" -->
+
+- [I do not have Docker installed](#i-do-not-have-docker-installed)
+- [I do not have *virtualenv* installed](#i-do-not-have-virtualenv-installed)
+- [I can not change the environment with virtualenv and zsh](#i-can-not-change-the-environment-with-virtualenv-and-zsh)
+- [I can not pip install: UNKNOWN error](#i-can-not-pip-install-unknown-error)
+- [Running the migration scripts throws an error: role does not exists](#running-the-migration-scripts-throws-an-error-role-does-not-exists)
+- [Troubleshooting Docker](#troubleshooting-docker)
+- [How do I quit my virtualenv session?](#how-do-i-quit-my-virtualenv-session)
+
+<!-- /MarkdownTOC -->
+
 
 ## I do not have Docker installed
 If you do not already have an PostgreSQL server running and you want to use docker, you need to download and install it. Please see the [official page](https://docs.docker.com/get-docker/) for more information.
