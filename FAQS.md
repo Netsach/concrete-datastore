@@ -91,10 +91,15 @@ docker run --name postgres-concrete-gcmcn -e POSTGRES_DB=db-concrete-datastore -
 Afterwards, you should be able to run the following commands.
 
 ## Troubleshooting Docker
-To see all running containers, use:
+To see all containers, use:
 
 ```shell
 docker ps -a
+```
+
+To show only the running containers, use:
+```shell
+docker ps
 ```
 
 If a container did not start, or you suspect problems, check the logs:
