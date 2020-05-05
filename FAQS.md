@@ -1,6 +1,6 @@
 # Frequently Asked Questions
 
-When you try out the concrete-datastore yourself, you might stumble across one of the following issues. We try to keep the list up to date. If you can not make it work or you find other impediments, please don't hesitate to contact us. We will try to find a solution and include it here.
+When you try out the `concrete-datastore` yourself, you might stumble across one of the following issues. We try to keep the list up to date. If you can not make it work or you find other impediments, please don't hesitate to contact us. We will try to find a solution and include it here.
 
 [TOC]
 
@@ -42,7 +42,7 @@ Run the following command to apply the changes:
 source ~/.zshrc
 ```
 
-## I can not pip install the concrete-datastore: UNKNOWN error
+## I can not pip install the `concrete-datastore`: UNKNOWN error
 
 When running the `pip install -e ".[full]"` you might see the following (wrong) output:
 
@@ -69,7 +69,7 @@ If you get an error like the following:
 django.db.utils.OperationalError: FATAL:  role "user-concrete-datastore" does not exist
 ```
 
-You used the wrong run command for docker. The container might not even be started, or it crashed right after the launch. This is due to the fact that a database name, username and password is required. If you are just trying out the concrete-datastore, use the following default settings:
+You used the wrong run command for docker. The container might not even be started, or it crashed right after the launch. This is due to the fact that a database name, username and password is required. If you are just trying out the `concrete-datastore`, use the following default settings:
 
 ```shell
 docker run --name postgres-concrete-gcmcn -e POSTGRES_DB=db-concrete-datastore -e POSTGRES_USER=user-concrete-datastore -e POSTGRES_PASSWORD=pwd-concrete-datastore -d -p 5432:5432 postgres
