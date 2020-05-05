@@ -2,7 +2,7 @@
 
 When you try out the concrete-datastore yourself, you might stumble across one of the following issues. We try to keep the list up to date. If you can not make it work or you find other impediments, please don't hesitate to contact us. We will try to find a solution and include it here.
 
-[[TOC]]
+[TOC]
 
 ## I do not have Docker installed
 If you do not already have an PostgreSQL server running and you want to use docker, you need to download and install it. Please see the [official page](https://docs.docker.com/get-docker/) for more information.
