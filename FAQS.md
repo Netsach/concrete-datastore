@@ -1,6 +1,6 @@
 # Frequently Asked Questions
 
-When you try out the concrete-datastore` yourself, you might stumble across one of the following issues. We try to keep the list up to date. If you can not make it work or you find other impediments, please don't hesitate to contact us. We will try to find a solution and include it here.
+When you try out the `concrete-datastore` yourself, you might stumble across one of the following issues. We try to keep the list up to date. If you can not make it work or you find other impediments, please don't hesitate to contact us. We will try to find a solution and include it here.
 
 ## Table of Contents
 
