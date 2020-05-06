@@ -97,7 +97,7 @@ Used to register to the application.
 
 ```json
 {
-    'message': 'Password confimation incorrect'
+    "message": "Password confimation incorrect"
 }
 ```
 
@@ -109,7 +109,7 @@ Used to register to the application.
 
 ```json
 {
-    'errors': 'url_format is not a valid format_string'
+    "errors": "url_format is not a valid format_string"
 }
 ```
 
@@ -121,7 +121,7 @@ Used to register to the application.
 
 ```json
 {
-    'errors': 'email_format is not a valid format_string'
+    "errors": "email_format is not a valid format_string"
 }
 ```
 
@@ -133,7 +133,7 @@ Used to register to the application.
 
 ```json
 {
-    'message': 'Only registered users are allowed to set an email_format'
+    "message": "Only registered users are allowed to set an email_format"
 }
 ```
 

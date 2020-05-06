@@ -307,7 +307,7 @@ curl \
 **Response**: `401 (UNAUTHORIZED)` if the email does not exist with the following JSON:
 ```json
 {
-    'message': 'Wrong auth credentials',
+    "message": "Wrong auth credentials",
     "_errors": ["WRONG_AUTH_CREDENTIALS"],
 }
 ```
@@ -315,7 +315,7 @@ curl \
 **Response**: `401 (UNAUTHORIZED)` if the the token in invalid with the following JSON:
 ```json
 {
-    'message': 'MFA temp token invalid',
+    "message": "MFA temp token invalid",
     "_errors": ["MFA_TEMP_TOKEN_INVALID"],
 }
 ```
@@ -323,7 +323,7 @@ curl \
 **Response**: `401 (UNAUTHORIZED)` if the the token has expired with the following JSON:
 ```json
 {
-    'message': 'MFA temp token expired',
+    "message": "MFA temp token expired",
     "_errors": ["MFA_TEMP_TOKEN_EXPIRED"],
 }
 ```
@@ -331,7 +331,7 @@ curl \
 **Response**: `401 (UNAUTHORIZED)` if the the MFA code is invalid with the following JSON:
 ```json
 {
-    'message': 'Wrong verification code',
+    "message": "Wrong verification code",
     "_errors": ["WRONG_VERIFICATION_CODE"],
 }
 ```
@@ -356,7 +356,7 @@ curl \
 **Response**: `401 (UNAUTHORIZED)` if the user does not exist with the following JSON:
 ```json
 {
-    'message': 'Wrong auth credentials',
+    "message": "Wrong auth credentials",
     "_errors": ["WRONG_AUTH_CREDENTIALS"],
 }
 ```
@@ -453,7 +453,7 @@ curl \
 
 ```json
 {
-    'message': 'Invalid token',
+    "message": "Invalid token",
     "_errors": ["INVALID_TOKEN"],
 }
 ```
