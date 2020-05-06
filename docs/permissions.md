@@ -66,8 +66,8 @@ For a model, some user level constraints are set to determine whether a given us
 Objects can have arguments that allow a user (or a group of users) to perform some operations that he can't normally perform:
 
 
-- `can_view_users`, `can_view_groups`: gives and retrieves rights to a user or a group of users.
-- `can_admin_users`, `can_admin_groups`: gives, retrieves, and updates rights to a user or a group of users.
+- `can_view_users`, `can_view_groups`: gives `Retrieve` rights to a user or a group of users.
+- `can_admin_users`, `can_admin_groups`: gives `Retrieve` and `Update` rights to a user or a group of users.
 - `public`: a boolean. If set to false, a user with level `manager` or less can't have access to this object unless he is the owner (`created_by`) or listed in `can_admin_[users/groups]` or `can_view_[users/groups]`.
 
 ### User levels
