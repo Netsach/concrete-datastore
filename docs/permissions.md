@@ -82,7 +82,7 @@ Superuser > Admin > Manager > Simpleuser > Blocked
 
 ### User Scopes
 
-A user can have one or more scopes that are used to determine the range of objects accessible him.
+A user can have one or more scopes that are used to determine the range of objects accessible to him.
 
 A user of an `admin` level or higher has access to all the objects, independently of his scopes.
 
