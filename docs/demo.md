@@ -42,7 +42,7 @@ The server will response with the following JSON:
 The token will be used for further autheticated requests.
 
 #### Login to the API
-In order to login to the plateforme and retrieve your token, you can perform a `POST` request on `/auth/login/` with data containing your user's email and password (used to register):
+In order to login to the platform and retrieve your token, you can perform a `POST` request on `/auth/login/` with data containing your user's email and password (used to register):
 ```shell
 curl \
    -X POST \
@@ -50,7 +50,7 @@ curl \
    -H "Content-Type: application/json" \
    "https://<webapp>/api/v1.1/auth/login/"
 ```
-And the server will respond with a JSON containing your token along with other user's information:
+The server will respond with a JSON containing your token along with other user information:
 ```json
 {
   "uid": "fe2ad17a-4678-499c-a957-4cd84dd16e08",
@@ -78,7 +78,7 @@ curl \
     "https://<webapp>/api/v1.1/project/"
 ```
 
-The instance is the created and the server responds with the following JSON:
+The instance is created and the server responds with the following JSON:
 
 ```json
 {
@@ -108,7 +108,7 @@ curl \
     -H "Authorization: Token e72e8df2d1ab9ee0d7cb61367958e4bb8620c1e6" \
     "https://<webapp>/api/v1.1/project/"
 ```
-the API responds with the following JSON:
+The API responds with the following JSON:
 ```json
 {
   "objects_count": 1,

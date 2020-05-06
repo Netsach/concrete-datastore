@@ -32,15 +32,15 @@ Used to register to the application.
 }
 ```
 -  `email` is mandatory
--  `password1` is optional (if ALLOW_SEND_EMAIL_ON_REGISTER is enabled in settings) and has a default value generated within the view.
--  `password2` is optional (if ALLOW_SEND_EMAIL_ON_REGISTER is enabled in settings) and has a default value generated within the view.
+-  `password1` is optional (if ALLOW_SEND_EMAIL_ON_REGISTER is enabled in settings) and has a default value generated within the view
+-  `password2` is optional (if ALLOW_SEND_EMAIL_ON_REGISTER is enabled in settings) and has a default value generated within the view
 -  `email_format` is optional and has a default value of DEFAULT_REGISTER_EMAIL_FORMAT (in settings)
 -  `url_format` is optional and has a default value of `"/#/set-password/{token}/{email}/"`
 
 **Use cases** :
 
 -  A user can set `password1` and `password2` in order to register whith his own password.
--  A user can register without setting passwords (if the settings ALLOW_SEND_EMAIL_ON_REGISTER is enabled), and he will recieve a link in an email. This link contains the email adress used to register with and a token used to reset password. He can then reset his password using this token
+-  A user can register without setting passwords (if the setting ALLOW_SEND_EMAIL_ON_REGISTER is enabled), and he will recieve a link in an email. This link contains the email adress used to register with and a token used to reset the password. He can then reset his password using this token.
 
 **Data example**
 
@@ -70,7 +70,7 @@ Used to register to the application.
 }
 ```
 
-**IMPORTANT:** if AUTH_CONFIRM_EMAIL_ENABLE is True is settings, you will receiev an email. You will need to confirm your email address by clicking on the link attached to this email.
+**IMPORTANT:** if AUTH_CONFIRM_EMAIL_ENABLE is True is settings, you will receive an email. You will need to confirm your email address by clicking on the link attached to this email.
 
 #### Error Responses
 
@@ -125,7 +125,7 @@ Used to register to the application.
 }
 ```
 
-**Condition** : If a user not authenticated to the plateform (AnonymousUser) attempts to post an email format.
+**Condition** : If a user not authenticated to the platform (AnonymousUser) attempts to post an email format.
 
 **Code** : `400 BAD REQUEST`
 
@@ -246,21 +246,6 @@ Used to collect a Token for a registered User.
     "message": "Wrong auth credentials",
     "_errors": [
         "WRONG_AUTH_CREDENTIALS"
-    ]
-}
-```
-
-**Condition** : If the email address has not been validated.
-
-**Code** : `401 UNAUTHORIZED`
-
-**Content** :
-
-```json
-{
-    "message": "Email has not been validated",
-    "_errors": [
-        "EMAIL_NOT_VALIDATED"
     ]
 }
 ```
@@ -405,9 +390,9 @@ Used to reset your own password.
     "url_format": "[valid url_format]"
 }
 ```
-the url_format will be used to send the reset password email with a link to allow the user to reset its own password. it should be a string containing `"{email}"` and `"{token}"`. example: `"/redirection-url/{email}/{token}"`.  
+The url_format will be used to send the reset password email with a link to allow the user to reset his own password. It should be a string containing `"{email}"` and `"{token}"`. Example: `"/redirection-url/{email}/{token}"`.  
 
-default value: `"/#/reset-password/{token}/{email}/"`.
+Default value: `"/#/reset-password/{token}/{email}/"`.
 
 **Data example**
 
@@ -446,7 +431,7 @@ default value: `"/#/reset-password/{token}/{email}/"`.
 
 #### Request
 
-Used to change password of a user.
+Used to change the password of a user.
 
 **URL** : `/api/v1.1/auth/change-password/`
 
@@ -467,7 +452,7 @@ Used to change password of a user.
 -  `email` is mandatory
 -  `password1` is mandatory
 -  `password2` is mandatory
--  `password_change_token` is optional. This token is created if the user forgot his password and requests a reset password, or if the current password has expired. If given in data, that means that the user is attemting to change his own password (the request is not authenticated). Otherwise, if the `password_change_token` is not given, the request must be authenticated and the authenticated user must have the permissions to alter another user's password.
+-  `password_change_token` is optional. This token is created if the user forgot his password and requests a reset password, or if the current password has expired. If given in data, that means that the user is attempting to change his own password (the request is not authenticated). Otherwise, if the `password_change_token` is not given, the request must be authenticated and the authenticated user must have the permissions to alter another user's password.
 
 **Data example**
 
@@ -486,7 +471,7 @@ Used to change password of a user.
 
 **Content example**
 
-if a user attempts to change his own password
+If a user attempts to change his own password
 
 ```json
 {
@@ -503,7 +488,7 @@ if a user attempts to change his own password
 }
 ```
 
-if a user (with the sufficient permissions) attempts to change another user's password:
+If a user (with the sufficient permissions) attempts to change another user's password:
 
 ```json
 {
@@ -527,10 +512,6 @@ if a user (with the sufficient permissions) attempts to change another user's pa
 **Code** : `400 BAD REQUEST`
 
 **Condition** : If the new password is identical to the old one.
-
-**Code** : `400 BAD REQUEST`
-
-**Condition** : If the given `password_change_token` is invalid.
 
 **Code** : `400 BAD REQUEST`
 
