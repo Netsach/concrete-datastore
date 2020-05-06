@@ -8,7 +8,6 @@ When you try out the `concrete-datastore` yourself, you might stumble across one
 
 - [I do not have Docker installed](#i-do-not-have-docker-installed)
 - [I do not have *virtualenv* installed](#i-do-not-have-virtualenv-installed)
-- [I can not change the environment with virtualenv and zsh](#i-can-not-change-the-environment-with-virtualenv-and-zsh)
 - [I can not pip install: UNKNOWN error](#i-can-not-pip-install-unknown-error)
 - [Running the migration scripts throws an error: role does not exists](#running-the-migration-scripts-throws-an-error-role-does-not-exists)
 - [Troubleshooting Docker](#troubleshooting-docker)
@@ -25,24 +24,6 @@ If you do not already have an PostgreSQL server running and you want to use dock
 
 ``` shell
 pip install virtualenv
-```
-
-## I can not change the environment with virtualenv and zsh
-
-If you change the virtual environment with virtualenv, running the `source env/bin/activate` command, the name of the current virtual environment (*env* in our case) should appear on the left of the prompt. If this is not working for you and you are working with the zsh shell, the following should fix the problem. Open your `~/.zshrc` file:
-
-``` shell
-nano ~/.zshrc
-```
-
-Add the *virtualenv* plugin to zsh, therefore add it to the following line:
-``` shell
-plugins=(... virtualenv)
-```
-
-If you don't see the name of the environment on the left, consider changing the zsh theme, for example to robbyrussel:
-``` shell
-ZSH_THEME="robbyrussell"
 ```
 
 ## I can not pip install: UNKNOWN error
