@@ -56,7 +56,7 @@ django.db.utils.OperationalError: FATAL:  role "user-concrete-datastore" does no
 You used the wrong run command for docker. The container might not even be started, or it crashed right after the launch. This is due to the fact that a database name, username and password is required. If you are just trying out the `concrete-datastore`, use the following default settings:
 
 ```shell
-docker run --name postgres-concrete-gcmcn -e POSTGRES_DB=db-concrete-datastore -e POSTGRES_USER=user-concrete-datastore -e POSTGRES_PASSWORD=pwd-concrete-datastore -d -p 5432:5432 postgres
+docker run --name postgres-concrete-datastore -e POSTGRES_DB=db-concrete-datastore -e POSTGRES_USER=user-concrete-datastore -e POSTGRES_PASSWORD=pwd-concrete-datastore -d -p 5432:5432 postgres
 ```
 
 Afterwards, you should be able to run the following commands.
