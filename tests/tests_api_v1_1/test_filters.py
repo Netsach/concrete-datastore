@@ -24,7 +24,7 @@ from concrete_datastore.api.v1.datetime import format_datetime
 
 
 @override_settings(DEBUG=True)
-class FilterSupportingComparaisonBackendTestCase(APITestCase):
+class FilterSupportingComparisonBackendTestCase(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             'johndoe@netsach.org'
@@ -315,7 +315,8 @@ class FilterWithInvalidFields(APITestCase):
             {
                 'message': 'filter against {} is not allowed'.format(
                     requested_filter
-                )
+                ),
+                '_errors': ["INVALID_QUERY"],
             },
         )
 
@@ -329,7 +330,8 @@ class FilterWithInvalidFields(APITestCase):
             {
                 'message': 'filter against {} is not allowed'.format(
                     requested_filter
-                )
+                ),
+                '_errors': ["INVALID_QUERY"],
             },
         )
 
