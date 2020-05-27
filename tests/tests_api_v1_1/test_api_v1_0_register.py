@@ -233,6 +233,8 @@ class RegisterTestCase(APITestCase):
             url, {"password1": "mypassword", "password2": "mypasswordddd"}
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.data['_errors'], ['INVALID_DATA'])
+
         # POST a password 2 != from password 1
         resp = self.client.post(
             url,
@@ -243,6 +245,7 @@ class RegisterTestCase(APITestCase):
             },
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.data['_errors'], ['MISMATCH_PASSWORDS'])
 
     def test_register_with_custom_fields(self):
         url = '/api/v1.1/auth/register/'
@@ -390,4 +393,16 @@ class RegisterTestCaseEmailFilter(APITestCase):
             },
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(User.objects.count(), 0)
+        self.assertEqual(
+            resp.data['_errors'], ['EMAIL_NOT_AUTHORIZED_TO_REGISTER']
+        )
+        resp = self.client.post(
+            url,
+            {
+                "email": "johndoe@namedomain.com",
+                "password1": "123",
+                "password2": "123",
+            },
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.data['_errors'], ['NOT_ENOUGH_CHARS'])

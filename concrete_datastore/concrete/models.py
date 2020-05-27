@@ -257,7 +257,7 @@ class ConcreteRole(models.Model):
 
     # public = models.BooleanField(default=public_default_value)
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 class ConcretePermission(models.Model):
@@ -292,7 +292,7 @@ class ConcretePermission(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.model_name
+        return str(self.model_name)
 
 
 class SecureConnectToken(models.Model):

@@ -32,6 +32,7 @@ class TestPaginatedViews(APITestCase):
             get_url, HTTP_AUTHORIZATION='Token {}'.format(self.token)
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.data['_errors'], ['INVALID_QUERY'])
 
         pagination = 0
         get_url = '/api/v1.1/project/?c_resp_page_size={}'.format(pagination)
@@ -39,6 +40,7 @@ class TestPaginatedViews(APITestCase):
             get_url, HTTP_AUTHORIZATION='Token {}'.format(self.token)
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.data['_errors'], ['INVALID_QUERY'])
 
         pagination = 5
         get_url = '/api/v1.1/project/?c_resp_page_size={}'.format(pagination)
@@ -71,6 +73,7 @@ class TestPaginatedViews(APITestCase):
             get_url, HTTP_AUTHORIZATION='Token {}'.format(self.token)
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.data['_errors'], ['INVALID_QUERY'])
 
         nested = 'false'
         get_url = '/api/v1.1/project/?c_resp_nested={}'.format(nested)
