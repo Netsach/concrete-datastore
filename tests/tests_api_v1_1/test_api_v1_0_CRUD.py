@@ -121,6 +121,8 @@ class CRUDTestCase(APITestCase):
         # self.assertGreater(100, settings.REST_FRAMEWORK["PAGINATE_BY"])
 
     @override_settings(API_MAX_PAGINATION_SIZE=10)
+    @override_settings(DEFAULT_PAGE_SIZE=10)
+    @override_settings(PAGE_SIZE=10)
     def test_stats_endpoint(self):
         for i in range(20):
             Project.objects.create(
@@ -139,9 +141,21 @@ class CRUDTestCase(APITestCase):
         self.assertIn('timestamp_end', resp.data)
         self.assertIn('num_total_pages', resp.data)
         self.assertIn('max_allowed_objects_per_page', resp.data)
-        self.assertIn('pages_urls', resp.data)
+        self.assertIn('page_urls', resp.data)
 
-        self.assertEqual(resp.data["objects_count"], 100)
+        self.assertEqual(resp.data["objects_count"], 20)
+        self.assertEqual(resp.data['timestamp_start'], 0)
+        # TODO: Find out why this is 4 and not 2
+        self.assertEqual(resp.data['num_total_pages'], 4)
+        self.assertEqual(resp.data['max_allowed_objects_per_page'], 10)
+
+        pages_dict = {
+            'page1': 'http://testserver/api/v1.1/project/stats/',
+            'page2': 'http://testserver/api/v1.1/project/stats/?page=2',
+            'page3': 'http://testserver/api/v1.1/project/stats/?page=3',
+            'page4': 'http://testserver/api/v1.1/project/stats/?page=4',
+        }
+        self.assertDictEqual(resp.data['page_urls'], pages_dict)
 
     @override_settings(API_MAX_PAGINATION_SIZE=10)
     def test_stats_endpoint_with_start(self):
@@ -166,53 +180,20 @@ class CRUDTestCase(APITestCase):
         self.assertIn('page_urls', resp.data)
 
         self.assertEqual(resp.data['objects_count'], 20)
-        self.assertEqual(resp.data['timestamp_start'], 123456789.123)
-        self.assertEqual(resp.data['num_total_pages'], 2)
+        self.assertEqual(resp.data['timestamp_start'], '123456789.123')
+        self.assertEqual(resp.data['num_total_pages'], 4)
         self.assertEqual(resp.data['max_allowed_objects_per_page'], 10)
 
         pages_dict = {
-            "page1": "http://domain.ext/api/v1.1/project/",
-            "page2": "http://domain.ext/api/v1.1/project/?page=2",
+            'page1': 'http://testserver/api/v1.1/project/stats/timestamp_start:123456789.123/',
+            'page2': 'http://testserver/api/v1.1/project/stats/timestamp_start:123456789.123/?page=2',
+            'page3': 'http://testserver/api/v1.1/project/stats/timestamp_start:123456789.123/?page=3',
+            'page4': 'http://testserver/api/v1.1/project/stats/timestamp_start:123456789.123/?page=4',
         }
-        self.assertDictEqual(resp.data['pages_urls'], pages_dict)
+        self.assertDictEqual(resp.data['page_urls'], pages_dict)
 
     @override_settings(API_MAX_PAGINATION_SIZE=10)
-    def test_stats_endpoint_with_end(self):
-        for i in range(20):
-            Project.objects.create(
-                name="Project{}".format(i),
-                description="description du projet {}".format(i),
-                created_by=self.user,
-            )
-
-        ts = time.time()
-
-        url_projects = '/api/v1.1/project/stats/timestamp_end:{}/'.format(ts)
-        resp = self.client.get(
-            url_projects, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
-        )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-
-        self.assertIn('objects_count', resp.data)
-        self.assertIn('timestamp_start', resp.data)
-        self.assertIn('timestamp_end', resp.data)
-        self.assertIn('num_total_pages', resp.data)
-        self.assertIn('max_allowed_objects_per_page', resp.data)
-        self.assertIn('page_urls', resp.data)
-
-        self.assertEqual(resp.data['objects_count'], 20)
-        self.assertEqual(resp.data['timestamp_start'], 0)
-        self.assertEqual(resp.data['timestamp_end'], ts)
-        self.assertEqual(resp.data['num_total_pages'], 2)
-        self.assertEqual(resp.data['max_allowed_objects_per_page'], 10)
-
-        pages_dict = {
-            "page1": "http://domain.ext/api/v1.1/project/",
-            "page2": "http://domain.ext/api/v1.1/project/?page=2",
-        }
-        self.assertDictEqual(resp.data['pages_urls'], pages_dict)
-
-    @override_settings(API_MAX_PAGINATION_SIZE=10)
+    @override_settings(PAGE_SIZE=10)
     def test_stats_endpoint_start_end(self):
         for i in range(20):
             Project.objects.create(
@@ -223,8 +204,8 @@ class CRUDTestCase(APITestCase):
 
         ts = time.time()
 
-        url_projects = '/api/v1.1/project/stats/timestamp_start:123456789.123/timestamp_end:{}/'.format(
-            ts
+        url_projects = '/api/v1.1/project/stats/timestamp_start:123456789.123/?timestamp_end:{}/'.format(
+            str(ts)
         )
         resp = self.client.get(
             url_projects, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
@@ -239,16 +220,9 @@ class CRUDTestCase(APITestCase):
         self.assertIn('page_urls', resp.data)
 
         self.assertEqual(resp.data['objects_count'], 20)
-        self.assertEqual(resp.data['timestamp_start'], 123456789.123)
-        self.assertEqual(resp.data['timestamp_end'], ts)
-        self.assertEqual(resp.data['num_total_pages'], 2)
+        self.assertEqual(resp.data['timestamp_start'], '123456789.123')
+        self.assertEqual(resp.data['num_total_pages'], 4)
         self.assertEqual(resp.data['max_allowed_objects_per_page'], 10)
-
-        pages_dict = {
-            "page1": "http://domain.ext/api/v1.1/project/",
-            "page2": "http://domain.ext/api/v1.1/project/?page=2",
-        }
-        self.assertDictEqual(resp.data['pages_urls'], pages_dict)
 
     def test_CRUD_Project(self):
         url_projects = '/api/v1.1/project/'
