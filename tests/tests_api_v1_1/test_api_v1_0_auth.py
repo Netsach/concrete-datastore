@@ -6,8 +6,6 @@ from django.contrib.auth import authenticate, get_user_model
 from django.test import Client
 from concrete_datastore.concrete.models import User, UserConfirmation
 from django.test import override_settings
-from unittest.mock import patch
-from datetime import date, timedelta
 
 
 @override_settings(DEBUG=True)
