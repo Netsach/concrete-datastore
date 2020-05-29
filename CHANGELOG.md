@@ -14,6 +14,12 @@
 
 - nothing removed
 
+## [1.9.0] - 2020-05-29
+
+### Added
+
+- Enhanced the information returned by the `/stats/` endpoint by the following fields: `num_total_pages`, `max_allowed_objects_per_page`, and `pages_urls
+
 ## [1.8.0] - 2020-04-28
 
 ### Added
