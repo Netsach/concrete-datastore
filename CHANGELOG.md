@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Fixed the special characters list to avoid string-formatting erros becuase of the `%`
 
 ### Removed
 
