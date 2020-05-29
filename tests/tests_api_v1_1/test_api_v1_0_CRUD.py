@@ -146,6 +146,7 @@ class CRUDTestCase(APITestCase):
             url_projects, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['INVALID_QUERY'])
 
     def test_list_projects_error_wrong_filter(self):
@@ -161,6 +162,7 @@ class CRUDTestCase(APITestCase):
             url_projects, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['INVALID_QUERY'])
         self.assertEqual(
             resp.data['message'], 'filter against description is not allowed'

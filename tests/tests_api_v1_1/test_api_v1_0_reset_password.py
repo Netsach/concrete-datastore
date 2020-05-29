@@ -85,6 +85,7 @@ class ResetPasswordTest(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data['message'], 'invalid data')
+        self.assertIn('_errors', response.data)
         self.assertEqual(response.data['_errors'], ['INVALID_DATA'])
 
     def test_reset_password_fail_email(self):
@@ -97,6 +98,7 @@ class ResetPasswordTest(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data['message'], 'invalid data')
+        self.assertIn('_errors', response.data)
         self.assertEqual(response.data['_errors'], ['INVALID_DATA'])
 
     def test_reset_password_fail_email_token_association(self):
@@ -125,6 +127,7 @@ class ResetPasswordTest(APITestCase):
         )
         self.assertEqual(rsp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(rsp.data['message'], 'invalid token')
+        self.assertIn('_errors', rsp.data)
         self.assertEqual(rsp.data['_errors'], ['INVALID_TOKEN'])
 
     def test_reset_password_confirmation_wrong_serializers(self):
@@ -178,6 +181,7 @@ class ResetPasswordTest(APITestCase):
         )
         self.assertEqual(rsp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(rsp.data['message'], 'Invalid data')
+        self.assertIn('_errors', rsp.data)
         self.assertEqual(rsp.data['_errors'], ['INVALID_DATA'])
 
     def test_reset_password_fail_wrong_token_in_confirmation(self):
@@ -206,6 +210,7 @@ class ResetPasswordTest(APITestCase):
         )
         self.assertEqual(rsp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(rsp.data['message'], 'invalid token')
+        self.assertIn('_errors', rsp.data)
         self.assertEqual(rsp.data['_errors'], ['INVALID_TOKEN'])
 
     def test_reset_password_fail_mismatch_passwords(self):
@@ -234,6 +239,7 @@ class ResetPasswordTest(APITestCase):
             },
         )
         self.assertEqual(rsp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', rsp.data)
         self.assertEqual(rsp.data['_errors'], ['MISMATCH_PASSWORDS'])
 
     def test_reset_password_fail_token_too_old(self):
@@ -369,4 +375,5 @@ class ResetPasswordTest(APITestCase):
             },
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', response.data)
         self.assertEqual(response.data['_errors'], ['INVALID_PARAMETER'])

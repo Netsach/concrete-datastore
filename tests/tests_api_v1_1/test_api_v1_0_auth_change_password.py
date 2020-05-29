@@ -98,6 +98,7 @@ class ChangePasswordTestCase(APITestCase):
             HTTP_AUTHORIZATION='Token {}'.format(self.super_user_token),
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['INVALID_DATA'])
 
     def test_change_password_user_doesnt_exist(self):
@@ -111,6 +112,7 @@ class ChangePasswordTestCase(APITestCase):
             HTTP_AUTHORIZATION='Token {}'.format(self.super_user_token),
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['INVALID_DATA'])
 
     def test_change_password_missmatch(self):
@@ -124,6 +126,7 @@ class ChangePasswordTestCase(APITestCase):
             HTTP_AUTHORIZATION='Token {}'.format(self.super_user_token),
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['MISMATCH_PASSWORDS'])
 
     def test_change_password_with_insecure_password(self):
@@ -137,6 +140,7 @@ class ChangePasswordTestCase(APITestCase):
             HTTP_AUTHORIZATION='Token {}'.format(self.super_user_token),
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['NOT_ENOUGH_CHARS'])
 
     @override_settings(ALLOW_REUSE_PASSWORD_ON_CHANGE=False)
@@ -151,6 +155,7 @@ class ChangePasswordTestCase(APITestCase):
             HTTP_AUTHORIZATION='Token {}'.format(self.super_user_token),
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['CANNOT_USE_SAME_PASSWORD'])
 
     def test_basic_change_password_by_super_user(self):
@@ -349,4 +354,5 @@ class ChangePasswordTestCase(APITestCase):
         # POST an invalid arguiment and get an error (400)
         resp = self.client.post(self.url_change, {})
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['INVALID_DATA'])

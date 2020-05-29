@@ -128,6 +128,7 @@ class AuthTestCase(APITestCase):
         # POST an invalid arguimentsand get an error (400)
         resp = self.client.post(url, {"email": 'johndoe@netsach.org'})
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['INVALID_DATA'])
 
         # POST an invalid email and get an error (400)
@@ -135,6 +136,7 @@ class AuthTestCase(APITestCase):
             url, {"email": 'johndoeXXXX', "password": "wrong-password"}
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['INVALID_DATA'])
 
         # POST an unknown email and get an error (401)
@@ -142,6 +144,7 @@ class AuthTestCase(APITestCase):
             url, {"email": 'johndoe2@netsach.org', "password": "some-password"}
         )
         self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['WRONG_AUTH_CREDENTIALS'])
 
         # POST an invalid password and get an error (401)
@@ -149,6 +152,7 @@ class AuthTestCase(APITestCase):
             url, {"email": 'johndoe@netsach.org', "password": "wrong-password"}
         )
         self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['WRONG_AUTH_CREDENTIALS'])
 
         # POST as a blocked user
@@ -156,6 +160,7 @@ class AuthTestCase(APITestCase):
             url, {"email": 'janedoe@netsach.org', "password": "plop"}
         )
         self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['USER_BLOCKED'])
 
         # POST as a blocked user
@@ -163,6 +168,7 @@ class AuthTestCase(APITestCase):
             url, {"email": 'janedoe@netsach.org', "password": "plop"}
         )
         self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['USER_BLOCKED'])
 
     @override_settings(AUTH_CONFIRM_EMAIL_ENABLE=True)
@@ -173,6 +179,7 @@ class AuthTestCase(APITestCase):
             url, {"email": 'juliadoe@netsach.org', "password": "plop"}
         )
         self.assertEqual(resp.status_code, status.HTTP_412_PRECONDITION_FAILED)
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['EMAIL_NOT_VALIDATED'])
 
     @patch('concrete_datastore.api.v1.views.authenticate')
@@ -189,4 +196,5 @@ class AuthTestCase(APITestCase):
             url, {"email": 'joho@netsach.org', "password": "plop"}
         )
         self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['EXPIRED_PASSWORD'])

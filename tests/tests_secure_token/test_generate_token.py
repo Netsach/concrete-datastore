@@ -165,4 +165,5 @@ class GenerateTokenTestCase(APITestCase):
         self.assertEqual(
             resp.status_code, status.HTTP_400_BAD_REQUEST, msg=resp.content
         )
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['INVALID_DATA'])

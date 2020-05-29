@@ -51,6 +51,7 @@ class RetrieveTokenTestCase(APITestCase):
         self.assertEqual(
             resp.status_code, status.HTTP_401_UNAUTHORIZED, msg=resp.content
         )
+        self.assertIn('_errors', resp.data)
         self.assertEqual(
             resp.data,
             {'message': 'Invalid token', "_errors": ["INVALID_TOKEN"]},
@@ -63,6 +64,7 @@ class RetrieveTokenTestCase(APITestCase):
         self.assertEqual(
             resp.status_code, status.HTTP_400_BAD_REQUEST, msg=resp.content
         )
+        self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['INVALID_DATA'])
 
     # Set expiry to 3 days
@@ -85,6 +87,7 @@ class RetrieveTokenTestCase(APITestCase):
         self.assertEqual(
             resp.status_code, status.HTTP_403_FORBIDDEN, msg=resp.content
         )
+        self.assertIn('_errors', resp.data)
         self.assertEqual(
             resp.data,
             {"message": "Token has expired", "_errors": ["TOKEN_HAS_EXPIRED"]},
