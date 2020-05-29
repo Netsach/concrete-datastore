@@ -1,4 +1,5 @@
 # coding: utf-8
+import pendulum
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth import authenticate, get_user_model
@@ -182,16 +183,15 @@ class AuthTestCase(APITestCase):
         self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['EMAIL_NOT_VALIDATED'])
 
-    @patch('concrete_datastore.api.v1.views.authenticate')
     @override_settings(PASSWORD_EXPIRY_TIME=1)
-    def test_basic_auth_password_expired(self, mock_auth):
+    def test_basic_auth_password_expired(self):
         url = '/api/v1.1/auth/login/'
 
         User = get_user_model()
         user = User.objects.create(email='joho@netsach.org')
-        user.password_modification_date = date.today() - timedelta(days=2)
-        mock_auth.return_value = user
-
+        user.set_password('plop')
+        user.password_modification_date = pendulum.today().subtract(days=2)
+        user.save()
         resp = self.client.post(
             url, {"email": 'joho@netsach.org', "password": "plop"}
         )
