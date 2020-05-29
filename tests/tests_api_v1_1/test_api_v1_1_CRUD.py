@@ -21,11 +21,7 @@ class CRUDTestCase(APITestCase):
         self.confirmation.save()
         url = '/api/v1.1/auth/login/'
         resp = self.client.post(
-            url,
-            {
-                "email": "johndoe@netsach.org",
-                "password": "plop",
-            },
+            url, {"email": "johndoe@netsach.org", "password": "plop",},
         )
         self.token = resp.data['token']
 
@@ -134,6 +130,41 @@ class CRUDTestCase(APITestCase):
         self.assertIn("timestamp_end", resp.data)
 
         self.assertEqual(resp.data["objects_count"], 100)
+
+    def test_list_projects_error_wrong_date(self):
+        resp = self.client.post(
+            "/api/v1.1/date-utc/",
+            data={"datetime": "2018-05-07T12:44:29Z"},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+
+        # PAGINATED RESPONSE
+        url_projects = (
+            '/api/v1.1/date-utc/?datetime__range=11/12/2002,10/12/2020'
+        )
+        resp = self.client.get(
+            url_projects, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.data['_errors'], ['INVALID_QUERY'])
+
+    def test_list_projects_error_wrong_filter(self):
+        Project.objects.create(
+            name="Project{}".format(1),
+            description="description du projet {}".format(1),
+            created_by=self.user,
+        )
+
+        # PAGINATED RESPONSE
+        url_projects = '/api/v1.1/project/?description__isempty=true'
+        resp = self.client.get(
+            url_projects, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.data['_errors'], ['INVALID_QUERY'])
+        self.assertEqual(
+            resp.data['message'], 'filter against description is not allowed'
+        )
 
     def test_CRUD_Project(self):
         url_projects = '/api/v1.1/project/'
