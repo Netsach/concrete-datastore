@@ -1,5 +1,5 @@
 # coding: utf-8
-import time
+import pendulum
 from rest_framework.test import APITestCase
 from django.conf import settings
 from rest_framework import status
@@ -194,7 +194,7 @@ class CRUDTestCase(APITestCase):
                 created_by=self.user,
             )
 
-        ts = time.time()
+        ts = pendulum.now('utc').timestamp()
 
         url_projects = '/api/v1.1/project/stats/timestamp_start:123456789.123/?timestamp_end:{}/'.format(
             str(ts)
@@ -215,6 +215,16 @@ class CRUDTestCase(APITestCase):
         self.assertEqual(resp.data['timestamp_start'], '123456789.123')
         self.assertEqual(resp.data['num_total_pages'], 2)
         self.assertEqual(resp.data['max_allowed_objects_per_page'], 10)
+
+        pages_dict = {
+            'page1': 'http://testserver/api/v1.1/project/stats/timestamp_start:123456789.123/?timestamp_end%3A{}%2F='.format(
+                str(ts)
+            ),
+            'page2': 'http://testserver/api/v1.1/project/stats/timestamp_start:123456789.123/?page=2&timestamp_end%3A{}%2F='.format(
+                str(ts)
+            ),
+        }
+        self.assertDictEqual(resp.data['page_urls'], pages_dict)
 
     def test_CRUD_Project(self):
         url_projects = '/api/v1.1/project/'
