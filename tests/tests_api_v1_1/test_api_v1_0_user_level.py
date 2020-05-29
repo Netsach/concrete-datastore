@@ -19,7 +19,11 @@ class UserTestCase(APITestCase):
         self.assertEqual(self.user_admin.admin, True)
         url = '/api/v1.1/auth/login/'
         resp = self.client.post(
-            url, {"email": "admin@netsach.org", "password": "plop",},
+            url,
+            {
+                "email": "admin@netsach.org",
+                "password": "plop",
+            },
         )
         self.token_admin = resp.data['token']
 
@@ -36,7 +40,11 @@ class UserTestCase(APITestCase):
 
         url = '/api/v1.1/auth/login/'
         resp = self.client.post(
-            url, {"email": "simple@netsach.org", "password": "plop",},
+            url,
+            {
+                "email": "simple@netsach.org",
+                "password": "plop",
+            },
         )
         self.token_simple = resp.data['token']
 
