@@ -257,6 +257,7 @@ class ConcreteRole(models.Model):
 
     # public = models.BooleanField(default=public_default_value)
     def __str__(self):
+        # the __str__ method should return a string
         return str(self.name)
 
 
@@ -292,6 +293,7 @@ class ConcretePermission(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
+        # the __str__ method should return a string
         return str(self.model_name)
 
 
