@@ -33,7 +33,7 @@ pytest --ds=tests.unittest_settings --pyargs -q tests
 You can also decide of which test file(s) you want to run by adding the filename(s) in the command:
 
 ```shell
-pytest -s concrete_datastore --pyargs -q tests.test_imports
+pytest --ds=tests.unittest_settings --pyargs -q tests.test_imports
 ```
 or
 ```shell
