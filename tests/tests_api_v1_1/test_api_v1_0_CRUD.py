@@ -175,32 +175,21 @@ class CRUDTestCase(APITestCase):
         )
 
     def test_list_projects_invalid_scopes_header(self):
-        test_user = User.objects.create_user('juliadoe@netsach.org',)
-        test_user.set_password('plop')
-        cloisonX = DefaultDivider.objects.create(name="TEST1")
-        test_user.defaultdividers.add(cloisonX)
-        test_user.save()
-
-        superuser = User.objects.create_user(
-            'janendoe@netsach.org'
-            # 'John',
-            # 'Doe',
-        )
+        superuser = User.objects.create_user('janedoe@netsach.org')
         superuser.set_password('plop')
         superuser.set_level('superuser')
-        superuser.defaultdividers.add(cloisonX)
         superuser.save()
         confirmation = UserConfirmation.objects.create(user=superuser)
         confirmation.confirmed = True
         confirmation.save()
         url = '/api/v1.1/auth/login/'
         resp = self.client.post(
-            url, {"email": "janendoe@netsach.org", "password": "plop",},
+            url, {"email": "janedoe@netsach.org", "password": "plop",},
         )
         token = resp.data['token']
 
         # PAGINATED RESPONSE
-        url_users = f'/api/v1.1/user/{test_user.uid}/'
+        url_users = f'/api/v1.1/user/{self.user.uid}/'
         resp = self.client.delete(
             url_users,
             {},
