@@ -184,7 +184,7 @@ class PasswordMinSpecialValidation(object):
                     " character(s) from these : {special_list}"
                 ).format(
                     min_special=self.min_special,
-                    special_list=settings.SPECIAL_CHARACTERS,
+                    special_list=''.join(set(settings.SPECIAL_CHARACTERS)),
                 ),
                 code=self.code,
                 params={'min_special': self.min_special},
