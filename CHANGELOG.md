@@ -9,6 +9,7 @@
 ### Changed
 
 - Fixed the special characters list to avoid string-formatting erros becuase of the `%`
+- Enhanced the information returned by the `/stats/` endpoint by the following fields: `num_total_pages`, `max_allowed_objects_per_page`, and `pages_urls`
 
 ### Removed
 

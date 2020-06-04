@@ -1,4 +1,5 @@
 # coding: utf-8
+import pendulum
 from rest_framework.test import APITestCase
 from django.conf import settings
 from rest_framework import status
@@ -21,18 +22,14 @@ class CRUDTestCase(APITestCase):
         self.confirmation.save()
         url = '/api/v1.1/auth/login/'
         resp = self.client.post(
-            url,
-            {
-                "email": "johndoe@netsach.org",
-                "password": "plop",
-            },
+            url, {"email": "johndoe@netsach.org", "password": "plop",},
         )
         self.token = resp.data['token']
 
     def test_list_project_all(self):
         for i in range(100):
             Project.objects.create(
-                name="Projcet{}".format(i),
+                name="Project{}".format(i),
                 description="description du projet {}".format(i),
                 created_by=self.user,
             )
@@ -123,17 +120,105 @@ class CRUDTestCase(APITestCase):
 
         # self.assertGreater(100, settings.REST_FRAMEWORK["PAGINATE_BY"])
 
+    @override_settings(API_MAX_PAGINATION_SIZE_NESTED=10)
+    def test_stats_endpoint(self):
+        for i in range(20):
+            Project.objects.create(
+                name="Project{}".format(i),
+                description="description du projet {}".format(i),
+                created_by=self.user,
+            )
+        url_projects = '/api/v1.1/project/stats/'
+        resp = self.client.get(
+            url_projects, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        self.assertIn('objects_count', resp.data)
+        self.assertIn('timestamp_start', resp.data)
+        self.assertIn('timestamp_end', resp.data)
+        self.assertIn('num_total_pages', resp.data)
+        self.assertIn('max_allowed_objects_per_page', resp.data)
+        self.assertIn('page_urls', resp.data)
+
+        self.assertEqual(resp.data["objects_count"], 20)
+        self.assertEqual(resp.data['timestamp_start'], 0)
+        self.assertEqual(resp.data['num_total_pages'], 2)
+        self.assertEqual(resp.data['max_allowed_objects_per_page'], 10)
+
+        pages_dict = {
+            'page1': 'http://testserver/api/v1.1/project/stats/',
+            'page2': 'http://testserver/api/v1.1/project/stats/?page=2',
+        }
+        self.assertDictEqual(resp.data['page_urls'], pages_dict)
+
+    @override_settings(API_MAX_PAGINATION_SIZE_NESTED=10)
+    def test_stats_endpoint_with_start(self):
+        for i in range(20):
+            Project.objects.create(
+                name="Project{}".format(i),
+                description="description du projet {}".format(i),
+                created_by=self.user,
+            )
+
         url_projects = '/api/v1.1/project/stats/timestamp_start:123456789.123/'
         resp = self.client.get(
             url_projects, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-        self.assertIn("objects_count", resp.data)
-        self.assertIn("timestamp_start", resp.data)
-        self.assertIn("timestamp_end", resp.data)
+        self.assertIn('objects_count', resp.data)
+        self.assertIn('timestamp_start', resp.data)
+        self.assertIn('timestamp_end', resp.data)
+        self.assertIn('num_total_pages', resp.data)
+        self.assertIn('max_allowed_objects_per_page', resp.data)
+        self.assertIn('page_urls', resp.data)
 
-        self.assertEqual(resp.data["objects_count"], 100)
+        self.assertEqual(resp.data['objects_count'], 20)
+        self.assertEqual(resp.data['timestamp_start'], '123456789.123')
+        self.assertEqual(resp.data['num_total_pages'], 2)
+        self.assertEqual(resp.data['max_allowed_objects_per_page'], 10)
+
+        pages_dict = {
+            'page1': 'http://testserver/api/v1.1/project/stats/timestamp_start:123456789.123/',
+            'page2': 'http://testserver/api/v1.1/project/stats/timestamp_start:123456789.123/?page=2',
+        }
+        self.assertDictEqual(resp.data['page_urls'], pages_dict)
+
+    @override_settings(API_MAX_PAGINATION_SIZE_NESTED=10)
+    def test_stats_endpoint_start_end(self):
+        for i in range(20):
+            Project.objects.create(
+                name="Project{}".format(i),
+                description="description du projet {}".format(i),
+                created_by=self.user,
+            )
+
+        ts = pendulum.now('utc').timestamp()
+
+        url_projects = f'/api/v1.1/project/stats/timestamp_start:123456789.123/?timestamp_end:{ts}/'
+        resp = self.client.get(
+            url_projects, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        self.assertIn('objects_count', resp.data)
+        self.assertIn('timestamp_start', resp.data)
+        self.assertIn('timestamp_end', resp.data)
+        self.assertIn('num_total_pages', resp.data)
+        self.assertIn('max_allowed_objects_per_page', resp.data)
+        self.assertIn('page_urls', resp.data)
+
+        self.assertEqual(resp.data['objects_count'], 20)
+        self.assertEqual(resp.data['timestamp_start'], '123456789.123')
+        self.assertEqual(resp.data['num_total_pages'], 2)
+        self.assertEqual(resp.data['max_allowed_objects_per_page'], 10)
+
+        pages_dict = {
+            'page1': f'http://testserver/api/v1.1/project/stats/timestamp_start:123456789.123/?timestamp_end%3A{ts}%2F=',
+            'page2': f'http://testserver/api/v1.1/project/stats/timestamp_start:123456789.123/?page=2&timestamp_end%3A{ts}%2F=',
+        }
+        self.assertDictEqual(resp.data['page_urls'], pages_dict)
 
     def test_CRUD_Project(self):
         url_projects = '/api/v1.1/project/'
