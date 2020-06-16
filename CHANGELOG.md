@@ -8,6 +8,7 @@
 
 ### Changed
 
+- Enhanced the information returned by the `/stats/` endpoint by the following fields: `num_total_pages`, `max_allowed_objects_per_page`, and `pages_urls`
 - Fix fetching the divider model for an anonymous user if the minimum retrieve level is anonymous
 
 ### Removed
