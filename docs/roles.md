@@ -4,7 +4,7 @@
 
 ### Concrete Roles
 
-`ConcreteRole` is a concrete datastore model that allows to attribute different permissions for users of the same level. (**admins and superusers don't have their permissions changed by the roles, that only affects simpleusers and managers of the plateform.**)
+`ConcreteRole` is a concrete datastore model that allows to attribute different permissions for users of the same level. (**admins and superusers don't have their permissions changed by the roles, that only affects simpleusers and managers of the platform.**)
 
 Each instance of model ConcreteRole has a role name and a list of users.
 
@@ -16,7 +16,7 @@ Note that concrete roles and permissions don't give additional permissions to a 
 
 ### <a name="ConcretePermissions"></a>Concrete permission
 
-`ConcretePermission` is a concrete datastore model that allows to specify for each model of the datamdoel definition a set of permissions depending on the roles defined in ConcretRole. These permissions match with the **CRUD** operations (**C**reate, **R**etrieve, **U**pdate, **D**elete)
+`ConcretePermission` is a concrete datastore model that allows to specify a set of permissions for each model of the datamodel definition, depending on the roles defined in ConcretRole. These permissions match with the **CRUD** operations (**C**reate, **R**etrieve, **U**pdate, **D**elete)
 
 ![](./assets/concrete-permissions.png)
 
@@ -44,7 +44,7 @@ We then add a new permission:
 }
 ```
 
--  With this permission added, the only user than is allowed to create instances of `MyModel` is the `Manager_1` because he belongs to `Creator` role.
+-  With this permission added, the only user that is allowed to create instances of `MyModel` is the `Manager_1` because he belongs to the `Creator` role.
 
 -  Even if `Manager_2` has the minimum required level to create instances, he does not have the required role to do so.
 
