@@ -1615,7 +1615,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
 
         if model_name == DIVIDER_MODEL and divider is None:
             if user.is_anonymous:
-                return self.model_class.objects.none()
+                return self.model_class.objects.filter(public=True)
             elif at_least_admin:
                 return self.model_class.objects.all()
             else:
