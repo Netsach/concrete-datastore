@@ -42,6 +42,7 @@ from rest_framework.status import (
     HTTP_204_NO_CONTENT,
 )
 from rest_framework import authentication, permissions, generics, viewsets
+from rest_framework.utils.urls import remove_query_param, replace_query_param
 
 from concrete_datastore.concrete.models import (  # pylint:disable=E0611
     AuthToken,
@@ -1216,11 +1217,33 @@ class PaginatedViewSet(object):
             timestamp_start, timestamp_end
         )
 
+        _resp = self.get_paginated_response(self.request.data)
+
         _total = queryset.count()
+
+        _num_pages = _resp.data['num_total_pages']
+
+        dict_pages = dict()
+        url = self.request.build_absolute_uri()
+        for page_number in range(1, _num_pages + 1):
+            if page_number == 1:
+                dict_pages['page{}'.format(page_number)] = remove_query_param(
+                    url, 'page'
+                )
+            else:
+                dict_pages['page{}'.format(page_number)] = replace_query_param(
+                    url, 'page', page_number
+                )
+
         data = {
             'objects_count': _total,
             'timestamp_start': timestamp_start or 0.0,
             'timestamp_end': timestamp_end,
+            'num_total_pages': _num_pages,
+            'max_allowed_objects_per_page': _resp.data[
+                'max_allowed_objects_per_page'
+            ],
+            'page_urls': dict_pages,
         }
         return Response(data)
 
@@ -1592,7 +1615,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
 
         if model_name == DIVIDER_MODEL and divider is None:
             if user.is_anonymous:
-                return self.model_class.objects.none()
+                return self.model_class.objects.filter(public=True)
             elif at_least_admin:
                 return self.model_class.objects.all()
             else:
