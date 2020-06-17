@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Add error codes to concrete API 400_BAD_REQUEST responses
 
 ### Changed
 
@@ -20,7 +20,6 @@
 
 - Enhanced the information returned by the `/stats/` endpoint by the following fields: `num_total_pages`, `max_allowed_objects_per_page`, and `pages_urls`
 - Fix fetching the divider model for an anonymous user if the minimum retrieve level is anonymous
-- Add error codes to concrete API 400_BAD_REQUEST responses
 
 ## [1.8.0] - 2020-04-28
 
