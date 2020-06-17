@@ -3,22 +3,22 @@
 ### Filters
 API requests support different types of filters:
 
-- **Filter Supporting Or operation:** by adding the `__in` suffix:
+- **Filter Supporting Or operation:** By adding the `__in` suffix:
 example: `?name__in=project1,project2,project3` returns all objects that the field name has a value of "project1" **OR** "project2" **OR** "project3"
-- **Filter Supporting Empty values:** by adding `__isempty=true`:
+- **Filter Supporting Empty values:** By adding `__isempty=true`:
 example: `?project__isempty=true` returns all objects that do not have a `project`
-- **Filter Supporting Comparison operations:** by adding the suffixes `__gte`, `__gt`, `__lte` and `__lt`
+- **Filter Supporting Comparison operations:** By adding the suffixes `__gte`, `__gt`, `__lte` and `__lt`
 example:
  * `?price__gte=10` (price >= 10)
  * `?price__gt=10` (price > 10)
  * `?price__lte=10` (price <= 10)
  * `?price__lt=10` (price < 10)
-- **Filter Supporting Range:** by adding the suffix `__range`:
+- **Filter Supporting Range:** By adding the suffix `__range`:
 example: `?creation_date__range=2018-01-01,2018-12-31` returns all objects with creation date is between 1st Jan 2018 and 31st Dec 2018
 
 - `c_resp_page_size`: The API also features pagination by the use of the query parameter `c_resp_page_size` that takes an integer representing the number of results per page that sould be returned
 - `c_resp_nested`: If there are relation between objects, by default the API shows the relation completely, it is nested.
-example:
+Example:
 
 ```json
 {
@@ -52,8 +52,8 @@ examples:
 
 
 * **Filter users by level:** You can filter users by level with two filters: `level` and `atleast`
-    * **/user/?level**=[user_level]: Users with an exact level `user_level`. The user_level must be in [**superuser**, **admin**, **manager**, **simpleuser**]
-    * **/user/?atleast**=[user_level]: Users with a level atleast equal to `user_level`. The user_level must be in [**superuser**, **admin**, **manager**, **simpleuser**]
+    - **/user/?level**=[user_level]: Users with an exact level `user_level`. The user_level must be in [**superuser**, **admin**, **manager**, **simpleuser**]
+    - **/user/?atleast**=[user_level]: Users with a level atleast equal to `user_level`. The user_level must be in [**superuser**, **admin**, **manager**, **simpleuser**]
 
     Example: `/user/?atleast=manager` gives users with level manager, admin and superuser
 
