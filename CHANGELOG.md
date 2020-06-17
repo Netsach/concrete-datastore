@@ -8,11 +8,18 @@
 
 ### Changed
 
-- nothing changed
+- Enhanced the information returned by the `/stats/` endpoint by the following fields: `num_total_pages`, `max_allowed_objects_per_page`, and `pages_urls`
+- Fix fetching the divider model for an anonymous user if the minimum retrieve level is anonymous
 
 ### Removed
 
 - nothing removed
+
+## [1.8.0] - 2020-04-28
+
+### Added
+
+- Enable the use of Workflows within a core installed in concrete
 
 ## [1.7.0] - 2020-03-30
 

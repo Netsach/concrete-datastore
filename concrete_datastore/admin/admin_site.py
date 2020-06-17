@@ -147,4 +147,6 @@ def get_admin_site():
         'get_urls': get_urls,
     }
 
-    return type('CustomAdminSite', (admin_site,), attrs)(**admin_site_kwargs)
+    return type('CustomAdminSite', (admin_site,), attrs)(
+        **admin_site_kwargs  # pylint: disable = unexpected-keyword-arg
+    )
