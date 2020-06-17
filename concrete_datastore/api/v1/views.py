@@ -1900,16 +1900,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
                     status=HTTP_412_PRECONDITION_FAILED,
                     data={'message': msg, '_errors': ["PROTECTED_RELATION"]},
                 )
-        try:
-            divider = self.get_divider()
-        except WrongEntityUIDError:
-            return Response(
-                data={
-                    'message': 'Header entity uid not found',
-                    '_errors': ['INVALID_SCOPES_HEADERS'],
-                },
-                status=HTTP_400_BAD_REQUEST,
-            )
+        divider = self.get_divider()
         if divider is None:
             return self.block_user(instance)
         else:

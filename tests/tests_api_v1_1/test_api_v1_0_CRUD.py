@@ -174,35 +174,6 @@ class CRUDTestCase(APITestCase):
             resp.data['message'], 'filter against description is not allowed'
         )
 
-    def test_list_projects_invalid_scopes_header(self):
-        superuser = User.objects.create_user('janedoe@netsach.org')
-        superuser.set_password('plop')
-        superuser.set_level('superuser')
-        superuser.save()
-        confirmation = UserConfirmation.objects.create(user=superuser)
-        confirmation.confirmed = True
-        confirmation.save()
-        url = '/api/v1.1/auth/login/'
-        resp = self.client.post(
-            url, {"email": "janedoe@netsach.org", "password": "plop",},
-        )
-        token = resp.data['token']
-
-        # PAGINATED RESPONSE
-        url_users = f'/api/v1.1/user/{self.user.uid}/'
-        resp = self.client.delete(
-            url_users,
-            {},
-            HTTP_AUTHORIZATION='Token {}'.format(token),
-            HTTP_X_ENTITY_UID=str(uuid.uuid4()),
-        )
-        self.assertEqual(
-            resp.status_code, status.HTTP_400_BAD_REQUEST, msg=resp.data
-        )
-        self.assertIn('_errors', resp.data)
-        self.assertEqual(resp.data['_errors'], ['INVALID_SCOPES_HEADERS'])
-        self.assertEqual(resp.data['message'], 'Header entity uid not found')
-
     def test_CRUD_Project(self):
         url_projects = '/api/v1.1/project/'
 
