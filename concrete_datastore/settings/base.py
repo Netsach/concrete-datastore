@@ -470,3 +470,10 @@ DEFAULT_REGISTER_EMAIL_FORMAT = """
 # Flag to allow a user to reuse a password on change, only applicable if
 # current password is not expired
 ALLOW_REUSE_PASSWORD_ON_CHANGE = False
+
+IGNORED_MODELS_ON_DELETE = [
+    "DeletedModel",
+    "AuthToken",
+    "TemporaryToken",
+    "SecureConnectToken",
+]
