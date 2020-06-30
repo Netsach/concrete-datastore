@@ -8,30 +8,31 @@ from django.conf import settings
 
 
 def translate(field, language=None, isheader=False):
-    if language:
-        translations = settings.TRANSLATIONS.get(language)
-        if translations:
-            if isheader:
-                if translations.get(field):
-                    return translations.get(field)
-            else:
-                if isinstance(field, bool) and translations.get(str(field)):
-                    return translations.get(str(field))
-                if isinstance(field, datetime.datetime):
-                    try:
-                        dt = pendulum.parse(str(field))
-                        return dt.format(
-                            "DD/MM/YYYY HH:mm:ss", locale=language
-                        )
-                    except Exception:
-                        pass
+    """
+        If a language is provided, the translation from settings is loaded.
+        With that, all headers (if possible) are translated.
+        Moreover, we translate the boolean and datetime fields with the help
+        of the translation dict and the pendulum locale.
+    """
+    translation = settings.TRANSLATIONS.get(language)
+    if language and translation:
+        if (isheader or isinstance(field, bool)) and translation.get(
+            str(field)
+        ):
+            return translation.get(str(field))
+        if isinstance(field, datetime.datetime):
+            try:
+                return pendulum.parse(str(field)).format(
+                    "DD/MM/YYYY HH:mm:ss", locale=language
+                )
+            except Exception:
+                pass
     return field
 
 
 def csv_data_generator(
     queryset: Iterable[Dict], fields: Iterable[str], language=None
 ):
-    print(f'generate csv for language {language}')
     """
     Generator producing UTF-8 - quoted and semicolon separated CSV
     """
