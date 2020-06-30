@@ -1199,7 +1199,7 @@ class PaginatedViewSet(object):
         export_queryset = queryset.values(*export_fields)
 
         response = csv_streaming_response(
-            request, export_queryset, export_fields
+            export_queryset, export_fields, language=request.GET.get('lang'),
         )
 
         return response
