@@ -1,33 +1,9 @@
 # coding: utf-8
 from typing import Iterable, Dict
-import pendulum
-import datetime
 from django.utils import timezone
 from django.http import StreamingHttpResponse
-from django.conf import settings
-
-
-def translate(field, language=None, isheader=False):
-    """
-        If a language is provided, the translation from settings is loaded.
-        With that, all headers (if possible) are translated.
-        Moreover, we translate the boolean and datetime fields with the help
-        of the translation dict and the pendulum locale.
-    """
-    translation = settings.TRANSLATIONS.get(language)
-    if language and translation:
-        if (isheader or isinstance(field, bool)) and translation.get(
-            str(field)
-        ):
-            return translation.get(str(field))
-        if isinstance(field, datetime.datetime):
-            try:
-                return pendulum.parse(str(field)).format(
-                    "DD/MM/YYYY HH:mm:ss", locale=language
-                )
-            except Exception:
-                pass
-    return field
+from django.utils.translation import gettext_lazy as _
+from django.utils import translation
 
 
 def csv_data_generator(
@@ -36,20 +12,20 @@ def csv_data_generator(
     """
     Generator producing UTF-8 - quoted and semicolon separated CSV
     """
+    if language:
+        translation.activate(language)
 
     # Yields headers
-    yield '{}\n'.format(
-        ';'.join(
-            '"{}"'.format(translate(field, language, True)) for field in fields
-        )
-    ).encode('utf-8')
+    yield '{}\n'.format(';'.join('"{}"'.format(_(field)) for field in fields))
 
     # Yields rows
     for item in queryset:
         value = '{}\n'.format(
             ';'.join(
                 [
-                    '"{}"'.format(translate(item.get(field, ''), language))
+                    '"{}"'.format(
+                        _(str(item.get(field, '')))
+                    )  # translation only works if I string the value first
                     for field in fields
                 ]
             )
@@ -70,6 +46,7 @@ def csv_streaming_response(
         csv_data_generator(queryset, fields, language),
         content_type="text/csv",
     )
+
     response['Content-Disposition'] = 'attachment; filename="{}"'.format(
         filename
     )

@@ -78,36 +78,3 @@ DEFAULT_CHARSET = 'utf-8'
 ALLOWED_INCLUDE_ROOTS = ()
 
 SERVER_EMAIL = EMAIL_HOST_USER
-
-TRANSLATIONS = {
-    "fr": {
-        "True": "VRAI",
-        "False": "FAUX",
-        "photo": "photo",
-        "establishment_type": "type_d'établissement",
-        "address": "adresse",
-        "opening_hours": "heures_d'ouverture",
-        "tel_number": "numéro_tél",
-        "order_recover_details": "détails_de_la_commande",
-        "email": "e-mail",
-        "archived": "archivé",
-        "logo": "logo",
-        "name": 'nom',
-        "creation_date": "date_création",
-    },
-    "de": {
-        "True": "WAHR",
-        "False": "FALSCH",
-        "photo": "foto",
-        "establishment_type": "establishment_typ",
-        "address": "adresse",
-        "opening_hours": "öffnungszeiten",
-        "tel_number": "telefonnummer",
-        "order_recover_details": "bestellungs_details",
-        "email": "e-mail",
-        "archived": "archiviert",
-        "logo": "logo",
-        "name": 'name',
-        "creation_date": "erstellungsdatum",
-    },
-}

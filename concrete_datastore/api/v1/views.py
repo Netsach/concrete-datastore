@@ -42,7 +42,7 @@ from rest_framework.status import (
     HTTP_204_NO_CONTENT,
 )
 from rest_framework import authentication, permissions, generics, viewsets
-from rest_framework.utils.urls import remove_query_param, replace_query_param
+from rest_framework.utils.urls import remove_query_param
 
 from concrete_datastore.concrete.models import (  # pylint:disable=E0611
     AuthToken,
