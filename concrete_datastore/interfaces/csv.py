@@ -1,9 +1,22 @@
 # coding: utf-8
+import pendulum
+import datetime
 from typing import Iterable, Dict
 from django.utils import timezone
 from django.http import StreamingHttpResponse
 from django.utils.translation import gettext_lazy as _
 from django.utils import translation
+
+
+def translate_if_date(language, field):
+    if language and isinstance(field, datetime.datetime):
+        try:
+            field = pendulum.parse(str(field)).format(
+                "DD/MM/YYYY HH:mm:ss", locale=language
+            )
+        except Exception:
+            pass
+    return str(field)  # i18n translation only works if the value is a string
 
 
 def csv_data_generator(
@@ -24,8 +37,8 @@ def csv_data_generator(
             ';'.join(
                 [
                     '"{}"'.format(
-                        _(str(item.get(field, '')))
-                    )  # translation only works if I string the value first
+                        _(translate_if_date(language, item.get(field, '')))
+                    )
                     for field in fields
                 ]
             )
