@@ -146,3 +146,6 @@ msgstr "nom"
 msgid "creation_date"
 msgstr "date_création"
 
+msgid "DATE_FORMAT"
+msgstr "DD/MM/YYYY HH:mm:ss"
+
