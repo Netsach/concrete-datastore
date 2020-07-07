@@ -4,7 +4,8 @@
 
 ### Added
 
-- nothing added
+- When deleting a SecureConnectToken, ignore creation of a DeletedModel.
+- Added a setting IGNORED_MODELS_ON_DELETE for the models to ignore when deleting.
 
 ### Changed
 
