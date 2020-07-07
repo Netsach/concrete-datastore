@@ -4,6 +4,20 @@
 
 ### Added
 
+- nothing added
+
+### Changed
+
+- nothing changed
+
+### Removed
+
+- nothing removed
+
+## [1.10.0] - 2020-07-07
+
+### Added
+
 - When deleting a SecureConnectToken, ignore creation of a DeletedModel.
 - Added a setting IGNORED_MODELS_ON_DELETE for the models to ignore when deleting.
 
@@ -11,10 +25,6 @@
 
 - Do not exclude the recently created objects for requests with `timestamp_start`
 - Fixed api logs format with the version 2 of pendulum
-
-### Removed
-
-- nothing removed
 
 ## [1.9.0] - 2020-06-16
 
