@@ -260,7 +260,7 @@ LOGGING_LEVEL = os.environ.get('LOGGING_LEVEL', DEFAULT_LOGGING_LEVEL).upper()
 
 LOGGING = {
     'version': 1,
-    'datefmt': "%Y-%m-%d %H:%M:%S",
+    'datefmt': "YY-MM-DD HH:mm:ss",
     'formatters': {'verbose': {'format': DEFAULT_LOGGING_FORMAT}},
     'filters': {
         'require_debug_true': {'()': 'django.utils.log.RequireDebugTrue'}

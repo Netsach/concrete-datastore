@@ -9,7 +9,7 @@
 
 ### Changed
 
-- nothing changed
+- Fixed api logs format with the version 2 of pendulum
 
 ### Removed
 
