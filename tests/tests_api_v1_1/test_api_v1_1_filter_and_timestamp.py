@@ -143,7 +143,7 @@ class TimestampTestCase(APITestCase):
         #: --------------------------------------------------------------------
 
         #: T5 : INCREMENTAL LOADING
-        #:      Added 1 non matching project, expected: no change
+        #:      Added 1 non matching project, expected: found in deleted_uids
 
         p = Project.objects.create(name='PROJECT_COMPLETED')
 
@@ -155,7 +155,7 @@ class TimestampTestCase(APITestCase):
         resp = self.client.get(
             url_projects_T5, HTTP_AUTHORIZATION='Token {}'.format(self.token)
         )
-        self.assertListEqual(resp.data['deleted_uids'], [])
+        self.assertListEqual(resp.data['deleted_uids'], [p.uid])
         self.assertEqual(resp.data['objects_count'], 0)
         self.assertEqual(resp.data['total_objects_count'], 4)
         T5_timestamp_end = resp.data['timestamp_end']

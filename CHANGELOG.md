@@ -9,7 +9,7 @@
 
 ### Changed
 
-- nothing changed
+- Do not exclude the recently created objects for requests with `timestamp_start`
 
 ### Removed
 

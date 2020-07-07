@@ -1323,7 +1323,6 @@ class PaginatedViewSet(object):
                 )
 
             if timestamp_start > 0.0:
-
                 #: Retrieve deleted model instances
                 deleted_instances = DeletedModel.objects.filter(
                     model_name=queryset.model.__name__
@@ -1338,13 +1337,6 @@ class PaginatedViewSet(object):
                 #: `timestamp_start` but that were modified since
                 excl_modified_instances, _ = apply_filter_since(
                     excluded_instances, timestamp_start, timestamp_end
-                )
-
-                excl_modified_instances = excl_modified_instances.exclude(
-                    creation_date__range=(
-                        pendulum.from_timestamp(timestamp_start),
-                        pendulum.from_timestamp(timestamp_end),
-                    )
                 )
 
                 #: Format as list
