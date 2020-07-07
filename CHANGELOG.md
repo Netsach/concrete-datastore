@@ -10,6 +10,7 @@
 ### Changed
 
 - Do not exclude the recently created objects for requests with `timestamp_start`
+- Fixed api logs format with the version 2 of pendulum
 
 ### Removed
 
