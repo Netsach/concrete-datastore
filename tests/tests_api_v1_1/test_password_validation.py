@@ -178,5 +178,5 @@ class PasswordValidationTestCase(TestCase):
             (
                 "The password must contain at least 1 special"
                 " character(s) from these : {special_list}"
-            ).format(special_list=settings.SPECIAL_CHARACTERS),
+            ).format(special_list=''.join(set(settings.SPECIAL_CHARACTERS))),
         )
