@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Fix special chars list for password security
 
 ### Removed
 
