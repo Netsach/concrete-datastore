@@ -29,22 +29,12 @@ class RetrieveTokenTestCase(APITestCase):
         login_url = '/api/v1.1/secure-connect/login/'
 
         # POST a valid email
-        resp = self.client.post(
-            retrieve_url,
-            {
-                "email": 'usera@netsach.org'
-            },
-        )
+        resp = self.client.post(retrieve_url, {"email": 'usera@netsach.org'},)
         secure_tokens = SecureConnectToken.objects.filter(user=self.userA)
         self.assertEqual(secure_tokens.count(), 1)
         first_token = secure_tokens.first()
 
-        resp = self.client.post(
-            login_url,
-            {
-                "token": str(first_token.value)
-            },
-        )
+        resp = self.client.post(login_url, {"token": str(first_token.value)},)
         self.assertEqual(
             resp.status_code, status.HTTP_200_OK, msg=resp.content
         )
@@ -57,15 +47,11 @@ class RetrieveTokenTestCase(APITestCase):
     def test_secure_login_not_existing_token(self):
         login_url = '/api/v1.1/secure-connect/login/'
 
-        resp = self.client.post(
-            login_url,
-            {
-                "token": str(uuid.uuid4())
-            },
-        )
+        resp = self.client.post(login_url, {"token": str(uuid.uuid4())},)
         self.assertEqual(
             resp.status_code, status.HTTP_401_UNAUTHORIZED, msg=resp.content
         )
+        self.assertIn('_errors', resp.data)
         self.assertEqual(
             resp.data,
             {'message': 'Invalid token', "_errors": ["INVALID_TOKEN"]},
@@ -74,15 +60,12 @@ class RetrieveTokenTestCase(APITestCase):
     def test_secure_login_not_uid_token(self):
         login_url = '/api/v1.1/secure-connect/login/'
 
-        resp = self.client.post(
-            login_url,
-            {
-                "token": "NOT_A_TOKEN"
-            },
-        )
+        resp = self.client.post(login_url, {"token": "NOT_A_TOKEN"},)
         self.assertEqual(
             resp.status_code, status.HTTP_400_BAD_REQUEST, msg=resp.content
         )
+        self.assertIn('_errors', resp.data)
+        self.assertEqual(resp.data['_errors'], ['INVALID_DATA'])
 
     # Set expiry to 3 days
     @override_settings(SECURE_CONNECT_EXPIRY_TIME_DAYS=3)
@@ -91,12 +74,7 @@ class RetrieveTokenTestCase(APITestCase):
         login_url = '/api/v1.1/secure-connect/login/'
 
         # POST a valid email
-        resp = self.client.post(
-            retrieve_url,
-            {
-                "email": 'usera@netsach.org'
-            },
-        )
+        resp = self.client.post(retrieve_url, {"email": 'usera@netsach.org'},)
         secure_tokens = SecureConnectToken.objects.filter(user=self.userA)
         self.assertEqual(secure_tokens.count(), 1)
         first_token = secure_tokens.first()
@@ -105,15 +83,11 @@ class RetrieveTokenTestCase(APITestCase):
         first_token.creation_date += timedelta(-10)
         first_token.save()
         self.assertFalse(first_token.expired)
-        resp = self.client.post(
-            login_url,
-            {
-                "token": str(first_token.value)
-            },
-        )
+        resp = self.client.post(login_url, {"token": str(first_token.value)},)
         self.assertEqual(
             resp.status_code, status.HTTP_403_FORBIDDEN, msg=resp.content
         )
+        self.assertIn('_errors', resp.data)
         self.assertEqual(
             resp.data,
             {"message": "Token has expired", "_errors": ["TOKEN_HAS_EXPIRED"]},

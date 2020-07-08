@@ -3,7 +3,11 @@ import pendulum
 from rest_framework.test import APITestCase
 from django.conf import settings
 from rest_framework import status
-from concrete_datastore.concrete.models import User, UserConfirmation, Project
+from concrete_datastore.concrete.models import (
+    User,
+    UserConfirmation,
+    Project,
+)
 from django.test import override_settings
 
 
@@ -219,6 +223,43 @@ class CRUDTestCase(APITestCase):
             'page2': f'http://testserver/api/v1.1/project/stats/timestamp_start:123456789.123/?page=2&timestamp_end%3A{ts}%2F=',
         }
         self.assertDictEqual(resp.data['page_urls'], pages_dict)
+
+    def test_list_projects_error_wrong_date(self):
+        resp = self.client.post(
+            "/api/v1.1/date-utc/",
+            data={"datetime": "2018-05-07T12:44:29Z"},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+
+        # PAGINATED RESPONSE
+        url_projects = (
+            '/api/v1.1/date-utc/?datetime__range=11/12/2002,10/12/2020'
+        )
+        resp = self.client.get(
+            url_projects, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
+        self.assertEqual(resp.data['_errors'], ['INVALID_QUERY'])
+
+    def test_list_projects_error_wrong_filter(self):
+        Project.objects.create(
+            name="Project{}".format(1),
+            description="description du projet {}".format(1),
+            created_by=self.user,
+        )
+
+        # PAGINATED RESPONSE
+        url_projects = '/api/v1.1/project/?description__isempty=true'
+        resp = self.client.get(
+            url_projects, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
+        self.assertEqual(resp.data['_errors'], ['INVALID_QUERY'])
+        self.assertEqual(
+            resp.data['message'], 'filter against description is not allowed'
+        )
 
     def test_CRUD_Project(self):
         url_projects = '/api/v1.1/project/'

@@ -236,7 +236,10 @@ class RetrieveSecureTokenApiView(generics.GenericAPIView):
         serializer = ResetPasswordSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(
-                data={'message': serializer.errors},
+                data={
+                    "message": serializer.errors,
+                    "_errors": ["INVALID_DATA"],
+                },
                 status=HTTP_400_BAD_REQUEST,
             )
 
@@ -294,7 +297,10 @@ class GenerateSecureTokenApiView(generics.GenericAPIView):
         serializer = ResetPasswordSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(
-                data={'message': serializer.errors},
+                data={
+                    "message": serializer.errors,
+                    "_errors": ["INVALID_DATA"],
+                },
                 status=HTTP_400_BAD_REQUEST,
             )
 
@@ -341,7 +347,11 @@ class SecureLoginApiView(generics.GenericAPIView):
         serializer = SecureLoginSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(
-                data=serializer.errors, status=HTTP_400_BAD_REQUEST
+                data={
+                    "message": serializer.errors,
+                    "_errors": ["INVALID_DATA"],
+                },
+                status=HTTP_400_BAD_REQUEST,
             )
         token = serializer.validated_data['token']
         try:
@@ -394,7 +404,11 @@ class LoginApiView(generics.GenericAPIView):
         serializer = AuthLoginSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(
-                data=serializer.errors, status=HTTP_400_BAD_REQUEST
+                data={
+                    'message': serializer.errors,
+                    "_errors": ["INVALID_DATA"],
+                },
+                status=HTTP_400_BAD_REQUEST,
             )
 
         email = serializer.validated_data["email"].lower()
@@ -551,14 +565,22 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         request_token_qs = PasswordChangeToken.objects.filter(uid=token)
         if not request_token_qs.exists():
             return Response(
-                data={'message': 'invalid token'}, status=HTTP_400_BAD_REQUEST
+                data={
+                    'message': 'invalid token',
+                    "_errors": ["INVALID_TOKEN"],
+                },
+                status=HTTP_400_BAD_REQUEST,
             )
 
         #:  Check that PasswordChangeToken belongs to the user
         request_token = request_token_qs.first()
         if user != request_token.user:
             return Response(
-                data={'message': 'invalid token'}, status=HTTP_400_BAD_REQUEST
+                data={
+                    'message': 'invalid token',
+                    "_errors": ["INVALID_TOKEN"],
+                },
+                status=HTTP_400_BAD_REQUEST,
             )
 
         #:  Check that token has not expired
@@ -567,7 +589,11 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         if token_too_old:
             request_token.delete()
             return Response(
-                data={'message': 'invalid token'}, status=HTTP_400_BAD_REQUEST
+                data={
+                    'message': 'invalid token',
+                    "_errors": ["INVALID_TOKEN"],
+                },
+                status=HTTP_400_BAD_REQUEST,
             )
 
         #:  Check that new password is different from old one
@@ -668,7 +694,10 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         if not serializer.is_valid():
             #:  Do not give any info on this endpoint
             return Response(
-                data={'message': 'Invalid data format'},
+                data={
+                    "message": 'Invalid data format',
+                    "_errors": ["INVALID_DATA"],
+                },
                 status=HTTP_400_BAD_REQUEST,
             )
 
@@ -683,14 +712,18 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         target_user_qs = UserModel.objects.filter(email=email)
         if not target_user_qs.exists():
             return Response(
-                data={'message': 'Invalid data'}, status=HTTP_400_BAD_REQUEST
+                data={'message': 'Invalid data', "_errors": ["INVALID_DATA"]},
+                status=HTTP_400_BAD_REQUEST,
             )
         target_user = target_user_qs.first()
 
         #:  Check that the two passwords are identical
         if password1 != password2:
             return Response(
-                data={'message': 'Passwords not corresponding'},
+                data={
+                    'message': 'Passwords not corresponding',
+                    '_errors': ['MISMATCH_PASSWORDS'],
+                },
                 status=HTTP_400_BAD_REQUEST,
             )
         password = password1
@@ -801,7 +834,10 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
         serializer = RegisterSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(
-                data={'message': 'serializer invalid'},
+                data={
+                    'message': 'serializer invalid',
+                    "_errors": ["INVALID_DATA"],
+                },
                 status=HTTP_400_BAD_REQUEST,
             )
 
@@ -847,7 +883,10 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
         if password1 is None and password2 is None:
             if settings.ALLOW_SEND_EMAIL_ON_REGISTER is False:
                 return Response(
-                    data={'message': 'serializer invalid'},
+                    data={
+                        'message': 'serializer invalid',
+                        "_errors": ["INVALID_DATA"],
+                    },
                     status=HTTP_400_BAD_REQUEST,
                 )
             send_register_email = True
@@ -859,7 +898,10 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             ):
                 return Response(
                     data={
-                        'message': 'Only registered users are allowed to set an email_format'
+                        'message': (
+                            'Only registered users are allowed to set an email_format'
+                        ),
+                        '_errors': ['INVALID_PARAMETER'],
                     },
                     status=HTTP_400_BAD_REQUEST,
                 )
@@ -871,7 +913,10 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
                 )
             except (KeyError, IndexError):
                 return Response(
-                    data={'errors': 'url_format is not a valid format_string'},
+                    data={
+                        'errors': 'url_format is not a valid format_string',
+                        '_errors': ['INVALID_PARAMETER'],
+                    },
                     status=HTTP_400_BAD_REQUEST,
                 )
 
@@ -881,7 +926,8 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
                 except (KeyError, IndexError):
                     return Response(
                         data={
-                            'errors': 'url_format is not a valid format_string'
+                            'errors': 'url_format is not a valid format_string',
+                            '_errors': ['INVALID_PARAMETER'],
                         },
                         status=HTTP_400_BAD_REQUEST,
                     )
@@ -890,7 +936,10 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             send_register_email = False
             if not password1 == password2:
                 return Response(
-                    data={'message': 'Password confimation incorrect'},
+                    data={
+                        'message': 'Password confimation incorrect',
+                        '_errors': ['MISMATCH_PASSWORDS'],
+                    },
                     status=HTTP_400_BAD_REQUEST,
                 )
             password = password1
@@ -1049,7 +1098,10 @@ class ResetPasswordApiView(SecurityRulesMixin, generics.GenericAPIView):
         serializer = ResetPasswordSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(
-                data={'message': serializer.errors},
+                data={
+                    'message': serializer.errors,
+                    "_errors": ["INVALID_DATA"],
+                },
                 status=HTTP_400_BAD_REQUEST,
             )
 
@@ -1058,7 +1110,8 @@ class ResetPasswordApiView(SecurityRulesMixin, generics.GenericAPIView):
         user_queryset = UserModel.objects.filter(email=email, is_active=True)
         if not user_queryset.exists():
             return Response(
-                data={'message': 'invalid data'}, status=HTTP_400_BAD_REQUEST
+                data={'message': 'invalid data', "_errors": ["INVALID_DATA"]},
+                status=HTTP_400_BAD_REQUEST,
             )
 
         user = user_queryset.first()
@@ -1070,7 +1123,10 @@ class ResetPasswordApiView(SecurityRulesMixin, generics.GenericAPIView):
             uri = url_format.format(token=reset_token.uid, email=user.email)
         except (KeyError, IndexError):
             return Response(
-                data={'errors': 'url_format is not a valid format_string'},
+                data={
+                    'message': 'url_format is not a valid format_string',
+                    '_errors': ['INVALID_PARAMETER'],
+                },
                 status=HTTP_400_BAD_REQUEST,
             )
 
@@ -1318,7 +1374,10 @@ class PaginatedViewSet(object):
                     'greater than 0.0'
                 )
                 return Response(
-                    data={'message': error_message},
+                    data={
+                        'message': error_message,
+                        '_errors': ['INVALID_QUERY'],
+                    },
                     status=HTTP_400_BAD_REQUEST,
                 )
 
@@ -1374,7 +1433,8 @@ class PaginatedViewSet(object):
                 ' 1 and {}'.format(settings.API_MAX_PAGINATION_SIZE)
             )
             return Response(
-                data={'message': error_message}, status=HTTP_400_BAD_REQUEST
+                data={'message': error_message, '_errors': ['INVALID_QUERY']},
+                status=HTTP_400_BAD_REQUEST,
             )
 
         #: Paginate the new queryset
@@ -1384,8 +1444,11 @@ class PaginatedViewSet(object):
         if c_resp_nested not in ['true', 'false']:
             return Response(
                 data={
-                    'message': "wrong argument: c_resp_nested has "
-                    "to be wether 'true' or 'false'"
+                    'message': (
+                        "wrong argument: c_resp_nested has to be wether "
+                        "'true' or 'false'"
+                    ),
+                    '_errors': ['INVALID_QUERY'],
                 },
                 status=HTTP_400_BAD_REQUEST,
             )
@@ -1517,7 +1580,8 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
                         data={
                             'message': "Wrong date format, should be '{}'".format(
                                 date_format
-                            )
+                            ),
+                            '_errors': ['INVALID_QUERY'],
                         },
                         status=HTTP_400_BAD_REQUEST,
                     ),
@@ -1535,7 +1599,8 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
                     data={
                         'message': 'filter against {} is not allowed'.format(
                             param
-                        )
+                        ),
+                        '_errors': ['INVALID_QUERY'],
                     },
                     status=HTTP_400_BAD_REQUEST,
                 )
@@ -1850,13 +1915,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
                     status=HTTP_412_PRECONDITION_FAILED,
                     data={'message': msg, '_errors': ["PROTECTED_RELATION"]},
                 )
-        try:
-            divider = self.get_divider()
-        except WrongEntityUIDError:
-            return Response(
-                data={'message': 'Header entity uid not found'},
-                status=HTTP_400_BAD_REQUEST,
-            )
+        divider = self.get_divider()
         if divider is None:
             return self.block_user(instance)
         else:

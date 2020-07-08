@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Add error codes to concrete API 400_BAD_REQUEST responses
 
 ### Changed
 
