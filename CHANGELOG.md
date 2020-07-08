@@ -8,7 +8,7 @@
 
 ### Changed
 
-- Fix special chars list for password security
+- use `object_name` instead of `name` to rearrange the admin models in categories
 
 ### Removed
 
