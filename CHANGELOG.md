@@ -8,11 +8,17 @@
 
 ### Changed
 
-- use `object_name` instead of `name` to rearrange the admin models in categories
+- nothing changed
 
 ### Removed
 
 - nothing removed
+
+## [1.12.0] - 2020-07-08
+
+### Changed
+
+- use `object_name` instead of `name` to rearrange the admin models in categories
 
 ## [1.11.0] - 2020-07-08
 
