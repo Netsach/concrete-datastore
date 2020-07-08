@@ -4,7 +4,7 @@
 
 ### Added
 
-- Add error codes to concrete API 400_BAD_REQUEST responses
+- nothing added
 
 ### Changed
 
@@ -13,6 +13,12 @@
 ### Removed
 
 - nothing removed
+
+## [1.11.0] - 2020-07-08
+
+### Added
+
+- Add error codes to concrete API 400_BAD_REQUEST responses
 
 ## [1.10.0] - 2020-07-07
 
