@@ -196,7 +196,7 @@ class PasswordMinSpecialValidation(object):
             " character(s) from these : {special_list}"
         ).format(
             min_special=self.min_special,
-            special_list=settings.SPECIAL_CHARACTERS,
+            special_list=''.join(set(settings.SPECIAL_CHARACTERS)),
         )
         return help_text
 
@@ -205,6 +205,6 @@ class PasswordMinSpecialValidation(object):
             "Votre mot de passe doit contenir au moins {min_special} caractères spéciaux parmi ceux là: {special_list}"
         ).format(
             min_special=self.min_special,
-            special_list=settings.SPECIAL_CHARACTERS,
+            special_list=''.join(set(settings.SPECIAL_CHARACTERS)),
         )
         return help_text
