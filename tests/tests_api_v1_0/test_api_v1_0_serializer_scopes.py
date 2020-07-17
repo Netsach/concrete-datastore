@@ -124,7 +124,7 @@ class CreationCloisonnementTestCase(APITestCase):
 
         scopes = result[0].get('scopes')
 
-        self.assertEqual(scopes, None)
+        self.assertDictEqual(scopes, {"entity_uid": self.cloisonX.uid})
 
     def test_scopes_undivided_model(self):
         # Model Fusee is not divided
