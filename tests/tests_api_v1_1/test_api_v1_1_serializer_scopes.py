@@ -90,7 +90,7 @@ class CreationCloisonnementTestCase(APITestCase):
 
         self.assertNotEqual(scopes, None)
 
-    def test_scopes_not_alloed(self):
+    def test_scopes_allowed_simpleuser(self):
         url_projects = 'http://127.0.0.1:7777/api/v1.1/project/'
 
         # ASSERT USER 1 CAN ACCESS PROJ A
@@ -124,7 +124,7 @@ class CreationCloisonnementTestCase(APITestCase):
 
         scopes = result[0].get('scopes')
 
-        self.assertEqual(scopes, None)
+        self.assertDictEqual(scopes, {"entity_uid": self.cloisonX.uid})
 
     def test_scopes_undivided_model(self):
         # Model Fusee is not divided
