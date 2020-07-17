@@ -8,12 +8,18 @@
 
 ### Changed
 
-- Fixed the special characters list to avoid string-formatting errors because of the `%`
-- Simpleuser can see the field `scopes` of every instances
+- nothing changed
 
 ### Removed
 
 - nothing removed
+
+## [1.13.0] - 2020-07-17
+
+### Changed
+
+- Fixed the special characters list to avoid string-formatting errors because of the `%`
+- Simpleuser can see the field `scopes` of every instances
 
 ## [1.12.0] - 2020-07-08
 
