@@ -7,7 +7,7 @@ import sys
 import re
 import os
 
-from urllib.parse import urljoin
+from urllib.parse import urljoin, unquote
 from importlib import import_module
 from itertools import chain
 from datetime import date
@@ -27,7 +27,7 @@ from django.apps import apps
 from django.conf import settings
 
 from rest_framework.decorators import action
-from rest_framework.utils.urls import replace_query_param
+from rest_framework.utils.urls import remove_query_param, replace_query_param
 from rest_framework.response import Response
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.reverse import reverse
@@ -42,7 +42,6 @@ from rest_framework.status import (
     HTTP_204_NO_CONTENT,
 )
 from rest_framework import authentication, permissions, generics, viewsets
-from rest_framework.utils.urls import remove_query_param, replace_query_param
 
 from concrete_datastore.concrete.models import (  # pylint:disable=E0611
     AuthToken,
@@ -1273,22 +1272,32 @@ class PaginatedViewSet(object):
             timestamp_start, timestamp_end
         )
 
-        _resp = self.get_paginated_response(self.request.data)
-
+        _resp = self.get_paginated_response(
+            self.request.data,
+            timestamp_start=timestamp_start,
+            timestamp_end=timestamp_end,
+        )
         _total = queryset.count()
 
         _num_pages = _resp.data['num_total_pages']
 
         dict_pages = dict()
-        url = self.request.build_absolute_uri()
+        base_url, url_suffix = tuple(
+            self.request.build_absolute_uri().rsplit('stats/', 2)
+        )
+        if url_suffix == '':
+            url = base_url
+        else:
+            url = f'{base_url}?{url_suffix.replace(":","=")}'
+
         for page_number in range(1, _num_pages + 1):
             if page_number == 1:
-                dict_pages['page{}'.format(page_number)] = remove_query_param(
-                    url, 'page'
+                dict_pages['page{}'.format(page_number)] = unquote(
+                    remove_query_param(url, 'page')
                 )
             else:
-                dict_pages['page{}'.format(page_number)] = replace_query_param(
-                    url, 'page', page_number
+                dict_pages['page{}'.format(page_number)] = unquote(
+                    replace_query_param(url, 'page', page_number)
                 )
 
         data = {
@@ -1344,11 +1353,15 @@ class PaginatedViewSet(object):
             for field_name in self.filterset_fields
         }
 
-    def get_paginated_response(self, data):
-        timestamp_start = self.request.GET.get('timestamp_start')
+    def get_paginated_response(
+        self, data, timestamp_start=None, timestamp_end=None
+    ):
+        if timestamp_start is None:
+            timestamp_start = self.request.GET.get('timestamp_start')
         incremental_loading = timestamp_start is not None
         timestamp_start = parse_to_float(timestamp_start)
-        timestamp_end = self.request.GET.get('timestamp_end')
+        if timestamp_end is None:
+            timestamp_end = self.request.GET.get('timestamp_end')
         timestamp_end = parse_to_float(timestamp_end)
         if timestamp_end == 0.0:
             timestamp_end = None

@@ -151,8 +151,8 @@ class CRUDTestCase(APITestCase):
         self.assertEqual(resp.data['max_allowed_objects_per_page'], 10)
 
         pages_dict = {
-            'page1': 'http://testserver/api/v1.1/project/stats/',
-            'page2': 'http://testserver/api/v1.1/project/stats/?page=2',
+            'page1': 'http://testserver/api/v1.1/project/',
+            'page2': 'http://testserver/api/v1.1/project/?page=2',
         }
         self.assertDictEqual(resp.data['page_urls'], pages_dict)
 
@@ -184,8 +184,8 @@ class CRUDTestCase(APITestCase):
         self.assertEqual(resp.data['max_allowed_objects_per_page'], 10)
 
         pages_dict = {
-            'page1': 'http://testserver/api/v1.1/project/stats/timestamp_start:123456789.123/',
-            'page2': 'http://testserver/api/v1.1/project/stats/timestamp_start:123456789.123/?page=2',
+            'page1': 'http://testserver/api/v1.1/project/?timestamp_start=123456789.123/',
+            'page2': 'http://testserver/api/v1.1/project/?page=2&timestamp_start=123456789.123/',
         }
         self.assertDictEqual(resp.data['page_urls'], pages_dict)
 
@@ -219,8 +219,8 @@ class CRUDTestCase(APITestCase):
         self.assertEqual(resp.data['max_allowed_objects_per_page'], 10)
 
         pages_dict = {
-            'page1': f'http://testserver/api/v1.1/project/stats/timestamp_start:123456789.123/?timestamp_end%3A{ts}%2F=',
-            'page2': f'http://testserver/api/v1.1/project/stats/timestamp_start:123456789.123/?page=2&timestamp_end%3A{ts}%2F=',
+            'page1': f'http://testserver/api/v1.1/project/?timestamp_start=123456789.123/?timestamp_end={ts}/',
+            'page2': f'http://testserver/api/v1.1/project/?page=2&timestamp_start=123456789.123/?timestamp_end={ts}/',
         }
         self.assertDictEqual(resp.data['page_urls'], pages_dict)
 
