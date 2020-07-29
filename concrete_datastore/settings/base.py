@@ -32,7 +32,7 @@ PASSWORD_MIN_DIGITS = 0
 PASSWORD_MIN_LOWER = 0
 PASSWORD_MIN_UPPER = 0
 PASSWORD_MIN_SPECIAL = 0
-SPECIAL_CHARACTERS = "!@#$%^&*()_+-=[]{}|'\""
+SPECIAL_CHARACTERS = "!@#$%%^&*()_+-=[]{}|'\""
 
 
 LOGIN_REDIRECT_URL = 'index-logged'
@@ -260,7 +260,7 @@ LOGGING_LEVEL = os.environ.get('LOGGING_LEVEL', DEFAULT_LOGGING_LEVEL).upper()
 
 LOGGING = {
     'version': 1,
-    'datefmt': "%Y-%m-%d %H:%M:%S",
+    'datefmt': "YY-MM-DD HH:mm:ss",
     'formatters': {'verbose': {'format': DEFAULT_LOGGING_FORMAT}},
     'filters': {
         'require_debug_true': {'()': 'django.utils.log.RequireDebugTrue'}
@@ -470,3 +470,10 @@ DEFAULT_REGISTER_EMAIL_FORMAT = """
 # Flag to allow a user to reuse a password on change, only applicable if
 # current password is not expired
 ALLOW_REUSE_PASSWORD_ON_CHANGE = False
+
+IGNORED_MODELS_ON_DELETE = [
+    "DeletedModel",
+    "AuthToken",
+    "TemporaryToken",
+    "SecureConnectToken",
+]

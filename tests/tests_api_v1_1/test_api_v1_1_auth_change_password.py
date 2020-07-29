@@ -91,6 +91,44 @@ class ChangePasswordTestCase(APITestCase):
         self.url_login = '/api/v1.1/auth/login/'
         self.url_change = '/api/v1.1/auth/change-password/'
 
+    def test_change_password_invalid_serializer(self):
+        resp = self.client.post(
+            self.url_change,
+            {"email": self.simple_user.email, "password1": "abcas"},
+            HTTP_AUTHORIZATION='Token {}'.format(self.super_user_token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
+        self.assertEqual(resp.data['_errors'], ['INVALID_DATA'])
+
+    def test_change_password_user_doesnt_exist(self):
+        resp = self.client.post(
+            self.url_change,
+            {
+                "email": "jenniferdoe@netsach.com",
+                "password1": "abc",  # short password (at least 4 characters)
+                "password2": "abc12",
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(self.super_user_token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
+        self.assertEqual(resp.data['_errors'], ['INVALID_DATA'])
+
+    def test_change_password_missmatch(self):
+        resp = self.client.post(
+            self.url_change,
+            {
+                "email": self.simple_user.email,
+                "password1": "abc",  # short password (at least 4 characters)
+                "password2": "abc12",
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(self.super_user_token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
+        self.assertEqual(resp.data['_errors'], ['MISMATCH_PASSWORDS'])
+
     def test_change_password_with_insecure_password(self):
         resp = self.client.post(
             self.url_change,
@@ -102,6 +140,23 @@ class ChangePasswordTestCase(APITestCase):
             HTTP_AUTHORIZATION='Token {}'.format(self.super_user_token),
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
+        self.assertEqual(resp.data['_errors'], ['NOT_ENOUGH_CHARS'])
+
+    @override_settings(ALLOW_REUSE_PASSWORD_ON_CHANGE=False)
+    def test_change_password_reused(self):
+        resp = self.client.post(
+            self.url_change,
+            {
+                "email": self.simple_user.email,
+                "password1": "passwordInitial",  # short password (at least 4 characters)
+                "password2": "passwordInitial",
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(self.super_user_token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
+        self.assertEqual(resp.data['_errors'], ['CANNOT_USE_SAME_PASSWORD'])
 
     def test_basic_change_password_by_super_user(self):
         """
@@ -299,3 +354,5 @@ class ChangePasswordTestCase(APITestCase):
         # POST an invalid arguiment and get an error (400)
         resp = self.client.post(self.url_change, {})
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
+        self.assertEqual(resp.data['_errors'], ['INVALID_DATA'])

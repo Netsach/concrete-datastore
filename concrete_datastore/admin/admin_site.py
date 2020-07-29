@@ -11,9 +11,14 @@ from concrete_datastore.admin.admin_form import (
     OTPAuthenticationForm,
 )
 
-
-EXTRA_MODEL_NAMES_LOWER = ('emails',)
-AUTH_MODEL_NAMES_LOWER = ('users', 'groups', 'tokens', 'permissions', 'roles')
+EXTRA_MODEL_OBJECT_NAMES = ('Email',)
+AUTH_MODEL_OBJECT_NAMES = (
+    'User',
+    'Group',
+    'AuthToken',
+    'ConcretePermission',
+    'ConcreteRole',
+)
 
 
 def get_admin_site():
@@ -91,6 +96,7 @@ def get_admin_site():
                 urlpatterns += [
                     re_path(regex, wrap(self.app_index), name='app_list')
                 ]
+
             return urlpatterns
 
         def get_app_list(self, request):
@@ -116,8 +122,8 @@ def get_admin_site():
                 'models': [
                     model
                     for model in models
-                    if model['name'].lower()
-                    not in EXTRA_MODEL_NAMES_LOWER + AUTH_MODEL_NAMES_LOWER
+                    if model['object_name']
+                    not in EXTRA_MODEL_OBJECT_NAMES + AUTH_MODEL_OBJECT_NAMES
                 ],
             }
             extra_group_models = {
@@ -126,7 +132,7 @@ def get_admin_site():
                 'models': [
                     model
                     for model in models
-                    if model['name'].lower() in EXTRA_MODEL_NAMES_LOWER
+                    if model['object_name'] in EXTRA_MODEL_OBJECT_NAMES
                 ],
             }
             auth_group_models = {
@@ -135,7 +141,7 @@ def get_admin_site():
                 'models': [
                     model
                     for model in models
-                    if model['name'].lower() in AUTH_MODEL_NAMES_LOWER
+                    if model['object_name'] in AUTH_MODEL_OBJECT_NAMES
                 ],
             }
             custom_app_groups_list = [

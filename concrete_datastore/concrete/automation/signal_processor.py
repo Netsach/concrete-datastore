@@ -1,5 +1,5 @@
 # coding: utf-8
-
+from django.conf import settings
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete, post_save
 from django.contrib.auth import get_user_model
@@ -13,13 +13,13 @@ from concrete_datastore.api.v1.views import (
 
 @receiver(pre_delete)
 def on_pre_delete(sender, instance, **kwargs):
-    if hasattr(
-        concrete_datastore.concrete.models, instance.__class__.__name__
-    ) and instance.__class__.__name__ not in [
-        "DeletedModel",
-        "AuthToken",
-        "TemporaryToken",
-    ]:
+    if (
+        hasattr(
+            concrete_datastore.concrete.models, instance.__class__.__name__
+        )
+        and instance.__class__.__name__
+        not in settings.IGNORED_MODELS_ON_DELETE
+    ):
         # pylint: disable=no-member
         concrete_datastore.concrete.models.DeletedModel.objects.create(
             model_name=instance.__class__.__name__, uid=instance.uid

@@ -255,8 +255,9 @@ class ConcreteRole(models.Model):
         # default=timezone.now
     )
 
-    def __str__(self):  # pylint: disable = invalid-str-returned
-        return self.name
+    def __str__(self):
+        # the __str__ method should return a string
+        return str(self.name)
 
 
 class ConcretePermission(models.Model):
@@ -290,8 +291,9 @@ class ConcretePermission(models.Model):
     modification_date = models.DateTimeField(auto_now=True)
     creation_date = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):  # pylint: disable = invalid-str-returned
-        return self.model_name
+    def __str__(self):
+        # the __str__ method should return a string
+        return str(self.model_name)
 
 
 class SecureConnectToken(models.Model):

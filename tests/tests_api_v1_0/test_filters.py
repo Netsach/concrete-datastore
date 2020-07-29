@@ -310,7 +310,8 @@ class FilterWithInvalidFields(APITestCase):
             {
                 'message': 'filter against {} is not allowed'.format(
                     requested_filter
-                )
+                ),
+                '_errors': ["INVALID_QUERY"]
             },
         )
 
@@ -326,7 +327,8 @@ class FilterWithInvalidFields(APITestCase):
             {
                 'message': 'filter against {} is not allowed'.format(
                     requested_filter
-                )
+                ),
+                '_errors': ["INVALID_QUERY"]
             },
         )
 
@@ -340,7 +342,8 @@ class FilterWithInvalidFields(APITestCase):
             {
                 'message': 'filter against {} is not allowed'.format(
                     requested_filter
-                )
+                ),
+                '_errors': ["INVALID_QUERY"]
             },
         )
 

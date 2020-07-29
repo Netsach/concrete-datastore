@@ -114,7 +114,8 @@ development/datamodel/*
 bin
 local-migrations/
 docker-compose-backup.yml
-
+.python-version
+celerybeat-schedule
 celerybeat-schedule.db
 pip-wheel-metadata
 

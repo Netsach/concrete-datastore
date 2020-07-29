@@ -402,17 +402,9 @@ def make_serializer_class(
         scopes = serializers.SerializerMethodField()
 
         def get_scopes(self, obj):
-            user = self.context.get('request').user
-            superuser = user.is_superuser is True
-            at_least_admin = (
-                False if user.is_anonymous else user.is_at_least_admin
-            )
-            staff = False if user.is_anonymous else user.is_at_least_staff
-
-            if staff or at_least_admin or superuser:
-                divider = getattr(obj, DIVIDER_MODEL.lower(), None)
-                if divider:
-                    return {"entity_uid": divider.uid}
+            divider = getattr(obj, DIVIDER_MODEL.lower(), None)
+            if divider:
+                return {"entity_uid": divider.uid}
             return None
 
         def get_url(self, obj):

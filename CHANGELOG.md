@@ -14,6 +14,44 @@
 
 - nothing removed
 
+## [1.13.0] - 2020-07-17
+
+### Changed
+
+- Fixed the special characters list to avoid string-formatting errors because of the `%`
+- Simpleuser can see the field `scopes` of every instances
+
+## [1.12.0] - 2020-07-08
+
+### Changed
+
+- use `object_name` instead of `name` to rearrange the admin models in categories
+
+## [1.11.0] - 2020-07-08
+
+### Added
+
+- Add error codes to concrete API 400_BAD_REQUEST responses
+
+## [1.10.0] - 2020-07-07
+
+### Added
+
+- When deleting a SecureConnectToken, ignore creation of a DeletedModel.
+- Added a setting IGNORED_MODELS_ON_DELETE for the models to ignore when deleting.
+
+### Changed
+
+- Do not exclude the recently created objects for requests with `timestamp_start`
+- Fixed api logs format with the version 2 of pendulum
+
+## [1.9.0] - 2020-06-16
+
+### Changed
+
+- Enhanced the information returned by the `/stats/` endpoint by the following fields: `num_total_pages`, `max_allowed_objects_per_page`, and `pages_urls`
+- Fix fetching the divider model for an anonymous user if the minimum retrieve level is anonymous
+
 ## [1.8.0] - 2020-04-28
 
 ### Added

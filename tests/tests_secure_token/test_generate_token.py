@@ -64,9 +64,7 @@ class GenerateTokenTestCase(APITestCase):
         # POST a valid email
         resp = self.client.post(
             url,
-            {
-                "email": 'simple_user@netsach.org'
-            },
+            {"email": 'simple_user@netsach.org'},
             HTTP_AUTHORIZATION='Token {}'.format(self.simple_user_token),
         )
         self.assertEqual(
@@ -83,9 +81,7 @@ class GenerateTokenTestCase(APITestCase):
         # POST a valid email
         resp = self.client.post(
             url,
-            {
-                "email": 'user42@netsach.org'
-            },
+            {"email": 'user42@netsach.org'},
             HTTP_AUTHORIZATION='Token {}'.format(self.super_user_token),
         )
         self.assertEqual(
@@ -106,18 +102,14 @@ class GenerateTokenTestCase(APITestCase):
         # POST a valid email
         resp = self.client.post(
             url,
-            {
-                "email": 'super_user@netsach.org'
-            },
+            {"email": 'super_user@netsach.org'},
             HTTP_AUTHORIZATION='Token {}'.format(self.super_user_token),
         )
         secure_tokens = SecureConnectToken.objects.filter(user=self.super_user)
         self.assertEqual(secure_tokens.count(), 1)
         resp = self.client.post(
             url,
-            {
-                "email": 'super_user@netsach.org'
-            },
+            {"email": 'super_user@netsach.org'},
             HTTP_AUTHORIZATION='Token {}'.format(self.super_user_token),
         )
         self.assertEqual(
@@ -136,9 +128,7 @@ class GenerateTokenTestCase(APITestCase):
         # POST a valid email
         resp = self.client.post(
             url,
-            {
-                "email": 'super_user@netsach.org'
-            },
+            {"email": 'super_user@netsach.org'},
             HTTP_AUTHORIZATION='Token {}'.format(self.super_user_token),
         )
         secure_tokens = SecureConnectToken.objects.filter(user=self.super_user)
@@ -152,9 +142,7 @@ class GenerateTokenTestCase(APITestCase):
         # Creation of second token
         resp = self.client.post(
             url,
-            {
-                "email": 'super_user@netsach.org'
-            },
+            {"email": 'super_user@netsach.org'},
             HTTP_AUTHORIZATION='Token {}'.format(self.super_user_token),
         )
         self.assertEqual(
@@ -171,11 +159,11 @@ class GenerateTokenTestCase(APITestCase):
         # POST an invalid email
         resp = self.client.post(
             url,
-            {
-                "email": 'user42ànetsachcom'
-            },
+            {"email": 'user42ànetsachcom'},
             HTTP_AUTHORIZATION='Token {}'.format(self.super_user_token),
         )
         self.assertEqual(
             resp.status_code, status.HTTP_400_BAD_REQUEST, msg=resp.content
         )
+        self.assertIn('_errors', resp.data)
+        self.assertEqual(resp.data['_errors'], ['INVALID_DATA'])
