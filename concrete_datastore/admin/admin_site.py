@@ -157,9 +157,6 @@ def get_admin_site():
                     'use_core_automation': True,
                     'target_admin_view': reverse('coreAdmin:index'),
                     'target_admin_view_name': 'Core Admin',
-                    'current_admin_view': request.environ['PATH_INFO'].replace(
-                        '/', ''
-                    ),
                 }
             return super().index(request, extra_context, *args, **kwargs)
 
