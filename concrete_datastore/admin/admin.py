@@ -38,8 +38,7 @@ for meta_model in list_of_meta:
 
     for field_name, field in meta_model.get_fields():
         models_fields += (field_name,)
-        field_type = field.f_type
-        if field_type == 'ManyToManyField':
+        if field.f_type == 'ManyToManyField':
             m2m_fields.append(field_name)
 
     if model_name == 'User':
