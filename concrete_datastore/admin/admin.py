@@ -33,10 +33,14 @@ for meta_model in list_of_meta:
         continue
 
     models_fields = ('uid',)
+    m2m_fields = []
     attrs = {}
 
     for field_name, field in meta_model.get_fields():
         models_fields += (field_name,)
+        field_type = field.f_type
+        if field_type == 'ManyToManyField':
+            m2m_fields.append(field_name)
 
     if model_name == 'User':
         list_display = (meta_model.get_property('m_list_display') or []) + [
@@ -72,7 +76,7 @@ for meta_model in list_of_meta:
         fieldsets = ((None, {'fields': models_fields}),) + meta_fieldsets
         if model_name != divider and model_name not in UNDIVIDED_MODEL:
             fieldsets += ((_('Scope'), {'fields': (divider_field_name,)}),)
-        attrs.update({'fieldsets': fieldsets})
+        attrs.update({'fieldsets': fieldsets, 'filter_horizontal': m2m_fields})
 
     def make_list_filter(mm, mdl):
         def get_list_filter(self, request):
