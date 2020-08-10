@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Changed filtering of m2m fields in the admin view to horizontal filtering
 
 ### Removed
 
