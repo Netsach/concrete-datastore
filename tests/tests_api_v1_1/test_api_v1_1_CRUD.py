@@ -224,6 +224,41 @@ class CRUDTestCase(APITestCase):
         }
         self.assertDictEqual(resp.data['page_urls'], pages_dict)
 
+    @override_settings(API_MAX_PAGINATION_SIZE_NESTED=10)
+    def test_stats_endpoint_start_end_archived(self):
+        for i in range(20):
+            Project.objects.create(
+                name="Project{}".format(i),
+                description="description du projet {}".format(i),
+                created_by=self.user,
+            )
+
+        ts = pendulum.now('utc').timestamp()
+
+        url_projects = f'/api/v1.1/project/stats/timestamp_start:123456789.123-timestamp_end:{ts}/?archived=false'
+        resp = self.client.get(
+            url_projects, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        self.assertIn('objects_count', resp.data)
+        self.assertIn('timestamp_start', resp.data)
+        self.assertIn('timestamp_end', resp.data)
+        self.assertIn('num_total_pages', resp.data)
+        self.assertIn('max_allowed_objects_per_page', resp.data)
+        self.assertIn('page_urls', resp.data)
+
+        self.assertEqual(resp.data['objects_count'], 20)
+        self.assertEqual(resp.data['timestamp_start'], '123456789.123')
+        self.assertEqual(resp.data['num_total_pages'], 2)
+        self.assertEqual(resp.data['max_allowed_objects_per_page'], 10)
+
+        pages_dict = {
+            'page1': f'http://testserver/api/v1.1/project/?archived=false&timestamp_end={ts}&timestamp_start=123456789.123',
+            'page2': f'http://testserver/api/v1.1/project/?archived=false&page=2&timestamp_end={ts}&timestamp_start=123456789.123',
+        }
+        self.assertDictEqual(resp.data['page_urls'], pages_dict)
+
     def test_list_projects_error_wrong_date(self):
         resp = self.client.post(
             "/api/v1.1/date-utc/",
