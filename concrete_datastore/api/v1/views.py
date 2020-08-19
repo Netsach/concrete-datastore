@@ -1288,7 +1288,6 @@ class PaginatedViewSet(object):
                 url_query += f'&timestamp_end={timestamp_end}'
 
         url = urlparse.urlunparse(parsed_url._replace(query=url_query))
-        print(f'URLLLL:   {url}')
 
         queryset, timestamp_end = self._get_queryset_filtered_since_timestamp(
             timestamp_start, timestamp_end
