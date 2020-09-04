@@ -6,8 +6,7 @@ import uuid
 import sys
 import re
 import os
-import urllib.parse as urlparse
-from urllib.parse import urljoin, unquote
+from urllib.parse import urljoin, unquote, urlparse, urlunparse
 from importlib import import_module
 from itertools import chain
 from datetime import date
@@ -1269,7 +1268,7 @@ class PaginatedViewSet(object):
             validate_request_permissions(request=request)
 
         # Get urls for the subpages from the stats url
-        parsed_url = urlparse.urlparse(self.request.build_absolute_uri())
+        parsed_url = urlparse(self.request.build_absolute_uri())
         # Delete /stats/ from url
         parsed_url = parsed_url._replace(
             path=parsed_url.path.split('stats/')[0]
@@ -1287,7 +1286,7 @@ class PaginatedViewSet(object):
             else:
                 url_query += f'&timestamp_end={timestamp_end}'
 
-        url = urlparse.urlunparse(parsed_url._replace(query=url_query))
+        url = urlunparse(parsed_url._replace(query=url_query))
 
         queryset, timestamp_end = self._get_queryset_filtered_since_timestamp(
             timestamp_start, timestamp_end
