@@ -198,7 +198,7 @@ def apply_filter_since(queryset, timestamp_start, timestamp_end=None):
 
     queryset = queryset.filter(
         modification_date__range=(
-            pendulum.from_timestamp(timestamp_start),
+            pendulum.from_timestamp(parse_to_float(timestamp_start)),
             pendulum.from_timestamp(parse_to_float(timestamp_end)),
         )
     )
@@ -1333,7 +1333,7 @@ class PaginatedViewSet(object):
         queryset = self.filter_queryset(self.get_queryset())
 
         if timestamp_start is not None:
-            timestamp_start = parse_to_float(timestamp_start)
+            timestamp_start = timestamp_start
             queryset, timestamp_end = apply_filter_since(
                 queryset, timestamp_start, timestamp_end
             )
