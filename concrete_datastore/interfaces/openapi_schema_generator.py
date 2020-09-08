@@ -147,12 +147,6 @@ class BaseSchemaGenerator(BaseSchemaSuper):
         from_db=False,
         user_level='blocked',
     ):
-        user_token = ('5594f9afd6e658ae976b3a4fcee84ad514db6d93',)
-        from_db = (True,)
-        user_level = (
-            'blocked',
-        )  # If I change this to superuser, everything works like a charm. What is this for? why?
-
         super().__init__(
             title=settings.OPENAPI_SPEC_TITLE,
             patterns=patterns,
@@ -172,8 +166,8 @@ class BaseSchemaGenerator(BaseSchemaSuper):
         self.user = self._get_user(token=user_token, level=user_level)
 
     def _get_user(self, token, level):
-        # if self.from_db is False:
-        #   return HasPermissionFakeUser(level=level)
+        if self.from_db is False:
+            return HasPermissionFakeUser(level=level)
 
         #:  AuthToken is imported only if `self.from_db` is True in order
         #:  to avoid any database errors
@@ -183,7 +177,7 @@ class BaseSchemaGenerator(BaseSchemaSuper):
         user_token = AuthToken.objects.filter(pk=token).first()
         if user_token:
             return user_token.user
-        # raise InvalidTokenUser()
+        raise InvalidTokenUser()
 
     def _get_paths_and_endpoints(self, request):
         """
