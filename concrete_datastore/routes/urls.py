@@ -5,6 +5,9 @@ from django.views.static import serve
 from django.views.generic import TemplateView
 from concrete_datastore.admin.admin import admin_site
 from .views import service_status_view, OpenApiView
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
 
 app_name = 'concrete_datastore.concrete'
 
@@ -29,6 +32,14 @@ urlpatterns = [
         r'openapi-schema\.(?P<spec_format>json|yaml)$',
         OpenApiView.as_view(patterns=[api_v1_1_urls]),
         name='openapi-schema',
+    ),
+    re_path(
+        r'^swagger-ui/',
+        TemplateView.as_view(
+            template_name='mainApp/swagger-ui.html',
+            extra_context={'schema_url': 'openapi-schema'},
+        ),
+        name='swagger-ui',
     ),
     api_v1_urls,
     api_v1_1_urls,

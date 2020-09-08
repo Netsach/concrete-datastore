@@ -211,6 +211,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': DEFAULT_PAGE_SIZE,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'concrete_datastore.api.v1.authentication.TokenExpiryAuthentication',
     ),
@@ -243,6 +244,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'concrete_datastore.concrete',
+    'drf_yasg',
 ]
 
 LICENSE = 'GNU GENERAL PUBLIC LICENSE Version 3'
