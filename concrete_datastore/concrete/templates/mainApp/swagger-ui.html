@@ -19,9 +19,10 @@
         ],
         layout: "BaseLayout",
         requestInterceptor: (request) => {
-          request.headers['X-CSRFToken'] = "{{ csrf_token }}"
+          request.headers['X-CSRFToken'] = "{{ csrf_token }}";
+          //request.headers['Authorization'] = "Token 730a1c3ea5a98695d68c815eeab46c0a3248fdd0";
           return request;
-        }
+      }
       })
     </script>
   </body>
