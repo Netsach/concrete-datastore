@@ -13,6 +13,9 @@
     window.onload = function() {
       var token = '';
 
+      // Override functionality of Authorize and Logout to reload the endpoints
+      // later on. Here, we just store/ delete the token.
+      // Per default, the endpoints are not loaded after authorization
       const MyWrapAuthPlugin = function(system) {
         return {
           statePlugins: {
@@ -43,8 +46,11 @@
                 SwaggerUIBundle.presets.apis,
                 SwaggerUIBundle.SwaggerUIStandalonePreset
               ],
+              // use the plugin above
               plugins: [MyWrapAuthPlugin],
               layout: "BaseLayout",
+              // Intercept the response in case the user entered an invalid
+              // token, so that he or she will be informed.
               responseInterceptor: (res) => {
                 if (res.status === 403) {
                   console.log(res)
@@ -52,6 +58,8 @@
                 }
                 return res;
               },
+              // Intercept requests, to make sure that the token is set as
+              // auth header after authorization is clicked.
               requestInterceptor: (request) => {
                 if(token != ''){
                   request.headers['Authorization'] = token
