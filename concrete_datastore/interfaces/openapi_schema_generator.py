@@ -180,8 +180,6 @@ class BaseSchemaGenerator(BaseSchemaSuper):
             return user_token.user
         raise PermissionDenied()
 
-        #  raise InvalidTokenUser()
-
     def _get_paths_and_endpoints(self, request):
         """
         Generate (path, method, view) given (path, method, callback) for paths.
