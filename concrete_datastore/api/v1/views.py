@@ -11,7 +11,9 @@ from urllib.parse import urljoin
 from importlib import import_module
 from itertools import chain
 from datetime import date
+from icalendar import Calendar, Event
 
+from django.core.exceptions import FieldDoesNotExist
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.models import AnonymousUser
 from django.db.models.deletion import ProtectedError
@@ -25,6 +27,7 @@ from django.http.request import QueryDict
 from django.utils import timezone
 from django.apps import apps
 from django.conf import settings
+from django.http import HttpResponse
 
 from rest_framework.decorators import action
 from rest_framework.utils.urls import replace_query_param
@@ -1302,6 +1305,90 @@ class PaginatedViewSet(object):
             'page_urls': dict_pages,
         }
         return Response(data)
+
+    def format_timestamp(self, ts):
+        return ts.strftime('%Y%m%dT%H%M%SZ')
+
+    @action(
+        detail=False, url_path='caldav', url_name='caldav',
+    )
+    # TODO: Give as query params
+    def get_caldav(self, request):
+        # TODO: Give as query params
+        if request.parser_context["view"].model_class.__name__ == "User":
+            validate_request_permissions(request=request)
+
+        start = self.request.GET.get('start')
+        end = self.request.GET.get('end')
+        description = self.request.GET.get('description')
+        subject = self.request.GET.get('subject')
+
+        queryset = self.get_queryset()
+
+        # Setting the start is needed
+        if start is None:
+            return Response(
+                data={
+                    'message': 'Please set a start value!',
+                    '_errors': ['INVALID_QUERY'],
+                },
+                status=HTTP_400_BAD_REQUEST,
+            )
+
+        # Check if start and end are actual fields
+        # TODO: Check if the fields are datetime!!
+        if start is not None:
+            try:
+                queryset.model._meta.get_field(start)
+            except FieldDoesNotExist:
+                error_message = f'The start date field {start} does not exist!'
+                return Response(
+                    data={
+                        'message': error_message,
+                        '_errors': ['INVALID_QUERY'],
+                    },
+                    status=HTTP_400_BAD_REQUEST,
+                )
+        if end is not None:
+            try:
+                queryset.model._meta.get_field(end)
+            except FieldDoesNotExist:
+                error_message = f'The start date field {end} does not exist!'
+                return Response(
+                    data={
+                        'message': error_message,
+                        '_errors': ['INVALID_QUERY'],
+                    },
+                    status=HTTP_400_BAD_REQUEST,
+                )
+
+        cal = Calendar()
+
+        results = queryset.all().values()
+
+        for item in results.iterator():
+            print(item)
+            event = Event()
+
+            # Add event information
+            if subject:
+                event.add('summary', subject)
+            else:
+                event.add('summary', item.get('name'))
+
+            event.add('uid', str(uuid.uuid1()))
+
+            if description:
+                event.add('description', description)
+
+            event['dtstart'] = self.format_timestamp(item.get(start))
+            if end:
+                event['dtstart'] = self.format_timestamp(item.get(end))
+            cal.add_component(event)
+
+        response = HttpResponse(cal.to_ical(), content_type="text/calendar")
+        response['Content-Disposition'] = 'attachment; filename=event.ics'
+        return response
 
     def _get_queryset_filtered_since_timestamp(
         self, timestamp_start=None, timestamp_end=None
