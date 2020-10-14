@@ -1,14 +1,13 @@
 # coding: utf-8
 from rest_framework.test import APITestCase
 from rest_framework import status
-
+import uuid
 from concrete_datastore.concrete.models import (
     User,
     UserConfirmation,
     Project,
     ExpectedSkill,
     Category,
-    Skill,
 )
 
 
@@ -121,6 +120,19 @@ class TestFiltersFK(APITestCase):
                 ]
             ),
         )
+
+    def test_filterable_m2m_not_found(self):
+        #:  No results are expected
+        get_url = f'/api/v1.1/project/?expected_skills__in={uuid.uuid4()}'
+        resp = self.client.get(
+            get_url, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        self.assertIn('objects_count', resp.data)
+        self.assertIn('results', resp.data)
+
+        self.assertEqual(resp.data['objects_count'], 0)
 
     def test_non_filterable_m2m(self):
         #:  members is not a filtrable field: expect a 400 BAD REQUEST
