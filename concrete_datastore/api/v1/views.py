@@ -79,6 +79,7 @@ from concrete_datastore.api.v1.filters import (
     FilterSupportingComparaisonBackend,
     FilterForeignKeyIsNullBackend,
     FilterSupportingForeignKey,
+    FilterSupportingManyToMany,
 )
 from concrete_datastore.api.v1.authentication import (
     TokenExpiryAuthentication,
@@ -1230,6 +1231,7 @@ class PaginatedViewSet(object):
         FilterSupportingComparaisonBackend,
         FilterForeignKeyIsNullBackend,
         FilterSupportingForeignKey,
+        FilterSupportingManyToMany,
     )
     filterset_fields = ()
     ordering_fields = '__all__'

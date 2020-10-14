@@ -3,6 +3,7 @@ import uuid
 import functools
 
 from django.db.models import Q, CharField, TextField, ForeignKey
+from django.db.models.fields.related import ManyToManyField
 
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import BaseFilterBackend
@@ -330,3 +331,42 @@ class FilterForeignKeyIsNullBackend(BaseFilterBackend):
             return queryset
 
         return queryset.filter(q_object)
+
+
+class FilterSupportingManyToMany(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        query_params = request.query_params
+        filterset_fields = getattr(view, 'filterset_fields', ())
+        q_object = None
+        for param in query_params:
+            if not param.endswith('__in'):
+                continue
+            field_name = param.replace('__in', '')
+            if field_name not in filterset_fields:
+                continue
+            cleaned_param_type = queryset.model._meta.get_field(field_name)
+            if not type(cleaned_param_type) == ManyToManyField:
+                continue
+            values = set(query_params.get(param).split(','))
+
+            #:  "value" must be a valid UUID4, otherwise raise ValidationError
+            for value in values:
+                try:
+                    #:  raises ValueError if not UUID4
+                    uuid.UUID(value, version=4)
+                except ValueError:
+                    raise ValidationError(
+                        {
+                            "message": f'{param}: « {value} » is not a valid UUID'
+                        }
+                    )
+
+            custom_filter = {param: values}
+            if q_object is None:
+                q_object = Q(**custom_filter)
+            else:
+                q_object &= Q(**custom_filter)
+        if q_object is None:
+            return queryset
+
+        return queryset.filter(q_object).distinct()
