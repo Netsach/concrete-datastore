@@ -223,9 +223,9 @@ class SecurityRulesMixin(object):
 
 
 class RetrieveSecureTokenApiView(generics.GenericAPIView):
-    '''
+    """
     This view is used to create a secure token and send an email to the user
-    '''
+    """
 
     serializer_class = ResetPasswordSerializer
 
@@ -278,9 +278,9 @@ class RetrieveSecureTokenApiView(generics.GenericAPIView):
 
 
 class GenerateSecureTokenApiView(generics.GenericAPIView):
-    '''
+    """
     This view is used to create a secure token and send it to a super user
-    '''
+    """
 
     serializer_class = ResetPasswordSerializer
 
@@ -331,8 +331,7 @@ class GenerateSecureTokenApiView(generics.GenericAPIView):
 
 
 class SecureLoginApiView(generics.GenericAPIView):
-    '''this view is used to login the user with Secure Login
-     '''
+    """this view is used to login the user with Secure Login"""
 
     serializer_class = SecureLoginSerializer
     api_namespace = DEFAULT_API_NAMESPACE
@@ -380,8 +379,7 @@ class SecureLoginApiView(generics.GenericAPIView):
 
 
 class LoginApiView(generics.GenericAPIView):
-    '''this view is used to login the user
-     '''
+    """this view is used to login the user"""
 
     #: Serializer
     serializer_class = AuthLoginSerializer
@@ -392,12 +390,12 @@ class LoginApiView(generics.GenericAPIView):
         super().__init__(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        '''
-          :param request: needs fields **email** & **password**
-          :return:
-            return the UserSerializer data (email, url, first_name,
-            last_name, level, password and token)
-        '''
+        """
+        :param request: needs fields **email** & **password**
+        :return:
+          return the UserSerializer data (email, url, first_name,
+          last_name, level, password and token)
+        """
 
         serializer = AuthLoginSerializer(data=request.data)
         if not serializer.is_valid():
@@ -537,8 +535,7 @@ class LoginApiView(generics.GenericAPIView):
 
 
 class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
-    '''this view is used to change the password for a user
-     '''
+    """this view is used to change the password for a user"""
 
     #: Serializer
     serializer_class = ChangePasswordSerializer
@@ -679,15 +676,15 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         )
 
     def post(self, request, *args, **kwargs):
-        '''
-          :param request: needs fields
-            **email**
-            **password1**
-            **password2**
-          :return:
-            return the UserSerializer data (email, url, first_name,
-            last_name, password and token)
-        '''
+        """
+        :param request: needs fields
+          **email**
+          **password1**
+          **password2**
+        :return:
+          return the UserSerializer data (email, url, first_name,
+          last_name, password and token)
+        """
         serializer = ChangePasswordSerializer(data=request.data)
         if not serializer.is_valid():
             #:  Do not give any info on this endpoint
@@ -787,9 +784,9 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
         super().__init__(*args, **kwargs)
 
     def get_request_user(self):
-        '''
+        """
         :return: return the infos of the user who made the request
-        '''
+        """
         return self.request.user
 
     def get_entity_uid(self, request):
@@ -822,12 +819,12 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
         return True
 
     def post(self, request, *args, **kwargs):
-        '''
-          :param request: needs fields **email**,
-             **password1** and **password2**
-          :return: return the UserSerializer data
-             (email, url, first_name, last_name, password and token)
-         '''
+        """
+        :param request: needs fields **email**,
+           **password1** and **password2**
+        :return: return the UserSerializer data
+           (email, url, first_name, last_name, password and token)
+        """
         divider_model_name = "{}s".format(DIVIDER_MODEL.lower())
         serializer = RegisterSerializer(data=request.data)
         if not serializer.is_valid():
@@ -1172,9 +1169,9 @@ class AccountMeApiView(
         return make_account_me_serialier(self.api_namespace)
 
     def get_object(self):
-        '''
+        """
         :return: return the infos of the user who made the request
-        '''
+        """
         return self.request.user
 
     def update(self, request, *args, **kwargs):
@@ -1191,10 +1188,10 @@ class AccountMeApiView(
             )
 
     def perform_update(self, serializer):
-        '''
+        """
         update user's infos on the requested
             fields(**email**, **password**, **first_name**...)
-        '''
+        """
         # Validator on update does not validate password
         # It should be performed within this view
         # It will raise a PasswordInsecureValidationError if password

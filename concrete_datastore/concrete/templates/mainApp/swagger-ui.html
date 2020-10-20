@@ -62,7 +62,13 @@
               // auth header after authorization is clicked.
               requestInterceptor: (request) => {
                 if(token != ''){
-                  request.headers['Authorization'] = token
+                  if(token.includes("Token ")){
+                    request.headers['Authorization'] = token;
+                  }
+                  else{
+                    request.headers['Authorization'] = "Token " + token;
+                  }
+
                 }
                 request.headers['X-CSRFToken'] = "{{ csrf_token }}"
                 return request;

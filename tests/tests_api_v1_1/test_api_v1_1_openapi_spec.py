@@ -1,6 +1,7 @@
 # coding: utf-8
 from django.test import override_settings
 from django.core.management import call_command
+from django.core.exceptions import PermissionDenied
 from django.core.management.base import CommandError
 from rest_framework.test import APITestCase
 from rest_framework import status
@@ -110,7 +111,7 @@ class TestOpenAPISchemaCommand(APITestCase):
         #:  Invalid token
         out = StringIO()
         opts = {'format': 'json', 'token': 'FAKE_TOKEN'}
-        with self.assertRaises(CommandError):
+        with self.assertRaises(PermissionDenied):
             call_command("openapispec", **opts, stdout=out)
 
     def test_openapispec_command_with_wrong_options(self):
