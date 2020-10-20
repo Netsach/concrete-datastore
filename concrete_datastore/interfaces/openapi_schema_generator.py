@@ -9,6 +9,7 @@ from django.core import validators
 from django.http import HttpRequest
 from django.conf import settings
 from django.utils.encoding import force_text
+from django.core.exceptions import PermissionDenied
 
 from rest_framework import exceptions, serializers
 from rest_framework.fields import empty
@@ -177,7 +178,7 @@ class BaseSchemaGenerator(BaseSchemaSuper):
         user_token = AuthToken.objects.filter(pk=token).first()
         if user_token:
             return user_token.user
-        raise InvalidTokenUser()
+        raise PermissionDenied()
 
     def _get_paths_and_endpoints(self, request):
         """
@@ -245,6 +246,7 @@ class SchemaGenerator(BaseSchemaGenerator):
     def get_paths_and_components(self, request=None):
         result_path = {}
         result_components = {}
+        operation_ids = set()
 
         paths, view_endpoints = self._get_paths_and_endpoints(request)
 
@@ -255,8 +257,11 @@ class SchemaGenerator(BaseSchemaGenerator):
         for path, method, view in view_endpoints:
             if not self.has_view_permissions(path, method, view):
                 continue
-            operation = view.schema.get_operation(
-                path=path, method=method, from_db=self.from_db
+            operation, operation_ids = view.schema.get_operation(
+                path=path,
+                method=method,
+                from_db=self.from_db,
+                operation_ids=operation_ids,
             )
             components = view.schema.get_component_schemas()
             # Normalise path for any provided mount url.
@@ -305,18 +310,18 @@ class SchemaGenerator(BaseSchemaGenerator):
 
 class AutoSchema(AutoSchemaSuper):
 
-    operation_ids = set()
     components = {}
 
     def get_component_schemas(self):
         return self.components
 
-    def get_operation(self, path, method, from_db):
+    def get_operation(self, path, method, from_db, operation_ids):
         operation = {}
 
-        operation['operationId'] = self.get_distinct_operation_id(
-            self._get_operation_id(path, method)
+        op_id, operation_ids = self.get_distinct_operation_id(
+            self._get_operation_id(path, method), operation_ids
         )
+        operation['operationId'] = op_id
         if from_db is False:
             self.view.get_queryset = lambda: None
 
@@ -331,21 +336,21 @@ class AutoSchema(AutoSchemaSuper):
             operation['requestBody'] = request_body
         operation['responses'] = self.get_custom_responses(path, method)
 
-        return operation
+        return operation, operation_ids
 
-    def get_distinct_operation_id(self, op_id):
+    def get_distinct_operation_id(self, op_id, operation_ids):
         # Ensure operation Id is unique by incrementing the suffix
-        if op_id not in self.operation_ids:
-            self.operation_ids.add(op_id)
-            return op_id
+        if op_id not in operation_ids:
+            operation_ids.add(op_id)
+            return op_id, operation_ids
 
         inc = 1
-        while f'{op_id}_{inc}' in self.operation_ids:
+        while f'{op_id}_{inc}' in operation_ids:
             inc += 1
 
         op_id = f'{op_id}_{inc}'
-        self.operation_ids.add(op_id)
-        return op_id
+        operation_ids.add(op_id)
+        return op_id, operation_ids
 
     def get_custom_path_parameters(self, path, method):
         """

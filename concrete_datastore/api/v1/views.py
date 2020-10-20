@@ -6,8 +6,7 @@ import uuid
 import sys
 import re
 import os
-
-from urllib.parse import urljoin
+from urllib.parse import urljoin, unquote, urlparse, urlunparse
 from importlib import import_module
 from itertools import chain
 from datetime import date
@@ -27,7 +26,7 @@ from django.apps import apps
 from django.conf import settings
 
 from rest_framework.decorators import action
-from rest_framework.utils.urls import replace_query_param
+from rest_framework.utils.urls import remove_query_param, replace_query_param
 from rest_framework.response import Response
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.reverse import reverse
@@ -42,7 +41,6 @@ from rest_framework.status import (
     HTTP_204_NO_CONTENT,
 )
 from rest_framework import authentication, permissions, generics, viewsets
-from rest_framework.utils.urls import remove_query_param, replace_query_param
 
 from concrete_datastore.concrete.models import (  # pylint:disable=E0611
     AuthToken,
@@ -200,8 +198,8 @@ def apply_filter_since(queryset, timestamp_start, timestamp_end=None):
 
     queryset = queryset.filter(
         modification_date__range=(
-            pendulum.from_timestamp(timestamp_start),
-            pendulum.from_timestamp(timestamp_end),
+            pendulum.from_timestamp(parse_to_float(timestamp_start)),
+            pendulum.from_timestamp(parse_to_float(timestamp_end)),
         )
     )
     return queryset, timestamp_end
@@ -1268,26 +1266,51 @@ class PaginatedViewSet(object):
         if request.parser_context["view"].model_class.__name__ == "User":
             validate_request_permissions(request=request)
 
+        # Get urls for the subpages from the stats url
+        parsed_url = urlparse(self.request.build_absolute_uri())
+        # Delete /stats/ from url
+        parsed_url = parsed_url._replace(
+            path=parsed_url.path.split('stats/')[0]
+        )
+        url_query = parsed_url.query
+        # Reformat timestamps, add them to query params of request
+        if timestamp_start:
+            if url_query == '':
+                url_query = f'timestamp_start={timestamp_start}'
+            else:
+                url_query += f'&timestamp_start={timestamp_start}'
+        if timestamp_end:
+            if url_query == '':
+                url_query = f'timestamp_end={timestamp_end}'
+            else:
+                url_query += f'&timestamp_end={timestamp_end}'
+
+        url = urlunparse(parsed_url._replace(query=url_query))
+
         queryset, timestamp_end = self._get_queryset_filtered_since_timestamp(
             timestamp_start, timestamp_end
         )
 
-        _resp = self.get_paginated_response(self.request.data)
+        _resp = self.get_paginated_response(
+            self.request.data,
+            timestamp_start=timestamp_start,
+            timestamp_end=timestamp_end,
+        )
 
         _total = queryset.count()
 
         _num_pages = _resp.data['num_total_pages']
 
         dict_pages = dict()
-        url = self.request.build_absolute_uri()
+
         for page_number in range(1, _num_pages + 1):
             if page_number == 1:
-                dict_pages['page{}'.format(page_number)] = remove_query_param(
-                    url, 'page'
+                dict_pages['page{}'.format(page_number)] = unquote(
+                    remove_query_param(url, 'page')
                 )
             else:
-                dict_pages['page{}'.format(page_number)] = replace_query_param(
-                    url, 'page', page_number
+                dict_pages['page{}'.format(page_number)] = unquote(
+                    replace_query_param(url, 'page', page_number)
                 )
 
         data = {
@@ -1308,7 +1331,7 @@ class PaginatedViewSet(object):
         queryset = self.filter_queryset(self.get_queryset())
 
         if timestamp_start is not None:
-            timestamp_start = parse_to_float(timestamp_start)
+            timestamp_start = timestamp_start
             queryset, timestamp_end = apply_filter_since(
                 queryset, timestamp_start, timestamp_end
             )
@@ -1343,11 +1366,15 @@ class PaginatedViewSet(object):
             for field_name in self.filterset_fields
         }
 
-    def get_paginated_response(self, data):
-        timestamp_start = self.request.GET.get('timestamp_start')
+    def get_paginated_response(
+        self, data, timestamp_start=None, timestamp_end=None
+    ):
+        if timestamp_start is None:
+            timestamp_start = self.request.GET.get('timestamp_start')
         incremental_loading = timestamp_start is not None
         timestamp_start = parse_to_float(timestamp_start)
-        timestamp_end = self.request.GET.get('timestamp_end')
+        if timestamp_end is None:
+            timestamp_end = self.request.GET.get('timestamp_end')
         timestamp_end = parse_to_float(timestamp_end)
         if timestamp_end == 0.0:
             timestamp_end = None

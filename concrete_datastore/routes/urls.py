@@ -30,6 +30,14 @@ urlpatterns = [
         OpenApiView.as_view(patterns=[api_v1_1_urls]),
         name='openapi-schema',
     ),
+    re_path(
+        r'^swagger-ui/',
+        TemplateView.as_view(
+            template_name='mainApp/swagger-ui.html',
+            extra_context={'schema_url': 'openapi-schema'},
+        ),
+        name='swagger-ui',
+    ),
     api_v1_urls,
     api_v1_1_urls,
 ]
