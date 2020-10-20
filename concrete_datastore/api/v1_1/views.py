@@ -91,20 +91,19 @@ def get_client_ip(request):
 
 
 class LDAPLoginApiView(generics.GenericAPIView):
-    '''this view is used to login the user
-     '''
+    """this view is used to login the user"""
 
     #: Serializer
     serializer_class = LDAPAuthLoginSerializer
     api_namespace = API_NAMESPACE
 
     def post(self, request, *args, **kwargs):
-        '''
-          :param request: needs fields **email** & **password**
-          :return:
-            return the UserSerializer data (email, url, first_name,
-            last_name, level, password and token)
-        '''
+        """
+        :param request: needs fields **email** & **password**
+        :return:
+          return the UserSerializer data (email, url, first_name,
+          last_name, level, password and token)
+        """
         serializer = LDAPAuthLoginSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(
@@ -257,8 +256,7 @@ class ApiModelViewSet(ApiV1ModelViewSet):
 
 
 class TwoFactorLoginView(generics.GenericAPIView):
-    '''this view is used to login the user
-     '''
+    """this view is used to login the user"""
 
     #: Serializer
     serializer_class = TwoFactorLoginSerializer

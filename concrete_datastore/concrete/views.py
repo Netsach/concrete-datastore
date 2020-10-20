@@ -48,9 +48,9 @@ def parse_lookup_for_unsubscribe(model, lookup_as_json, fields):
 
 
 def unsubscribe_notifications_view(request, token):
-    '''
+    """
     token is the uid of UserNotificationChoice instance.
-    '''
+    """
     user = get_object_or_404(
         get_user_model(), subscription_notification_token=token
     )

@@ -301,9 +301,7 @@ def filter_queryset_by_divider(queryset, user, divider):
 
 
 def filter_queryset_by_permissions(queryset, user, divider):
-    """
-
-    """
+    """"""
     if queryset.model == get_user_model():
         raise ValueError(
             "Queryset of model User cannot be filtered by permissions"
