@@ -9,6 +9,7 @@ from django.core import validators
 from django.http import HttpRequest
 from django.conf import settings
 from django.utils.encoding import force_text
+from django.core.exceptions import PermissionDenied
 
 from rest_framework import exceptions, serializers
 from rest_framework.fields import empty
@@ -177,7 +178,7 @@ class BaseSchemaGenerator(BaseSchemaSuper):
         user_token = AuthToken.objects.filter(pk=token).first()
         if user_token:
             return user_token.user
-        raise InvalidTokenUser()
+        raise PermissionDenied()
 
     def _get_paths_and_endpoints(self, request):
         """
