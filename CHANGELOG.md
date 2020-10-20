@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- In swagger-ui view, you can either authorize with `Token XXX` or `XXX`. Both are accepted
 
 ### Removed
 

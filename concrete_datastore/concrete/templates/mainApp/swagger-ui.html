@@ -62,7 +62,7 @@
               // auth header after authorization is clicked.
               requestInterceptor: (request) => {
                 if(token != ''){
-                  if token.includes("Token "){
+                  if(token.includes("Token ")){
                     request.headers['Authorization'] = token;
                   }
                   else{
