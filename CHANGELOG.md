@@ -4,16 +4,26 @@
 
 ### Added
 
+- nothing added
+
+### Changed
+
+- nothing changed
+
+### Removed
+
+- nothing removed
+
+## [1.14.0] - 2020-10-20
+
+### Added
+
 - Add button in admin site to switch to Core Admin view if core automation is enabled
 
 ### Changed
 
 - Changed filtering of m2m fields in the admin view to horizontal filtering
 - Changed the `/stats` enpoint to return proper list of urls
-
-### Removed
-
-- nothing removed
 
 ## [1.13.0] - 2020-07-17
 
