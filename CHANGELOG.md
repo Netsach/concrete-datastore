@@ -4,11 +4,12 @@
 
 ### Added
 
-- nothing added
+- Add button in admin site to switch to Core Admin view if core automation is enabled
 
 ### Changed
 
 - Changed filtering of m2m fields in the admin view to horizontal filtering
+- Changed the `/stats` enpoint to return proper list of urls
 
 ### Removed
 
