@@ -8,11 +8,17 @@
 
 ### Changed
 
-- In swagger-ui view, you can either authorize with `Token XXX` or `XXX`. Both are accepted
+- nothing changed
 
 ### Removed
 
 - nothing removed
+
+## [1.15.0] - 2020-10-20
+
+### Changed
+
+- In swagger-ui view, you can either authorize with `Token XXX` or `XXX`. Both are accepted
 
 ## [1.14.0] - 2020-10-20
 
