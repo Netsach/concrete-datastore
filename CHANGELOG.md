@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Changed the `/stats` enpoint to return proper list of urls
 
 ### Removed
 
