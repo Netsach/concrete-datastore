@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Add button in admin site to switch to Core Admin view if core automation is enabled
 
 ### Changed
 
