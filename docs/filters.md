@@ -141,7 +141,7 @@ then the results will be an empty list, because between `1603716926.382462` and 
 }
 ```
 
-Now if you add a new instance to the model `Article`: article3 (price=55.00) and perform the get request with the same filters, using the last timestamp_end as the new timestamp_start:
+Now, if you add a new instance to the model `Article`: article3 (price=55.00) and perform the get request with the same filters, using the last timestamp_end as the new timestamp_start:
 ```
 https://<webapp>/api/v1.1/article/?price__gte=50.0&timestamp_start=1603716951.567238
 ```
