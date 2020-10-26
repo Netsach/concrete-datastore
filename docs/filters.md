@@ -118,7 +118,7 @@ If you use the returned `timestamp_end` to perform the GET request:
 https://<webapp>/api/v1.1/article/?price__gte=50.0&timestamp_start=1603716926.382462
 ```
 
-then the results will be an empty list, because between `1603716926.382462` and the current timestamp nothing changed in the Database
+then the results will be an empty list, because between `1603716926.382462` and the current timestamp, nothing changed in the Database
 ```json
 {
   "objects_count": 0,
