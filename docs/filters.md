@@ -50,9 +50,9 @@ This will only give you the object uid:
 
 * **Filter within timestamp range:** You can filter results within timestamp range by adding query parameter `timestamp_start` and `timestamp_end`
 examples:
-    - `?timestamp_start=100000&timestamp_end=20000`: Filter objects between timestamp [10000, 20000] based on the modification_date.
-    - `?timestamp_start=10000`: Filter objects between timestamp [10000, now] based on the modification_date.
-    - `?timestamp_end=20000`: Filter objects between timestamp [0, 20000] based on the modification_date.
+    - `?timestamp_start=100000&timestamp_end=20000`: Filter objects between timestamp [10000, 20000] based on the **modification_date**.
+    - `?timestamp_start=10000`: Filter objects between timestamp [10000, now] based on the **modification_date**.
+    - `?timestamp_end=20000`: Filter objects between timestamp [0, 20000] based on the **modification_date**.
     
     
     
