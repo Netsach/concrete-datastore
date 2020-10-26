@@ -59,7 +59,7 @@ examples:
   If `timestamp_start` is specified and `> 0`, the api reponse will contain the following additionnal elements:
     - `"timestamp_start"`: the given timestamp start
     - `"timestamp_end"`: the timestamp end if given in the queryparams, otherwise the current timestamp
-    - `"deleted_uids"`: a list of the objects' uids that are now longer in the response. Please refer [the example on how to properly use timestamp_start and timestamp_end](#TimestampStartEnd)
+    - `"deleted_uids"`: a list of the objects' uids that are now longer in the response. Please refer to [the example on how to properly use timestamp_start and timestamp_end](#TimestampStartEnd)
 
 
 **Filter examples**:
