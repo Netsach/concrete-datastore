@@ -81,7 +81,7 @@ Given two instances of this model:
 -  article1 (price=53.99)
 -  article2 (price=52.99)
 
-To retrieve all articles with the price is greater that 50.00:
+To retrieve all articles with a price greater than or equal to 50.00:
 ```
 https://<webapp>/api/v1.1/article/?price__gte=50.0&timestamp_start=0
 ```
