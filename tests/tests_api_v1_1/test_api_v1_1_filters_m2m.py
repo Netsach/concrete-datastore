@@ -141,3 +141,25 @@ class TestFiltersFK(APITestCase):
             get_url, HTTP_AUTHORIZATION='Token {}'.format(self.token)
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_filter_m2m_isnull(self):
+        #:  All projects have at least an expected_skill
+        get_url = '/api/v1.1/project/?expected_skills__isnull=true'
+        resp = self.client.get(
+            get_url, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('objects_count', resp.data)
+        self.assertEqual(resp.data['objects_count'], 0)
+
+        #:  Add one project without an expected_skill
+        Project.objects.create(name="project_4")
+
+        get_url = '/api/v1.1/project/?expected_skills__isnull=true'
+        resp = self.client.get(
+            get_url, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('objects_count', resp.data)
+
+        self.assertEqual(resp.data['objects_count'], 1)

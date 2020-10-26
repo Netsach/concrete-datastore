@@ -318,7 +318,8 @@ class FilterForeignKeyIsNullBackend(BaseFilterBackend):
             if field_name not in filterset_fields:
                 continue
             param_value = True if query_params.get(param) == 'true' else False
-            if type(queryset.model._meta.get_field(field_name)) == ForeignKey:
+            cleaned_param_type = queryset.model._meta.get_field(field_name)
+            if type(cleaned_param_type) in (ForeignKey, ManyToManyField):
                 custom_filter = {param: param_value}
             else:
                 continue
