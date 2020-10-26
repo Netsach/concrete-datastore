@@ -3,21 +3,21 @@
 ### Filters
 API requests support different types of filters on the fields of the `filter_fields` declared in the datamodel:
 
-- **Filter Supporting Or operation:** (Applyed on all fields) By adding the `__in` suffix:
+- **Filter Supporting Or operation:** (Applied on all fields) By adding the `__in` suffix:
 example: `?name__in=project1,project2,project3` returns all objects that the field name has a value of "project1" **OR** "project2" **OR** "project3"
-- **Filter Supporting Contains key:** (Applyed on CharFields and TextFields) By adding the `__contains` suffix:
+- **Filter Supporting Contains key:** (Applied on CharFields and TextFields) By adding the `__contains` suffix:
 example: `?name__contains=pro` returns all objects that the field name contains the substring `"pro"`
-- **Filter Supporting Empty values:** (Applyed on the CharFields and TextFields) By adding `__isempty=true`:
+- **Filter Supporting Empty values:** (Applied on the CharFields and TextFields) By adding `__isempty=true`:
 example: `?project__isempty=true` returns all objects that do not have a `project`
-- **Filter Supporting Null Relation:** (Applyed on the ForeignKeys and ManyToManyField) By adding `__isnull=true`:
+- **Filter Supporting Null Relation:** (Applied on the ForeignKeys and ManyToManyField) By adding `__isnull=true`:
 example: `?project__isempty=true` returns all objects that do not have a `project`
-- **Filter Supporting Comparison operations:** (Applyed on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the suffixes `__gte`, `__gt`, `__lte` and `__lt`
+- **Filter Supporting Comparison operations:** (Applied on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the suffixes `__gte`, `__gt`, `__lte` and `__lt`
 example:
   * `?price__gte=10` (price >= 10)
   * `?price__gt=10` (price > 10)
   * `?price__lte=10` (price <= 10)
   * `?price__lt=10` (price < 10)
-- **Filter Supporting Range:** (Applyed on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the suffix `__range`:
+- **Filter Supporting Range:** (Applied on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the suffix `__range`:
 example: `?creation_date__range=2018-01-01,2018-12-31` returns all objects with creation date is between 1st Jan 2018 and 31st Dec 2018
 
 - `c_resp_page_size`: The API also features pagination by the use of the query parameter `c_resp_page_size` that takes an integer representing the number of results per page that sould be returned
