@@ -11,12 +11,13 @@ example: `?name__contains=pro` returns all objects that the field name contains 
 example: `?project__isempty=true` returns all objects that do not have a `project`
 - **Filter Supporting Null Relation:** (Applied on the ForeignKeys and ManyToManyField) By adding `__isnull=true`:
 example: `?project__isempty=true` returns all objects that do not have a `project`
-- **Filter Supporting Comparison operations:** (Applied on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the suffixes `__gte`, `__gt`, `__lte` and `__lt`
+- **Filter Supporting Comparison operations:** (Applied on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the suffixes `__gte`, `__gt`, `__lte` and `__lt`.
 example:
-  * `?price__gte=10` (price >= 10)
-  * `?price__gt=10` (price > 10)
-  * `?price__lte=10` (price <= 10)
-  * `?price__lt=10` (price < 10)
+    - `?price__gte=10` (price >= 10)
+    - `?price__gt=10` (price > 10)
+    - `?price__lte=10` (price <= 10)
+    - `?price__lt=10` (price < 10)
+
 - **Filter Supporting Range:** (Applied on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the suffix `__range`:
 example: `?creation_date__range=2018-01-01,2018-12-31` returns all objects with creation date is between 1st Jan 2018 and 31st Dec 2018
 
@@ -56,7 +57,7 @@ examples:
     
     
     
-  If `timestamp_start` is specified and `> 0`, the api reponse will contain the following additionnal elements:
+If `timestamp_start` is specified and `> 0`, the api reponse will contain the following additionnal elements:
     - `"timestamp_start"`: the given timestamp start
     - `"timestamp_end"`: the timestamp end if given in the queryparams, otherwise the current timestamp
     - `"deleted_uids"`: a list of the objects' uids that are now longer in the response. Please refer to [the example on how to properly use timestamp_start and timestamp_end](#TimestampStartEnd)
