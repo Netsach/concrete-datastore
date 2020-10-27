@@ -4,8 +4,7 @@
 
 ### Added
 
-- Add API filters for ManyToMany fields using the `__in` filter
-- Fix the Swagger generator to include all the queryparams
+- nothing added
 
 ### Changed
 
@@ -14,6 +13,13 @@
 ### Removed
 
 - nothing removed
+
+## [1.16.0] - 2020-10-27
+
+### Added
+
+- Add API filters for ManyToMany fields using the `__in` filter
+- Fix the Swagger generator to include all the queryparams
 
 ## [1.15.0] - 2020-10-20
 
