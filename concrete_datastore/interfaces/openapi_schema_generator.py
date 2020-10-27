@@ -2,6 +2,7 @@
 import uuid
 import warnings
 import logging
+from copy import deepcopy
 from urllib.parse import urljoin
 
 from django.db import models
@@ -23,7 +24,6 @@ from rest_framework.schemas.generators import (
 )
 
 import concrete_datastore
-
 
 logger = logging.getLogger('open-api-spec')
 
@@ -60,6 +60,47 @@ SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         'Token': {'type': 'apiKey', 'in': 'header', 'name': 'Authorization'}
     },
+}
+
+DEFAULT_LIST_VIEW_PARAMETERS = [
+    {
+        'name': f'c_resp_nested',
+        'required': False,
+        'description': 'Whether the response should be nested or not',
+        'in': 'query',
+        'schema': {'type': 'boolean'},
+    },
+    {
+        'name': f'c_resp_page_size',
+        'required': False,
+        'description': (
+            'Max objects to dosplay in a page: '
+            f'number between 1 and {settings.DEFAULT_PAGE_SIZE}'
+        ),
+        'in': 'query',
+        'schema': {'type': 'integer'},
+    },
+    {
+        'name': f'timestamp_start',
+        'required': False,
+        'description': 'Starting timestamp of the request',
+        'in': 'query',
+        'schema': {'type': 'float'},
+    },
+    {
+        'name': f'timestamp_end',
+        'required': False,
+        'description': 'Ending timestamp of the request',
+        'in': 'query',
+        'schema': {'type': 'float'},
+    },
+]
+
+FILED_TYPES_MAP = {
+    "IntegerField": "integer",
+    "BooleanField": "boolean",
+    "FloatField": "float",
+    "DeciamlField": "float",
 }
 
 
@@ -255,7 +296,11 @@ class SchemaGenerator(BaseSchemaGenerator):
             return None
 
         for path, method, view in view_endpoints:
-            if not self.has_view_permissions(path, method, view):
+            if (
+                not self.has_view_permissions(path, method, view)
+                or '/sets{' in path
+                or path.endswith('/export/')
+            ):
                 continue
             operation, operation_ids = view.schema.get_operation(
                 path=path,
@@ -328,7 +373,7 @@ class AutoSchema(AutoSchemaSuper):
         parameters = []
         parameters += self.get_custom_path_parameters(path, method)
         parameters += self._get_pagination_parameters(path, method)
-        parameters += self._get_filter_parameters(path, method)
+        parameters += self.get_custom_filter_parameters(path, method)
         operation['parameters'] = parameters
 
         request_body = self.get_custom_request_body(path, method)
@@ -337,6 +382,37 @@ class AutoSchema(AutoSchemaSuper):
         operation['responses'] = self.get_custom_responses(path, method)
 
         return operation, operation_ids
+
+    def get_custom_filter_parameters(self, path, method):
+        if not self._allows_filters(path, method) and "/stats" not in path:
+            return []
+        if getattr(self.view, 'detail', False) is True:
+            return []
+        parameters = []
+        if "/stats" not in path:
+            parameters = deepcopy(DEFAULT_LIST_VIEW_PARAMETERS)
+        if hasattr(self.view, 'model_class'):
+            for field in getattr(self.view, 'filterset_fields', []):
+                field_type = self.view.model_class._meta.get_field(
+                    field
+                ).get_internal_type()
+                if field_type in ('ForeignKey', 'ManyToManyField'):
+                    continue
+                swagger_filed_type = FILED_TYPES_MAP.get(field_type, 'string')
+                parameters.append(
+                    {
+                        'name': field,
+                        'required': False,
+                        'description': 'Exact value of the field',
+                        'in': 'query',
+                        'schema': {'type': swagger_filed_type},
+                    }
+                )
+        for filter_backend in self.view.filter_backends:
+            parameters += filter_backend().get_schema_operation_parameters(
+                self.view
+            )
+        return parameters
 
     def get_distinct_operation_id(self, op_id, operation_ids):
         # Ensure operation Id is unique by incrementing the suffix
@@ -360,6 +436,20 @@ class AutoSchema(AutoSchemaSuper):
 
         parameters = []
         for variable in uritemplate.variables(path):
+            if '/stats' in path:
+                parameter = {
+                    "name": "var",
+                    "in": "path",
+                    "required": False,
+                    "description": (
+                        "Timestamp URL. Example:\n- \"/timestamp_start:"
+                        "1603801749.315451\"\n- \"/timestamp_start:1603801749."
+                        "315451-timestamp_end:1603801850.463\""
+                    ),
+                    'schema': {'type': 'string'},
+                }
+                parameters.append(parameter)
+                continue
             description = ''
             if model is not None:
                 # Attempt to infer a field description if possible.

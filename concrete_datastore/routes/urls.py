@@ -16,15 +16,7 @@ api_v1_urls = re_path(
     r'^api/v1/', include('concrete_datastore.api.v1.urls', namespace='api_v1')
 )
 
-
-urlpatterns = [
-    re_path(r'^oauth/', include('social_django.urls', namespace='social')),
-    re_path(r'^status/$', service_status_view, name='service-status-view'),
-    re_path(r'^concrete-datastore-admin/', admin_site.urls, name='admin'),
-    re_path(
-        r'^c/',
-        include('concrete_datastore.concrete.urls', namespace='concrete'),
-    ),
+swagger_urls = [
     re_path(
         r'openapi-schema\.(?P<spec_format>json|yaml)$',
         OpenApiView.as_view(patterns=[api_v1_1_urls]),
@@ -38,8 +30,19 @@ urlpatterns = [
         ),
         name='swagger-ui',
     ),
+]
+
+urlpatterns = [
+    re_path(r'^oauth/', include('social_django.urls', namespace='social')),
+    re_path(r'^status/$', service_status_view, name='service-status-view'),
+    re_path(r'^concrete-datastore-admin/', admin_site.urls, name='admin'),
+    re_path(
+        r'^c/',
+        include('concrete_datastore.concrete.urls', namespace='concrete'),
+    ),
     api_v1_urls,
     api_v1_1_urls,
+    *swagger_urls,
 ]
 
 if settings.DEBUG:

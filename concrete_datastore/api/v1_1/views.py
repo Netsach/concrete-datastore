@@ -363,6 +363,7 @@ class EmailDeviceAuthView(PaginatedViewSet, viewsets.ModelViewSet):
         authentication.SessionAuthentication,
         TokenExpiryAuthentication,
     )
+    model_class = EmailDevice
     permission_classes = (IsAuthenticated,)
     serializer_class = EmailDeviceSerializer
     filterset_fields = ('confirmed', 'email', 'user')

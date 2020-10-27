@@ -4,7 +4,8 @@
 
 ### Added
 
-- nothing added
+- Add API filters for ManyToMany fields using the `__in` filter
+- Fix the Swagger generator to include all the queryparams
 
 ### Changed
 
