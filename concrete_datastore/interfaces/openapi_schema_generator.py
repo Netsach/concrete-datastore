@@ -2,6 +2,7 @@
 import uuid
 import warnings
 import logging
+from copy import deepcopy
 from urllib.parse import urljoin
 
 from django.db import models
@@ -84,14 +85,14 @@ DEFAULT_LIST_VIEW_PARAMETERS = [
         'required': False,
         'description': 'Starting timestamp of the request',
         'in': 'query',
-        'schema': {'type': 'flaot'},
+        'schema': {'type': 'float'},
     },
     {
         'name': f'timestamp_end',
         'required': False,
         'description': 'Ending timestamp of the request',
         'in': 'query',
-        'schema': {'type': 'flaot'},
+        'schema': {'type': 'float'},
     },
 ]
 
@@ -389,7 +390,7 @@ class AutoSchema(AutoSchemaSuper):
             return []
         parameters = []
         if "/stats" not in path:
-            parameters = DEFAULT_LIST_VIEW_PARAMETERS
+            parameters = deepcopy(DEFAULT_LIST_VIEW_PARAMETERS)
         if hasattr(self.view, 'model_class'):
             for field in getattr(self.view, 'filterset_fields', []):
                 field_type = self.view.model_class._meta.get_field(
