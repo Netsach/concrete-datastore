@@ -72,7 +72,10 @@ DEFAULT_LIST_VIEW_PARAMETERS = [
     {
         'name': f'c_resp_page_size',
         'required': False,
-        'description': 'Max objects to dosplay in a page: number between 1 and 250',
+        'description': (
+            'Max objects to dosplay in a page: '
+            f'number between 1 and {settings.DEFAULT_PAGE_SIZE}'
+        ),
         'in': 'query',
         'schema': {'type': 'integer'},
     },
@@ -81,14 +84,14 @@ DEFAULT_LIST_VIEW_PARAMETERS = [
         'required': False,
         'description': 'Starting timestamp of the request',
         'in': 'query',
-        'schema': {'type': 'integer'},
+        'schema': {'type': 'flaot'},
     },
     {
         'name': f'timestamp_end',
         'required': False,
         'description': 'Ending timestamp of the request',
         'in': 'query',
-        'schema': {'type': 'integer'},
+        'schema': {'type': 'flaot'},
     },
 ]
 
