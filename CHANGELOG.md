@@ -8,11 +8,19 @@
 
 ### Changed
 
-- Update pillow package version to `>=8` to support python3.7 and later
+- nothing changed
 
 ### Removed
 
 - nothing removed
+
+## [1.18.0] - 2020-11-30
+
+## [1.17.0] - 2020-11-30
+
+### Changed
+
+- Update pillow package version to `>=8` to support python3.7 and later
 
 ## [1.16.1] - 2020-10-27
 
