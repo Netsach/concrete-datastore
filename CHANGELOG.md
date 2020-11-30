@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Update pillow package version to `>=8` to support python3.7 and later
 
 ### Removed
 
