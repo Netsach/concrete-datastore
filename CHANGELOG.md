@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Objects can be filtered with the uid
 
 ### Changed
 

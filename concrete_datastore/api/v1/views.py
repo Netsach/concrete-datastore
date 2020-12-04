@@ -1614,7 +1614,6 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
                 )
             else:
                 return True, None
-
         for query_param in request.GET:
             param_values_list = request.GET[query_param].split(',')
             param = query_param.split('__')[0].replace('_uid', '')
@@ -1978,9 +1977,9 @@ def make_api_viewset_generic_attributes_class(
         list_display = meta_model.get_property('m_list_display') or []
         ordering_fields = tuple(meta_model.get_property('m_list_display', []))
         search_fields = tuple(meta_model.get_property('m_search_fields', []))
-        filterset_fields = model_filterset_fields
+        filterset_fields = model_filterset_fields + ('uid',)
         export_fields = tuple(meta_model.get_property('m_export_fields', []))
-        fields = [f for f, _ in meta_model.get_fields()]
+        fields = [f for f, _ in meta_model.get_fields()] + ['uid']
         serializer_class = make_serializer_class_fct(
             meta_model=meta_model, nested=False, api_namespace=api_namespace
         )
