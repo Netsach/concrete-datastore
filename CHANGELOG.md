@@ -4,7 +4,7 @@
 
 ### Added
 
-- Added the capability to authenticate using `c_auth_with_token` query parameter in urls when using HTTP headers is not possible (webhooks).
+- nothing added
 
 ### Changed
 
@@ -13,6 +13,12 @@
 ### Removed
 
 - nothing removed
+
+## [1.19.0] - 2020-12-07
+
+### Added
+
+- Added the capability to authenticate using `c_auth_with_token` query parameter in urls when using HTTP headers is not possible (webhooks).
 
 ## [1.18.0] - 2020-11-30
 
