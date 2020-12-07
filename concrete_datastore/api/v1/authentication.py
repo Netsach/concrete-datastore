@@ -97,9 +97,14 @@ class TokenExpiryAuthentication(authentication.TokenAuthentication):
 
 
 class URLTokenExpiryAuthentication(TokenExpiryAuthentication):
+    """
+    This class allow a user to authenticate using the query param
+    c_auth_with_token in the URL i.e. by appending ?c_auth_with_token=<value>
+    """
+
     def authenticate(self, request):
-        token = request.GET.get('c_auth_with_token', b'')
-        if token == b'':
+        token = request.GET.get('c_auth_with_token', '')
+        if token == '':
             return
 
         if len(token) != 40:

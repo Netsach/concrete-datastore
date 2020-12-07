@@ -43,3 +43,14 @@ class AuthTestCase(APITestCase):
             resp.status_code,
             status.HTTP_201_CREATED,
         )
+
+        # Use invalid token
+        project_collections = "/api/v1.1/project/?c_auth_with_token=xyz"
+        resp = client.post(
+            project_collections,
+        )
+
+        self.assertEqual(
+            resp.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+        )
