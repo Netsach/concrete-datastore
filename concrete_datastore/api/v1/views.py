@@ -82,6 +82,7 @@ from concrete_datastore.api.v1.filters import (
 from concrete_datastore.api.v1.authentication import (
     TokenExpiryAuthentication,
     expire_secure_token,
+    URLTokenExpiryAuthentication,
 )
 from concrete_datastore.concrete.automation.signals import user_logged_in
 from concrete_datastore.concrete.meta import list_of_meta
@@ -420,8 +421,7 @@ class LoginApiView(generics.GenericAPIView):
                 user = UserModel.objects.get(email=email.lower())
             except ObjectDoesNotExist:
                 log_request = (
-                    base_message
-                    + f"Connection attempt to unknown user {email}"
+                    base_message + f"Connection attempt to unknown user {email}"
                 )
                 logger_api_auth.info(log_request)
                 return Response(
@@ -433,8 +433,7 @@ class LoginApiView(generics.GenericAPIView):
                 )
             if user.level == 'blocked':
                 log_request = (
-                    base_message
-                    + f"Connection attempt to blocked user {email}"
+                    base_message + f"Connection attempt to blocked user {email}"
                 )
                 logger_api_auth.info(log_request)
                 return Response(
@@ -1007,9 +1006,7 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             email_body = email_format.format(link=link)
 
             if settings.AUTH_CONFIRM_EMAIL_ENABLE is True:
-                confirmation = user.get_or_create_confirmation(
-                    redirect_to=link
-                )
+                confirmation = user.get_or_create_confirmation(redirect_to=link)
 
                 if confirmation.link_sent is False:
                     confirmation.send_link(body=email_body)
@@ -1158,6 +1155,7 @@ class AccountMeApiView(
     authentication_classes = (
         authentication.SessionAuthentication,
         TokenExpiryAuthentication,
+        URLTokenExpiryAuthentication,
     )
     permission_classes = (UserAccessPermission,)
     api_namespace = DEFAULT_API_NAMESPACE
@@ -1512,6 +1510,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         authentication.BasicAuthentication,
         authentication.SessionAuthentication,
         TokenExpiryAuthentication,
+        URLTokenExpiryAuthentication,
     )
 
     def dispatch(self, request, *args, **kwargs):

@@ -213,6 +213,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'concrete_datastore.api.v1.authentication.TokenExpiryAuthentication',
+        'concrete_datastore.api.v1.authentication.URLTokenExpiryAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'DEFAULT_RENDERER_CLASSES': (

@@ -1,6 +1,5 @@
 # coding: utf-8
 import pendulum
-
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
@@ -95,3 +94,21 @@ class TokenExpiryAuthentication(authentication.TokenAuthentication):
             expire_secure_token(secure_token)
 
         return (token.user, token)
+
+
+class URLTokenExpiryAuthentication(TokenExpiryAuthentication):
+    """
+    This class allow a user to authenticate using the query param
+    c_auth_with_token in the URL i.e. by appending ?c_auth_with_token=<value>
+    """
+
+    def authenticate(self, request):
+        token = request.GET.get('c_auth_with_token', '')
+        if token == '':
+            return
+
+        if len(token) != 40:
+            msg = _('Invalid token : {}'.format(repr(token)))
+            raise exceptions.AuthenticationFailed(msg)
+
+        return self.authenticate_credentials(token)
