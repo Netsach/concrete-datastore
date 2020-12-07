@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Added the capability to authenticate using `c_auth_with_token` query parameter in urls when using HTTP headers is not possible (webhooks).
 
 ### Changed
 

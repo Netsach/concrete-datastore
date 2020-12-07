@@ -81,6 +81,7 @@ from concrete_datastore.api.v1.filters import (
 )
 from concrete_datastore.api.v1.authentication import (
     TokenExpiryAuthentication,
+    URLTokenExpiryAuthentication,
     expire_secure_token,
 )
 from concrete_datastore.concrete.automation.signals import user_logged_in
@@ -96,42 +97,42 @@ from concrete_datastore.interfaces.csv import csv_streaming_response
 
 UserModel = get_user_model()
 
-logger = logging.getLogger('concrete-datastore')
-logger_api_safe = logging.getLogger('api_safe_log')
-logger_api_unsafe = logging.getLogger('api_unsafe_log')
-logger_api_auth = logging.getLogger('api_auth_log')
+logger = logging.getLogger("concrete-datastore")
+logger_api_safe = logging.getLogger("api_safe_log")
+logger_api_unsafe = logging.getLogger("api_unsafe_log")
+logger_api_auth = logging.getLogger("api_auth_log")
 
-main_app = apps.get_app_config('concrete')
+main_app = apps.get_app_config("concrete")
 
 URL_TIMESTAMP = (
-    '(?:'
-    '\/'
-    'timestamp_start:(?P<timestamp_start>\d+\.\d+)'
-    '(?:-timestamp_end:(?P<timestamp_end>\d+\.\d+))?'
-    '\/?'
-    ')?'
+    "(?:"
+    "\/"
+    "timestamp_start:(?P<timestamp_start>\d+\.\d+)"
+    "(?:-timestamp_end:(?P<timestamp_end>\d+\.\d+))?"
+    "\/?"
+    ")?"
 )
 
 
 def get_client_ip(request):
-    if 'HTTP_X_FORWARDED_FOR' in request.META:
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        ip = x_forwarded_for.split(',')[0]
+    if "HTTP_X_FORWARDED_FOR" in request.META:
+        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+        ip = x_forwarded_for.split(",")[0]
     else:
-        ip = request.META.get('REMOTE_ADDR')
+        ip = request.META.get("REMOTE_ADDR")
     return ip
 
 
 def parse_to_float(query_param):
-    if query_param is None or query_param == 'None':
+    if query_param is None or query_param == "None":
         return 0.0
 
     if type(query_param) in (str,):
         try:
-            return float(query_param.replace('/', ''))
+            return float(query_param.replace("/", ""))
         except ValueError:
             logger.info(
-                'Unable to convert {}: {} to float'.format(
+                "Unable to convert {}: {} to float".format(
                     query_param, type(query_param)
                 )
             )
@@ -143,7 +144,7 @@ def parse_to_float(query_param):
     if type(query_param) in (float,):
         return query_param
 
-    raise ValueError('Unable to convert {} to float'.format(type(query_param)))
+    raise ValueError("Unable to convert {} to float".format(type(query_param)))
 
 
 def remove_instances_user_tracked_fields(instance, removed_dividers_pks=None):
@@ -151,10 +152,10 @@ def remove_instances_user_tracked_fields(instance, removed_dividers_pks=None):
         return
 
     divider_related_models = [
-        'EntityDividerModel',
-        'UndividedModel',
-        'DefaultDivider',
-        'User',
+        "EntityDividerModel",
+        "UndividedModel",
+        "DefaultDivider",
+        "User",
         DIVIDER_MODEL,
     ]
     models_names = []
@@ -166,9 +167,9 @@ def remove_instances_user_tracked_fields(instance, removed_dividers_pks=None):
         ):
             models_names.append(model_name)
 
-    _filter = {'{}__in'.format(DIVIDER_MODEL.lower()): removed_dividers_pks}
+    _filter = {"{}__in".format(DIVIDER_MODEL.lower()): removed_dividers_pks}
     for model in models_names:
-        c_model = apps.get_model('concrete.{}'.format(model))
+        c_model = apps.get_model("concrete.{}".format(model))
         instances = c_model.objects.filter(**_filter)
         can_view_instances = instances.filter(can_view_users__pk=instance.pk)
         can_admin_instances = instances.filter(can_admin_users__pk=instance.pk)
@@ -184,7 +185,7 @@ def validate_request_permissions(request):
 
     user_has_permission = getattr(request.user, minimum_retrieve_level, False)
     if user_has_permission is False:
-        raise PermissionDenied('User has not the permission to list')
+        raise PermissionDenied("User has not the permission to list")
 
 
 def apply_filter_since(queryset, timestamp_start, timestamp_end=None):
@@ -208,16 +209,16 @@ def apply_filter_since(queryset, timestamp_start, timestamp_end=None):
 class SecurityRulesMixin(object):
     def options(self, request, *args, **kwargs):
         default_options = super().options(request, *args, **kwargs).data
-        default_options['rules'] = []
+        default_options["rules"] = []
         for validator in settings.AUTH_PASSWORD_VALIDATORS:
-            module_name, validator_name = validator['NAME'].rsplit('.', 1)
+            module_name, validator_name = validator["NAME"].rsplit(".", 1)
             module = import_module(module_name)
             validator = getattr(module, validator_name)()
-            default_options['rules'].append(
+            default_options["rules"].append(
                 {
-                    'message_en': validator.get_help_text(),
-                    'message_fr': validator.get_help_text_fr(),
-                    'code': validator.code,
+                    "message_en": validator.get_help_text(),
+                    "message_fr": validator.get_help_text_fr(),
+                    "code": validator.code,
                 }
             )
         return Response(data=default_options, status=HTTP_200_OK)
@@ -266,15 +267,15 @@ class RetrieveSecureTokenApiView(generics.GenericAPIView):
             return Response(status=HTTP_429_TOO_MANY_REQUESTS)
         token = SecureConnectToken.objects.create(user=user)
         token.url = os.path.join(
-            request.META.get('HTTP_REFERER', '/'),
-            '#',
-            'secure-connect/login/{}'.format(token.value),
+            request.META.get("HTTP_REFERER", "/"),
+            "#",
+            "secure-connect/login/{}".format(token.value),
         )
         token.save()
 
         if token.mail_sent is False:
             token.send_mail()
-        data = {'message': 'Token created and email sent'}
+        data = {"message": "Token created and email sent"}
         return Response(data=data, status=HTTP_201_CREATED)
 
 
@@ -327,7 +328,7 @@ class GenerateSecureTokenApiView(generics.GenericAPIView):
             return Response(status=HTTP_429_TOO_MANY_REQUESTS)
         token = SecureConnectToken.objects.create(user=user)
 
-        data = {'secure-token': str(token.value)}
+        data = {"secure-token": str(token.value)}
         return Response(data=data, status=HTTP_201_CREATED)
 
 
@@ -351,13 +352,13 @@ class SecureLoginApiView(generics.GenericAPIView):
                 },
                 status=HTTP_400_BAD_REQUEST,
             )
-        token = serializer.validated_data['token']
+        token = serializer.validated_data["token"]
         try:
             secure_connect_token = SecureConnectToken.objects.get(value=token)
         except ObjectDoesNotExist:
             return Response(
                 data={
-                    'message': 'Invalid token',
+                    "message": "Invalid token",
                     "_errors": ["INVALID_TOKEN"],
                 },
                 status=HTTP_401_UNAUTHORIZED,
@@ -402,7 +403,7 @@ class LoginApiView(generics.GenericAPIView):
         if not serializer.is_valid():
             return Response(
                 data={
-                    'message': serializer.errors,
+                    "message": serializer.errors,
                     "_errors": ["INVALID_DATA"],
                 },
                 status=HTTP_400_BAD_REQUEST,
@@ -411,35 +412,33 @@ class LoginApiView(generics.GenericAPIView):
         email = serializer.validated_data["email"].lower()
 
         ip = get_client_ip(request)
-        now = pendulum.now('utc').format(settings.LOGGING['datefmt'])
+        now = pendulum.now("utc").format(settings.LOGGING["datefmt"])
         user = self.request.user
         base_message = f"[{now}|{ip}|{user}|AUTH] "
         # If the remote auth is disabled, do additional checks
-        if getattr(settings, 'REMOTE_CONCRETE_AUTH_ENABLED', False) is False:
+        if getattr(settings, "REMOTE_CONCRETE_AUTH_ENABLED", False) is False:
             try:
                 user = UserModel.objects.get(email=email.lower())
             except ObjectDoesNotExist:
                 log_request = (
-                    base_message
-                    + f"Connection attempt to unknown user {email}"
+                    base_message + f"Connection attempt to unknown user {email}"
                 )
                 logger_api_auth.info(log_request)
                 return Response(
                     data={
-                        'message': 'Wrong auth credentials',
+                        "message": "Wrong auth credentials",
                         "_errors": ["WRONG_AUTH_CREDENTIALS"],
                     },
                     status=HTTP_401_UNAUTHORIZED,
                 )
-            if user.level == 'blocked':
+            if user.level == "blocked":
                 log_request = (
-                    base_message
-                    + f"Connection attempt to blocked user {email}"
+                    base_message + f"Connection attempt to blocked user {email}"
                 )
                 logger_api_auth.info(log_request)
                 return Response(
                     data={
-                        'message': 'User blocked',
+                        "message": "User blocked",
                         "_errors": ["USER_BLOCKED"],
                     },
                     status=HTTP_401_UNAUTHORIZED,
@@ -458,7 +457,7 @@ class LoginApiView(generics.GenericAPIView):
             logger_api_auth.info(log_request)
             return Response(
                 data={
-                    'message': 'Wrong auth credentials',
+                    "message": "Wrong auth credentials",
                     "_errors": ["WRONG_AUTH_CREDENTIALS"],
                 },
                 status=HTTP_401_UNAUTHORIZED,
@@ -473,7 +472,7 @@ class LoginApiView(generics.GenericAPIView):
             logger_api_auth.info(log_request)
             return Response(
                 data={
-                    'message': 'Email has not been validated',
+                    "message": "Email has not been validated",
                     "_errors": ["EMAIL_NOT_VALIDATED"],
                 },
                 status=HTTP_412_PRECONDITION_FAILED,
@@ -490,11 +489,11 @@ class LoginApiView(generics.GenericAPIView):
             pwd_change_token = PasswordChangeToken.objects.create(user=user)
             return Response(
                 data={
-                    'message_en': 'Warning! Password has expired',
-                    'message_fr': 'Attention ! Votre mot de passe a expiré',
+                    "message_en": "Warning! Password has expired",
+                    "message_fr": "Attention ! Votre mot de passe a expiré",
                     "_errors": ["EXPIRED_PASSWORD"],
-                    'email': user.email,
-                    'password_change_token': str(pwd_change_token.uid),
+                    "email": user.email,
+                    "password_change_token": str(pwd_change_token.uid),
                 },
                 status=HTTP_403_FORBIDDEN,
             )
@@ -504,20 +503,20 @@ class LoginApiView(generics.GenericAPIView):
             AuthToken.objects.filter(user_id=user.uid).delete()
 
         UserModel.objects.filter(pk=user.pk).update(last_login=timezone.now())
-        module_name, func_name = settings.MFA_RULE_PER_USER.rsplit('.', 1)
+        module_name, func_name = settings.MFA_RULE_PER_USER.rsplit(".", 1)
         module = import_module(module_name)
         use_mfa_rule = getattr(module, func_name)
         if use_mfa_rule(user=user):
             email_device = user.emaildevice_set.filter(confirmed=True).first()
             if not email_device:
                 email_device = user.emaildevice_set.create(
-                    email=user.email, name='User default email', confirmed=True
+                    email=user.email, name="User default email", confirmed=True
                 )
             email_device.generate_challenge()
             serializer = UserSerializer(
                 instance=user,
                 api_namespace=self.api_namespace,
-                context={'is_verified': False},
+                context={"is_verified": False},
             )
             logger_api_auth.info(
                 base_message + f"Send MFA code to user {user.email}"
@@ -552,7 +551,7 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         user.save()
 
         return Response(
-            data={'email': user.email, 'message': 'Password updated !'},
+            data={"email": user.email, "message": "Password updated !"},
             status=HTTP_200_OK,
         )
 
@@ -562,7 +561,7 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         if not request_token_qs.exists():
             return Response(
                 data={
-                    'message': 'invalid token',
+                    "message": "invalid token",
                     "_errors": ["INVALID_TOKEN"],
                 },
                 status=HTTP_400_BAD_REQUEST,
@@ -573,20 +572,20 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         if user != request_token.user:
             return Response(
                 data={
-                    'message': 'invalid token',
+                    "message": "invalid token",
                     "_errors": ["INVALID_TOKEN"],
                 },
                 status=HTTP_400_BAD_REQUEST,
             )
 
         #:  Check that token has not expired
-        now = pendulum.now('utc')
+        now = pendulum.now("utc")
         token_too_old = now >= request_token.expiry_date
         if token_too_old:
             request_token.delete()
             return Response(
                 data={
-                    'message': 'invalid token',
+                    "message": "invalid token",
                     "_errors": ["INVALID_TOKEN"],
                 },
                 status=HTTP_400_BAD_REQUEST,
@@ -601,7 +600,7 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
             if same_password:
                 return Response(
                     data={
-                        'message': 'New password must be different',
+                        "message": "New password must be different",
                         "_errors": ["CANNOT_USE_SAME_PASSWORD"],
                     },
                     status=HTTP_400_BAD_REQUEST,
@@ -628,7 +627,7 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
             if same_password:
                 return Response(
                     data={
-                        'message': 'New password must be different',
+                        "message": "New password must be different",
                         "_errors": ["CANNOT_USE_SAME_PASSWORD"],
                     },
                     status=HTTP_400_BAD_REQUEST,
@@ -642,7 +641,7 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
 
         if user.is_at_least_staff is False or user <= target_user:
             return Response(
-                data={'message': 'Does not have the permissions.'},
+                data={"message": "Does not have the permissions."},
                 status=HTTP_403_FORBIDDEN,
             )
 
@@ -662,13 +661,13 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         divider_related = getattr(user, divider_attr_name)
 
         divider_target_uids = divider_target_related.values_list(
-            'uid', flat=True
+            "uid", flat=True
         )
-        divider_uids = divider_related.values_list('uid', flat=True)
+        divider_uids = divider_related.values_list("uid", flat=True)
 
         if (divider_target_uids & divider_uids).exists() is False:
             return Response(
-                data={'message': 'Does not have the permissions.'},
+                data={"message": "Does not have the permissions."},
                 status=HTTP_403_FORBIDDEN,
             )
 
@@ -691,7 +690,7 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
             #:  Do not give any info on this endpoint
             return Response(
                 data={
-                    "message": 'Invalid data format',
+                    "message": "Invalid data format",
                     "_errors": ["INVALID_DATA"],
                 },
                 status=HTTP_400_BAD_REQUEST,
@@ -701,14 +700,14 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         password2 = serializer.validated_data["password2"]
         email = serializer.validated_data["email"].lower()
         password_change_token = serializer.validated_data.get(
-            'password_change_token', None
+            "password_change_token", None
         )
 
         #:  Check that target user exists
         target_user_qs = UserModel.objects.filter(email=email)
         if not target_user_qs.exists():
             return Response(
-                data={'message': 'Invalid data', "_errors": ["INVALID_DATA"]},
+                data={"message": "Invalid data", "_errors": ["INVALID_DATA"]},
                 status=HTTP_400_BAD_REQUEST,
             )
         target_user = target_user_qs.first()
@@ -717,8 +716,8 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         if password1 != password2:
             return Response(
                 data={
-                    'message': 'Passwords not corresponding',
-                    '_errors': ['MISMATCH_PASSWORDS'],
+                    "message": "Passwords not corresponding",
+                    "_errors": ["MISMATCH_PASSWORDS"],
                 },
                 status=HTTP_400_BAD_REQUEST,
             )
@@ -730,7 +729,7 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
             validator(password)
         except PasswordInsecureValidationError as e:
             return Response(
-                data={'message': e.message, "_errors": [e.code]},
+                data={"message": e.message, "_errors": [e.code]},
                 status=HTTP_400_BAD_REQUEST,
             )
 
@@ -755,7 +754,7 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
                 if same_password:
                     return Response(
                         data={
-                            'message': 'New password must be different',
+                            "message": "New password must be different",
                             "_errors": ["CANNOT_USE_SAME_PASSWORD"],
                         },
                         status=HTTP_400_BAD_REQUEST,
@@ -775,9 +774,9 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
 
 class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
     serializer_class = RegisterSerializer
-    '''this view is used to register a new user. It first check
+    """this view is used to register a new user. It first check
         if password1 == password2 and if email isn't already used
-     '''
+     """
     api_namespace = DEFAULT_API_NAMESPACE
 
     def __init__(self, api_namespace, *args, **kwargs):
@@ -831,7 +830,7 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
         if not serializer.is_valid():
             return Response(
                 data={
-                    'message': 'serializer invalid',
+                    "message": "serializer invalid",
                     "_errors": ["INVALID_DATA"],
                 },
                 status=HTTP_400_BAD_REQUEST,
@@ -855,7 +854,7 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
 
         # If the user is manager and has not the divider, refuse
         # An admin or super user can do it
-        if has_not_divider and request_user.level == 'manager':
+        if has_not_divider and request_user.level == "manager":
             return Response(
                 data={
                     "message": (
@@ -880,7 +879,7 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             if settings.ALLOW_SEND_EMAIL_ON_REGISTER is False:
                 return Response(
                     data={
-                        'message': 'serializer invalid',
+                        "message": "serializer invalid",
                         "_errors": ["INVALID_DATA"],
                     },
                     status=HTTP_400_BAD_REQUEST,
@@ -894,10 +893,10 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             ):
                 return Response(
                     data={
-                        'message': (
-                            'Only registered users are allowed to set an email_format'
+                        "message": (
+                            "Only registered users are allowed to set an email_format"
                         ),
-                        '_errors': ['INVALID_PARAMETER'],
+                        "_errors": ["INVALID_PARAMETER"],
                     },
                     status=HTTP_400_BAD_REQUEST,
                 )
@@ -910,8 +909,8 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             except (KeyError, IndexError):
                 return Response(
                     data={
-                        'errors': 'url_format is not a valid format_string',
-                        '_errors': ['INVALID_PARAMETER'],
+                        "errors": "url_format is not a valid format_string",
+                        "_errors": ["INVALID_PARAMETER"],
                     },
                     status=HTTP_400_BAD_REQUEST,
                 )
@@ -922,8 +921,8 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
                 except (KeyError, IndexError):
                     return Response(
                         data={
-                            'errors': 'url_format is not a valid format_string',
-                            '_errors': ['INVALID_PARAMETER'],
+                            "errors": "url_format is not a valid format_string",
+                            "_errors": ["INVALID_PARAMETER"],
                         },
                         status=HTTP_400_BAD_REQUEST,
                     )
@@ -933,8 +932,8 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             if not password1 == password2:
                 return Response(
                     data={
-                        'message': 'Password confimation incorrect',
-                        '_errors': ['MISMATCH_PASSWORDS'],
+                        "message": "Password confimation incorrect",
+                        "_errors": ["MISMATCH_PASSWORDS"],
                     },
                     status=HTTP_400_BAD_REQUEST,
                 )
@@ -944,7 +943,7 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
                 validator(password)
             except PasswordInsecureValidationError as e:
                 return Response(
-                    data={'message': e.message, "_errors": [e.code]},
+                    data={"message": e.message, "_errors": [e.code]},
                     status=HTTP_400_BAD_REQUEST,
                 )
 
@@ -955,7 +954,7 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
         if re.match(settings.API_REGISTER_EMAIL_FILTER, email) is None:
             return Response(
                 data={
-                    'message': 'This email is not allowed to register',
+                    "message": "This email is not allowed to register",
                     "_errors": ["EMAIL_NOT_AUTHORIZED_TO_REGISTER"],
                 },
                 status=HTTP_400_BAD_REQUEST,
@@ -971,7 +970,7 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             for key, value in request.data.items()
             if key in user_model_field_names
         }
-        data_to_post.update({'email': email})
+        data_to_post.update({"email": email})
         try:
             UserModel.objects.get(email=email)
             return Response(status=HTTP_200_OK)
@@ -982,7 +981,7 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
         user.set_password(password)
         user.save()
         if send_register_email is True:
-            now = pendulum.now('utc')
+            now = pendulum.now("utc")
             password_change_token_expiry_date = now.add(months=6)
             set_password_token = PasswordChangeToken.objects.create(
                 user=user, expiry_date=password_change_token_expiry_date
@@ -994,11 +993,11 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             )
 
             referer = request.META.get(
-                'HTTP_REFERER', settings.AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO
+                "HTTP_REFERER", settings.AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO
             )
 
             email_format = (
-                serializer.validated_data.get('email_format')
+                serializer.validated_data.get("email_format")
                 or settings.DEFAULT_REGISTER_EMAIL_FORMAT
             )
 
@@ -1007,17 +1006,15 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             email_body = email_format.format(link=link)
 
             if settings.AUTH_CONFIRM_EMAIL_ENABLE is True:
-                confirmation = user.get_or_create_confirmation(
-                    redirect_to=link
-                )
+                confirmation = user.get_or_create_confirmation(redirect_to=link)
 
                 if confirmation.link_sent is False:
                     confirmation.send_link(body=email_body)
             else:
                 Email.objects.create(
                     subject=settings.REGISTER_EMAIL_SUBJECT,
-                    resource_status='to-send',
-                    resource_message='',
+                    resource_status="to-send",
+                    resource_message="",
                     body=email_body,
                     receiver=user,
                     created_by=user,
@@ -1025,7 +1022,7 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
 
         elif settings.AUTH_CONFIRM_EMAIL_ENABLE is True:
             confirmation = user.get_or_create_confirmation(
-                redirect_to=request.META.get('HTTP_REFERER')
+                redirect_to=request.META.get("HTTP_REFERER")
             )
 
             if confirmation.link_sent is False:
@@ -1095,7 +1092,7 @@ class ResetPasswordApiView(SecurityRulesMixin, generics.GenericAPIView):
         if not serializer.is_valid():
             return Response(
                 data={
-                    'message': serializer.errors,
+                    "message": serializer.errors,
                     "_errors": ["INVALID_DATA"],
                 },
                 status=HTTP_400_BAD_REQUEST,
@@ -1106,7 +1103,7 @@ class ResetPasswordApiView(SecurityRulesMixin, generics.GenericAPIView):
         user_queryset = UserModel.objects.filter(email=email, is_active=True)
         if not user_queryset.exists():
             return Response(
-                data={'message': 'invalid data', "_errors": ["INVALID_DATA"]},
+                data={"message": "invalid data", "_errors": ["INVALID_DATA"]},
                 status=HTTP_400_BAD_REQUEST,
             )
 
@@ -1120,28 +1117,28 @@ class ResetPasswordApiView(SecurityRulesMixin, generics.GenericAPIView):
         except (KeyError, IndexError):
             return Response(
                 data={
-                    'message': 'url_format is not a valid format_string',
-                    '_errors': ['INVALID_PARAMETER'],
+                    "message": "url_format is not a valid format_string",
+                    "_errors": ["INVALID_PARAMETER"],
                 },
                 status=HTTP_400_BAD_REQUEST,
             )
 
         referer = request.META.get(
-            'HTTP_REFERER', settings.AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO
+            "HTTP_REFERER", settings.AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO
         )
 
         link = urljoin(referer, uri)
 
         self.send_email(link=link, user=user, created_by=user)
 
-        return Response(data={'email': user.email}, status=HTTP_200_OK)
+        return Response(data={"email": user.email}, status=HTTP_200_OK)
 
     def send_email(self, link, user, created_by):
 
         Email.objects.create(
             subject="Reset password",
-            resource_status='to-send',
-            resource_message='',
+            resource_status="to-send",
+            resource_message="",
             body=settings.AUTH_CONFIRM_RESET_PASSWORD_EMAIL_BODY.format(
                 link=link
             ),
@@ -1158,6 +1155,7 @@ class AccountMeApiView(
     authentication_classes = (
         authentication.SessionAuthentication,
         TokenExpiryAuthentication,
+        URLTokenExpiryAuthentication,
     )
     permission_classes = (UserAccessPermission,)
     api_namespace = DEFAULT_API_NAMESPACE
@@ -1184,7 +1182,7 @@ class AccountMeApiView(
             )
         except PasswordInsecureValidationError as e:
             return Response(
-                data={'message': e.message, "_errors": [e.code]},
+                data={"message": e.message, "_errors": [e.code]},
                 status=HTTP_400_BAD_REQUEST,
             )
 
@@ -1197,11 +1195,11 @@ class AccountMeApiView(
         # It should be performed within this view
         # It will raise a PasswordInsecureValidationError if password
         # is not valid
-        pwd = serializer.validated_data.get('password')
+        pwd = serializer.validated_data.get("password")
         if pwd:
             pwd_validator = ConcretePasswordValidator()
             pwd_validator(pwd)
-        email = serializer.validated_data.get('email')
+        email = serializer.validated_data.get("email")
         if email:
             instance = serializer.save(email=email.lower())
         else:
@@ -1229,8 +1227,8 @@ class PaginatedViewSet(object):
         FilterSupportingManyToMany,
     )
     filterset_fields = ()
-    ordering_fields = '__all__'
-    ordering = ('-creation_date',)
+    ordering_fields = "__all__"
+    ordering = ("-creation_date",)
     basename = None
 
     def get_list_display(self):
@@ -1239,7 +1237,7 @@ class PaginatedViewSet(object):
     def get_flat_serializer(self, *args, **kwargs):
         return self.get_serializer(*args, **kwargs)
 
-    @action(detail=False, url_path='export', url_name='export')
+    @action(detail=False, url_path="export", url_name="export")
     def get_export(self, request):
         if request.parser_context["view"].model_class.__name__ == "User":
             validate_request_permissions(request=request)
@@ -1259,8 +1257,8 @@ class PaginatedViewSet(object):
 
     @action(
         detail=False,
-        url_path='stats{}'.format(URL_TIMESTAMP),
-        url_name='stats',
+        url_path="stats{}".format(URL_TIMESTAMP),
+        url_name="stats",
     )
     def get_stats(self, request, timestamp_start=None, timestamp_end=None):
         if request.parser_context["view"].model_class.__name__ == "User":
@@ -1270,20 +1268,20 @@ class PaginatedViewSet(object):
         parsed_url = urlparse(self.request.build_absolute_uri())
         # Delete /stats/ from url
         parsed_url = parsed_url._replace(
-            path=parsed_url.path.split('stats/')[0]
+            path=parsed_url.path.split("stats/")[0]
         )
         url_query = parsed_url.query
         # Reformat timestamps, add them to query params of request
         if timestamp_start:
-            if url_query == '':
-                url_query = f'timestamp_start={timestamp_start}'
+            if url_query == "":
+                url_query = f"timestamp_start={timestamp_start}"
             else:
-                url_query += f'&timestamp_start={timestamp_start}'
+                url_query += f"&timestamp_start={timestamp_start}"
         if timestamp_end:
-            if url_query == '':
-                url_query = f'timestamp_end={timestamp_end}'
+            if url_query == "":
+                url_query = f"timestamp_end={timestamp_end}"
             else:
-                url_query += f'&timestamp_end={timestamp_end}'
+                url_query += f"&timestamp_end={timestamp_end}"
 
         url = urlunparse(parsed_url._replace(query=url_query))
 
@@ -1299,29 +1297,29 @@ class PaginatedViewSet(object):
 
         _total = queryset.count()
 
-        _num_pages = _resp.data['num_total_pages']
+        _num_pages = _resp.data["num_total_pages"]
 
         dict_pages = dict()
 
         for page_number in range(1, _num_pages + 1):
             if page_number == 1:
-                dict_pages['page{}'.format(page_number)] = unquote(
-                    remove_query_param(url, 'page')
+                dict_pages["page{}".format(page_number)] = unquote(
+                    remove_query_param(url, "page")
                 )
             else:
-                dict_pages['page{}'.format(page_number)] = unquote(
-                    replace_query_param(url, 'page', page_number)
+                dict_pages["page{}".format(page_number)] = unquote(
+                    replace_query_param(url, "page", page_number)
                 )
 
         data = {
-            'objects_count': _total,
-            'timestamp_start': timestamp_start or 0.0,
-            'timestamp_end': timestamp_end,
-            'num_total_pages': _num_pages,
-            'max_allowed_objects_per_page': _resp.data[
-                'max_allowed_objects_per_page'
+            "objects_count": _total,
+            "timestamp_start": timestamp_start or 0.0,
+            "timestamp_end": timestamp_end,
+            "num_total_pages": _num_pages,
+            "max_allowed_objects_per_page": _resp.data[
+                "max_allowed_objects_per_page"
             ],
-            'page_urls': dict_pages,
+            "page_urls": dict_pages,
         }
         return Response(data)
 
@@ -1343,19 +1341,19 @@ class PaginatedViewSet(object):
     def get_extra_informations(self, queryset):
         _model_class = self.model_class or queryset.model
         extra_info = {
-            'model_name': _model_class.__name__,
-            'model_verbose_name': _model_class._meta.verbose_name,
-            'list_display': self.get_list_display(),
-            'list_filter': self.get_list_filters_field(queryset),
-            'total_objects_count': queryset.count(),
-            'create_url': self.request.build_absolute_uri(
+            "model_name": _model_class.__name__,
+            "model_verbose_name": _model_class._meta.verbose_name,
+            "list_display": self.get_list_display(),
+            "list_filter": self.get_list_filters_field(queryset),
+            "total_objects_count": queryset.count(),
+            "create_url": self.request.build_absolute_uri(
                 reverse(
                     "{}:{}-list".format(DEFAULT_API_NAMESPACE, self.basename)
                 )
             ),
         }
-        if _model_class.__name__ == 'User':
-            extra_info['create_url'] = self.request.build_absolute_uri(
+        if _model_class.__name__ == "User":
+            extra_info["create_url"] = self.request.build_absolute_uri(
                 reverse("{}:register-view".format(DEFAULT_API_NAMESPACE))
             )
         return extra_info
@@ -1370,11 +1368,11 @@ class PaginatedViewSet(object):
         self, data, timestamp_start=None, timestamp_end=None
     ):
         if timestamp_start is None:
-            timestamp_start = self.request.GET.get('timestamp_start')
+            timestamp_start = self.request.GET.get("timestamp_start")
         incremental_loading = timestamp_start is not None
         timestamp_start = parse_to_float(timestamp_start)
         if timestamp_end is None:
-            timestamp_end = self.request.GET.get('timestamp_end')
+            timestamp_end = self.request.GET.get("timestamp_end")
         timestamp_end = parse_to_float(timestamp_end)
         if timestamp_end == 0.0:
             timestamp_end = None
@@ -1382,7 +1380,7 @@ class PaginatedViewSet(object):
         all_instances = self.get_queryset()
         queryset = self.filter_queryset(all_instances)
         excluded_instances = all_instances.exclude(
-            pk__in=list(queryset.values_list('pk', flat=True))
+            pk__in=list(queryset.values_list("pk", flat=True))
         )
 
         extra_informations = self.get_extra_informations(queryset=queryset)
@@ -1396,13 +1394,13 @@ class PaginatedViewSet(object):
 
             if timestamp_start < 0:
                 error_message = (
-                    'wrong argument: timestamp_start has to be a float '
-                    'greater than 0.0'
+                    "wrong argument: timestamp_start has to be a float "
+                    "greater than 0.0"
                 )
                 return Response(
                     data={
-                        'message': error_message,
-                        '_errors': ['INVALID_QUERY'],
+                        "message": error_message,
+                        "_errors": ["INVALID_QUERY"],
                     },
                     status=HTTP_400_BAD_REQUEST,
                 )
@@ -1427,24 +1425,24 @@ class PaginatedViewSet(object):
                 #: Format as list
                 deleted_uids = set(
                     chain(
-                        deleted_instances_since.values_list('uid', flat=True),
-                        excl_modified_instances.values_list('uid', flat=True),
+                        deleted_instances_since.values_list("uid", flat=True),
+                        excl_modified_instances.values_list("uid", flat=True),
                     )
                 )
                 deleted_uids = list(deleted_uids)
 
             extra_informations.update(
                 {
-                    'timestamp_start': timestamp_start or 0.0,
-                    'timestamp_end': timestamp_end,
-                    'deleted_uids': deleted_uids,
+                    "timestamp_start": timestamp_start or 0.0,
+                    "timestamp_end": timestamp_end,
+                    "deleted_uids": deleted_uids,
                 }
             )
 
         c_resp_page_size = self.request.GET.get(
-            'c_resp_page_size',
+            "c_resp_page_size",
             settings.REST_FRAMEWORK.get(
-                'PAGE_SIZE', settings.API_MAX_PAGINATION_SIZE
+                "PAGE_SIZE", settings.API_MAX_PAGINATION_SIZE
             ),
         )
 
@@ -1455,30 +1453,30 @@ class PaginatedViewSet(object):
 
         except ValueError:
             error_message = (
-                'wrong argument: c_resp_page_size has to be a number between'
-                ' 1 and {}'.format(settings.API_MAX_PAGINATION_SIZE)
+                "wrong argument: c_resp_page_size has to be a number between"
+                " 1 and {}".format(settings.API_MAX_PAGINATION_SIZE)
             )
             return Response(
-                data={'message': error_message, '_errors': ['INVALID_QUERY']},
+                data={"message": error_message, "_errors": ["INVALID_QUERY"]},
                 status=HTTP_400_BAD_REQUEST,
             )
 
         #: Paginate the new queryset
         page_as_list = self.paginate_queryset(queryset)
 
-        c_resp_nested = self.request.GET.get('c_resp_nested', 'true')
-        if c_resp_nested not in ['true', 'false']:
+        c_resp_nested = self.request.GET.get("c_resp_nested", "true")
+        if c_resp_nested not in ["true", "false"]:
             return Response(
                 data={
-                    'message': (
+                    "message": (
                         "wrong argument: c_resp_nested has to be wether "
                         "'true' or 'false'"
                     ),
-                    '_errors': ['INVALID_QUERY'],
+                    "_errors": ["INVALID_QUERY"],
                 },
                 status=HTTP_400_BAD_REQUEST,
             )
-        if c_resp_nested == 'false':
+        if c_resp_nested == "false":
             serializer = self.get_flat_serializer(page_as_list, many=True)
             data = serializer.data
         else:
@@ -1488,22 +1486,22 @@ class PaginatedViewSet(object):
 
         # Add timestamp_end within urls
         if timestamp_start is not None:
-            next_link = resp.data.get('next')
+            next_link = resp.data.get("next")
             if next_link is not None:
                 next_link = replace_query_param(
-                    next_link, 'timestamp_end', timestamp_end
+                    next_link, "timestamp_end", timestamp_end
                 )
                 resp.data.update(next=next_link)
 
-            previous_link = resp.data.get('previous')
+            previous_link = resp.data.get("previous")
             if previous_link is not None:
                 previous_link = replace_query_param(
-                    previous_link, 'timestamp_end', timestamp_end
+                    previous_link, "timestamp_end", timestamp_end
                 )
                 resp.data.update(previous=previous_link)
 
         resp.data.update(extra_informations)
-        resp.data.update({'objects_count': len(resp.data.get('results', []))})
+        resp.data.update({"objects_count": len(resp.data.get("results", []))})
         return resp
 
 
@@ -1512,6 +1510,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         authentication.BasicAuthentication,
         authentication.SessionAuthentication,
         TokenExpiryAuthentication,
+        URLTokenExpiryAuthentication,
     )
 
     def dispatch(self, request, *args, **kwargs):
@@ -1527,12 +1526,12 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         }
         # NB: use of self.request instead of request, because the super of
         # dispatch() update request object while calling initialize_request()
-        now = pendulum.now('utc').format(settings.LOGGING['datefmt'])
+        now = pendulum.now("utc").format(settings.LOGGING["datefmt"])
         user = self.request.user
         method = self.request.method
         model_name = self.serializer_class.Meta.model.__name__
         data = self.request.data
-        pk = self.kwargs.get('pk')
+        pk = self.kwargs.get("pk")
 
         if method in ["GET", "OPTIONS", "HEAD"]:
             api_logger = logger_api_safe
@@ -1540,11 +1539,11 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
             api_logger = logger_api_unsafe
             token_in_header = self.request.META.get(
                 "HTTP_AUTHORIZATION", ""
-            ).split('Token ')[-1]
+            ).split("Token ")[-1]
             auth_token = AuthToken.objects.filter(key=token_in_header)
             # Update the token last action for expiry (QuerySet of 1 token)
             if auth_token:
-                auth_token.update(last_action_date=pendulum.now('utc'))
+                auth_token.update(last_action_date=pendulum.now("utc"))
 
         # Base log message
         base_message = (
@@ -1587,16 +1586,16 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
     def list(self, request):
         def check_date_format(date_type, param_values):
             if date_type == "DateField":
-                regex = r'^\d{4}-\d{2}-\d{2}$'
-                date_format = 'yyyy-mm-dd'
+                regex = r"^\d{4}-\d{2}-\d{2}$"
+                date_format = "yyyy-mm-dd"
             else:
-                regex = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$'
-                date_format = 'yyyy-mm-ddThh:mm:ssZ'
+                regex = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$"
+                date_format = "yyyy-mm-ddThh:mm:ssZ"
 
             wrong_format = any(
                 map(
                     lambda x: re.match(regex, x) is None,
-                    filter(lambda x: x != '', param_values),
+                    filter(lambda x: x != "", param_values),
                 )
             )
             if wrong_format:
@@ -1604,10 +1603,10 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
                     False,
                     Response(
                         data={
-                            'message': "Wrong date format, should be '{}'".format(
+                            "message": "Wrong date format, should be '{}'".format(
                                 date_format
                             ),
-                            '_errors': ['INVALID_QUERY'],
+                            "_errors": ["INVALID_QUERY"],
                         },
                         status=HTTP_400_BAD_REQUEST,
                     ),
@@ -1616,17 +1615,17 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
                 return True, None
 
         for query_param in request.GET:
-            param_values_list = request.GET[query_param].split(',')
-            param = query_param.split('__')[0].replace('_uid', '')
+            param_values_list = request.GET[query_param].split(",")
+            param = query_param.split("__")[0].replace("_uid", "")
             if param not in self.fields:
                 continue
             if param not in self.filterset_fields:
                 return Response(
                     data={
-                        'message': 'filter against {} is not allowed'.format(
+                        "message": "filter against {} is not allowed".format(
                             param
                         ),
-                        '_errors': ['INVALID_QUERY'],
+                        "_errors": ["INVALID_QUERY"],
                     },
                     status=HTTP_400_BAD_REQUEST,
                 )
@@ -1635,7 +1634,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
                 .model._meta.get_field(param)
                 .get_internal_type()
             )
-            if param_type in ('DateField', 'DateTimeField'):
+            if param_type in ("DateField", "DateTimeField"):
                 right_format, resp = check_date_format(
                     date_type=param_type, param_values=param_values_list
                 )
@@ -1650,7 +1649,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         scope_header_uid = request.META.get("HTTP_X_ENTITY_UID", None)
         try:
             uid = uuid.UUID(str(scope_header_uid), version=4)
-            if uid.hex == str(scope_header_uid).replace('-', ''):
+            if uid.hex == str(scope_header_uid).replace("-", ""):
                 return scope_header_uid
         except ValueError:
             if scope_header_uid is not None:
@@ -1665,7 +1664,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
             return None
 
         model_not_divided = model_name in UNDIVIDED_MODEL
-        model_not_user = model_name.lower() != 'user'
+        model_not_user = model_name.lower() != "user"
         # If it is not divider and it is not the model user, return none
         # Continue if the model is divided or it is the model user
         if model_not_divided and model_not_user:
@@ -1704,15 +1703,15 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
             else:
                 return self.model_class.objects.filter(
                     pk__in=getattr(
-                        user, '{}s'.format(DIVIDER_MODEL.lower())
+                        user, "{}s".format(DIVIDER_MODEL.lower())
                     ).all()
                 )
 
         if self.model_class is UserModel:
 
             #: Anonymous user can only see public objects
-            divider_name_plural = '{}s'.format(DIVIDER_MODEL.lower())
-            user_filters = {'is_active': True}
+            divider_name_plural = "{}s".format(DIVIDER_MODEL.lower())
+            user_filters = {"is_active": True}
             if divider:
                 user_filters.update({divider_name_plural: divider.pk})
 
@@ -1735,10 +1734,10 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         if self.request.method in permissions.SAFE_METHODS:
             rel_fields = self.rel_single_fields + self.rel_iterable_fields
             rel_fields += [
-                'can_view_users',
-                'can_view_groups',
-                'can_admin_users',
-                'can_admin_groups',
+                "can_view_users",
+                "can_view_groups",
+                "can_admin_users",
+                "can_admin_groups",
             ]
             return queryset.prefetch_related(*rel_fields)
         else:
@@ -1760,7 +1759,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         """
         serializer_class = self.get_serializer_class()
 
-        kwargs['context'] = self.get_serializer_context()
+        kwargs["context"] = self.get_serializer_context()
         return serializer_class(*args, **kwargs)
 
     def get_serializer_class(self):
@@ -1772,7 +1771,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
     def get_flat_serializer(self, *args, **kwargs):
         serializer_class = self.get_flat_serializer_class()
 
-        kwargs['context'] = self.get_serializer_context()
+        kwargs["context"] = self.get_serializer_context()
         return serializer_class(*args, **kwargs)  # pylint:disable=E1102
 
     def get_flat_serializer_class(self):
@@ -1783,7 +1782,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
 
-        attrs = {'created_by': self.request.user}
+        attrs = {"created_by": self.request.user}
 
         try:
             divider = self.get_divider()
@@ -1933,13 +1932,13 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
                 protected_objects_qs = e.protected_objects
                 related_model = protected_objects_qs.model
                 msg = (
-                    'Attempting to delete a protected related instance: '
-                    f'related to instance(s) {[str(o.uid) for o in protected_objects_qs]}'
-                    f' of model {related_model.__name__}'
+                    "Attempting to delete a protected related instance: "
+                    f"related to instance(s) {[str(o.uid) for o in protected_objects_qs]}"
+                    f" of model {related_model.__name__}"
                 )
                 return Response(
                     status=HTTP_412_PRECONDITION_FAILED,
-                    data={'message': msg, '_errors': ["PROTECTED_RELATION"]},
+                    data={"message": msg, "_errors": ["PROTECTED_RELATION"]},
                 )
         divider = self.get_divider()
         if divider is None:
@@ -1964,22 +1963,22 @@ def make_api_viewset_generic_attributes_class(
     is_divided = meta_model.get_model_name() not in UNDIVIDED_MODEL
     not_divider = meta_model.get_model_name() != DIVIDER_MODEL
     model_filterset_fields = tuple(
-        meta_model.get_property('m_filter_fields', [])
+        meta_model.get_property("m_filter_fields", [])
     )
-    not_user = meta_model.get_model_name().lower() != 'user'
+    not_user = meta_model.get_model_name().lower() != "user"
     if is_divided and not_divider and not_user:
-        model_filterset_fields += ('{}'.format(DIVIDER_MODEL.lower()),)
+        model_filterset_fields += ("{}".format(DIVIDER_MODEL.lower()),)
 
     class GenericAttributesViewsetClass:
 
         permission_classes = model_permission_classes
 
         model_class = main_app.models[meta_model.get_model_name().lower()]
-        list_display = meta_model.get_property('m_list_display') or []
-        ordering_fields = tuple(meta_model.get_property('m_list_display', []))
-        search_fields = tuple(meta_model.get_property('m_search_fields', []))
+        list_display = meta_model.get_property("m_list_display") or []
+        ordering_fields = tuple(meta_model.get_property("m_list_display", []))
+        search_fields = tuple(meta_model.get_property("m_search_fields", []))
         filterset_fields = model_filterset_fields
-        export_fields = tuple(meta_model.get_property('m_export_fields', []))
+        export_fields = tuple(meta_model.get_property("m_export_fields", []))
         fields = [f for f, _ in meta_model.get_fields()]
         serializer_class = make_serializer_class_fct(
             meta_model=meta_model, nested=False, api_namespace=api_namespace
@@ -1991,17 +1990,17 @@ def make_api_viewset_generic_attributes_class(
         file_fields = [
             name
             for name, field in meta_model.get_fields()
-            if field.f_type == 'FileField'
+            if field.f_type == "FileField"
         ]
         rel_single_fields = [
             f
             for f, fspec in meta_model.get_fields()
-            if fspec.type == 'rel_single'
+            if fspec.type == "rel_single"
         ]
         rel_iterable_fields = [
             f
             for f, fspec in meta_model.get_fields()
-            if fspec.type == 'rel_iterable'
+            if fspec.type == "rel_iterable"
         ]
 
     return GenericAttributesViewsetClass
@@ -2019,14 +2018,14 @@ def make_api_viewset(
 
     attrs = {}
 
-    if meta_model.get_model_name() == 'User':
-        attrs.update({'create': unauthorized})
+    if meta_model.get_model_name() == "User":
+        attrs.update({"create": unauthorized})
 
     if api_model_view_set_class is None:
         api_model_view_set_class = ApiModelViewSet
 
     api_model_view_set = type(
-        str('{}ModelViewSet'.format(meta_model.get_model_name())),
+        str("{}ModelViewSet".format(meta_model.get_model_name())),
         (
             make_api_viewset_generic_attributes_class(
                 meta_model=meta_model,
@@ -2042,8 +2041,8 @@ def make_api_viewset(
     return api_model_view_set
 
 
-CONCRETE_SETTINGS = getattr(settings, 'CONCRETE', {})
-API_PERMISSIONS_CLASSES = CONCRETE_SETTINGS.get('API_PERMISSIONS_CLASSES', {})
+CONCRETE_SETTINGS = getattr(settings, "CONCRETE", {})
+API_PERMISSIONS_CLASSES = CONCRETE_SETTINGS.get("API_PERMISSIONS_CLASSES", {})
 
 for meta_model in list_of_meta:
     if meta_model.get_model_name() in ["EntityDividerModel", "UndividedModel"]:
@@ -2051,27 +2050,27 @@ for meta_model in list_of_meta:
 
     permissions_classes_path = API_PERMISSIONS_CLASSES.get(
         meta_model._specifier.name,
-        ('concrete_datastore.api.v1.permissions.UserAccessPermission',),
+        ("concrete_datastore.api.v1.permissions.UserAccessPermission",),
     )
 
     permissions_classes = ()
 
     for permission_class_path in permissions_classes_path:
         module = import_module(
-            permission_class_path[: permission_class_path.rfind('.')]
+            permission_class_path[: permission_class_path.rfind(".")]
         )
 
         try:
             permissions_classes += (
-                getattr(module, permission_class_path.split('.')[-1]),
+                getattr(module, permission_class_path.split(".")[-1]),
             )
         except AttributeError:
             raise RuntimeError(
-                'CONCRETE impoperly configured : unknown '
-                'permission class {}'.format(permission_class_path)
+                "CONCRETE impoperly configured : unknown "
+                "permission class {}".format(permission_class_path)
             )
 
-    viewset_name = '{}ModelViewSet'.format(meta_model.get_model_name())
+    viewset_name = "{}ModelViewSet".format(meta_model.get_model_name())
 
     setattr(
         sys.modules[__name__],

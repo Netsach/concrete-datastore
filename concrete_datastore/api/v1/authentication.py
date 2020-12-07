@@ -1,6 +1,6 @@
 # coding: utf-8
+import uuid
 import pendulum
-
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
@@ -27,9 +27,9 @@ def default_backend_group_creation_rule(user, groups):
 def expire_temporary_tokens(user):
     # TODO: Get all temporary tokens from user and expire those out of date
     temp_token_expiry_seconds = getattr(
-        settings, 'TWO_FACTOR_CODE_TIMEOUT_SECONDS', 600
+        settings, "TWO_FACTOR_CODE_TIMEOUT_SECONDS", 600
     )
-    now = pendulum.now('utc')
+    now = pendulum.now("utc")
     expiry_token_limit = now.subtract(seconds=temp_token_expiry_seconds)
     user.temporary_tokens.filter(
         expired=False, creation_date__lte=expiry_token_limit
@@ -37,13 +37,13 @@ def expire_temporary_tokens(user):
 
 
 def api_token_has_expired(token):
-    if getattr(token, 'expired', False) is True:
+    if getattr(token, "expired", False) is True:
         token.delete()
         return True
     token_can_expire = settings.API_TOKEN_EXPIRY > 0
     extra_period = settings.EXPIRY_EXTRA_PERIOD
     if token_can_expire:
-        now = pendulum.now('utc')
+        now = pendulum.now("utc")
         expiration_date = pendulum.instance(token.expiration_date)
         expiry_period_over = now > expiration_date
         expiry_spare_period_over = (
@@ -77,17 +77,17 @@ class TokenExpiryAuthentication(authentication.TokenAuthentication):
     def authenticate_credentials(self, key):
         model = AuthToken
         try:
-            token = model.objects.select_related('user').get(key=key)
+            token = model.objects.select_related("user").get(key=key)
         except model.DoesNotExist:
-            raise exceptions.AuthenticationFailed(_('Invalid token.'))
+            raise exceptions.AuthenticationFailed(_("Invalid token."))
 
         if not token.user.is_active:
             raise exceptions.AuthenticationFailed(
-                _('User inactive or deleted.')
+                _("User inactive or deleted.")
             )
 
         if api_token_has_expired(token):
-            raise exceptions.AuthenticationFailed(_('Token expired'))
+            raise exceptions.AuthenticationFailed(_("Token expired"))
         # Check if the secure token is expired and expire in database
         for secure_token in SecureConnectToken.objects.filter(
             user=token.user, expired=False
@@ -95,3 +95,19 @@ class TokenExpiryAuthentication(authentication.TokenAuthentication):
             expire_secure_token(secure_token)
 
         return (token.user, token)
+
+
+class URLTokenExpiryAuthentication(TokenExpiryAuthentication):
+    def authenticate(self, request):
+        token = request.GET.get("c_auth_with_token", b"")
+        if token == b"":
+            return
+
+        if len(token) != 40:
+            msg = _("Invalid token : {}".format(repr(token)))
+            raise exceptions.AuthenticationFailed(msg)
+        elif len(token) == 40:
+            return self.authenticate_credentials(token)
+
+        # Default : return None / User is *not* authenticated
+        return None
