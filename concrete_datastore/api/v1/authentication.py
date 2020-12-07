@@ -104,7 +104,7 @@ class URLTokenExpiryAuthentication(TokenExpiryAuthentication):
 
     def authenticate(self, request):
         token = request.GET.get('c_auth_with_token', '')
-        if token == '':
+        if token == '':  # nosec
             return
 
         if len(token) != 40:
