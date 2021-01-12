@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Enable admin url view with settings
 
 ### Changed
 

@@ -35,7 +35,6 @@ swagger_urls = [
 urlpatterns = [
     re_path(r'^oauth/', include('social_django.urls', namespace='social')),
     re_path(r'^status/$', service_status_view, name='service-status-view'),
-    re_path(r'^concrete-datastore-admin/', admin_site.urls, name='admin'),
     re_path(
         r'^c/',
         include('concrete_datastore.concrete.urls', namespace='concrete'),
@@ -44,6 +43,10 @@ urlpatterns = [
     api_v1_1_urls,
     *swagger_urls,
 ]
+if settings.ADMIN_URL_ENABLED:
+    urlpatterns += [
+        re_path(rf'^{settings.ADMIN_ROOT_URI}/', admin_site.urls, name='admin')
+    ]
 
 if settings.DEBUG:
     try:

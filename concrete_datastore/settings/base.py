@@ -478,3 +478,5 @@ IGNORED_MODELS_ON_DELETE = [
     "TemporaryToken",
     "SecureConnectToken",
 ]
+ADMIN_URL_ENABLED = True
+ADMIN_ROOT_URI = "concrete-datastore-admin"
