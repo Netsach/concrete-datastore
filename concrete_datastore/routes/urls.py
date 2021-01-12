@@ -45,7 +45,7 @@ urlpatterns = [
 ]
 if settings.ADMIN_URL_ENABLED:
     urlpatterns += [
-        re_path(r'^concrete-datastore-admin/', admin_site.urls, name='admin')
+        re_path(rf'^{settings.ADMIN_ROOT_URI}/', admin_site.urls, name='admin')
     ]
 
 if settings.DEBUG:
