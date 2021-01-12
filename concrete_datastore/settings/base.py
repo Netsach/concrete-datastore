@@ -478,3 +478,4 @@ IGNORED_MODELS_ON_DELETE = [
     "TemporaryToken",
     "SecureConnectToken",
 ]
+ADMIN_URL_ENABLED = True
