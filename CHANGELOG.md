@@ -4,15 +4,25 @@
 
 ### Added
 
+- nothing added
+
+### Changed
+
+- nothing changed
+
+### Removed
+
+- nothing removed
+
+## [1.21.0] - 2021-01-13
+
+### Added
+
 - Enable admin url view with settings
 
 ### Changed
 
 - Change staff to manager in CRUD_LEVELS
-
-### Removed
-
-- nothing removed
 
 ## [1.20.0] - 2020-12-07
 
