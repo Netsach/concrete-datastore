@@ -889,26 +889,26 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             send_register_email = True
             password = f"{uuid.uuid4()}-{uuid.uuid4()}-{uuid.uuid4()}"
             email_format = serializer.validated_data.get("email_format", None)
-            if (
-                isinstance(self.get_request_user(), AnonymousUser)
-                and email_format is not None
-            ):
+            request_user = self.get_request_user()
+            user_not_allowed_to_email_format = (
+                isinstance(request_user, AnonymousUser) is True
+                or request_user.is_at_least_staff is False
+            )
+            if email_format is not None and user_not_allowed_to_email_format:
                 return Response(
                     data={
                         'message': (
-                            'Only registered users are allowed to set an email_format'
+                            'Only registered users with a level of staff or '
+                            'higher levels are allowed to set an email_format'
                         ),
                         '_errors': ['INVALID_PARAMETER'],
                     },
                     status=HTTP_400_BAD_REQUEST,
                 )
-            #:  Before creating the user, we check if url_format and
-            #:  email_format have the right format by setting empty args
-            try:
-                serializer.validated_data["url_format"].format(  # nosec
-                    token="", email=""
-                )
-            except (KeyError, IndexError):
+            #:  Before creating the user, we check that url_format and
+            #:  email_format have the right format
+            url_format = serializer.validated_data["url_format"]
+            if '{token}' not in url_format or '{email}' not in url_format:
                 return Response(
                     data={
                         'errors': 'url_format is not a valid format_string',
@@ -917,17 +917,14 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
                     status=HTTP_400_BAD_REQUEST,
                 )
 
-            if email_format is not None:
-                try:
-                    email_format.format(link="")
-                except (KeyError, IndexError):
-                    return Response(
-                        data={
-                            'errors': 'url_format is not a valid format_string',
-                            '_errors': ['INVALID_PARAMETER'],
-                        },
-                        status=HTTP_400_BAD_REQUEST,
-                    )
+            if email_format is not None and '{link}' not in email_format:
+                return Response(
+                    data={
+                        'errors': 'email_format is not a valid format_string',
+                        '_errors': ['INVALID_PARAMETER'],
+                    },
+                    status=HTTP_400_BAD_REQUEST,
+                )
 
         else:
             send_register_email = False
@@ -990,9 +987,9 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             )
             url_format = serializer.validated_data["url_format"]
 
-            uri = url_format.format(
-                token=set_password_token.uid, email=user.email
-            )
+            #:  To avoid template injections, we use replace instead of format
+            uri = url_format.replace('{token}', str(set_password_token.uid))
+            uri = uri.replace('{email}', user.email)
 
             referer = request.META.get(
                 'HTTP_REFERER', settings.AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO
@@ -1005,7 +1002,7 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
 
             link = urljoin(referer, uri)
 
-            email_body = email_format.format(link=link)
+            email_body = email_format.replace('{link}', link)
 
             if settings.AUTH_CONFIRM_EMAIL_ENABLE is True:
                 confirmation = user.get_or_create_confirmation(

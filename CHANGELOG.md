@@ -4,7 +4,8 @@
 
 ### Added
 
-- nothing added
+- Add checks on the levels of users that are allowed to set an email_format when reset password
+- Add checks on the url_format to avoid template injections
 
 ### Changed
 
