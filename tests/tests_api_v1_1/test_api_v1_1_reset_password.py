@@ -381,7 +381,7 @@ class ResetPasswordTest(APITestCase):
     def test_reset_password_url_template_injection(self):
         reset_password_url = '/api/v1.1/auth/reset-password/'
 
-        #:  wrong string format, should be '/my-custom-url/{token}/{email}/'
+        #:  wrong string format if exactly "{token}" is not in the url_format
         response = self.client.post(
             reset_password_url,
             data={
