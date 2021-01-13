@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Change staff to manager in CRUD_LEVELS
 
 ### Removed
 
