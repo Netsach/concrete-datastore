@@ -377,3 +377,18 @@ class ResetPasswordTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('_errors', response.data)
         self.assertEqual(response.data['_errors'], ['INVALID_PARAMETER'])
+
+    def test_reset_password_url_template_injection(self):
+        reset_password_url = '/api/v1.1/auth/reset-password/'
+
+        #:  wrong string format, should be '/my-custom-url/{token}/{email}/'
+        response = self.client.post(
+            reset_password_url,
+            data={
+                "email": 'aaaa@netsach.org',
+                'url_format': '/my-custom-url/{token.__class__.__init__.__globals__}/{email}/',
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', response.data)
+        self.assertEqual(response.data['_errors'], ['INVALID_PARAMETER'])
