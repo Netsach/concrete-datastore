@@ -4,8 +4,7 @@
 
 ### Added
 
-- Add checks on the levels of users that are allowed to set an email_format when reset password
-- Add checks on the url_format to avoid template injections
+- nothing added
 
 ### Changed
 
@@ -14,6 +13,13 @@
 ### Removed
 
 - nothing removed
+
+## [1.22.0] - 2021-01-13
+
+### Added
+
+- Add checks on the levels of users that are allowed to set an email_format when reset password
+- Add checks on the url_format to avoid template injections
 
 ## [1.21.0] - 2021-01-13
 
