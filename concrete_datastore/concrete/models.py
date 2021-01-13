@@ -697,6 +697,15 @@ def get_divider_notification_fields(model):
     }
 
 
+def get_minimum_level(meta_model, prop_name, default_value):
+    level = meta_model.get_property(
+        prop_name=prop_name, default_value=default_value
+    )
+    if level not in CRUD_LEVEL:
+        return default_value
+    return level
+
+
 def make_django_model(meta_model, divider):
     class Meta:
         verbose_name = _(meta_model.get_verbose_name())
@@ -716,22 +725,28 @@ def make_django_model(meta_model, divider):
     ):
         raise ValueError('Unknown modelisation format')
 
-    creation_level = meta_model.get_property(
-        prop_name='m_creation_minimum_level', default_value='authenticated'
+    creation_level = get_minimum_level(
+        meta_model=meta_model,
+        prop_name='m_creation_minimum_level',
+        default_value='authenticated',
     )
 
-    retrieve_level = meta_model.get_property(
-        prop_name='m_retrieve_minimum_level', default_value='authenticated'
-    )
-    if retrieve_level not in CRUD_LEVEL:
-        retrieve_level = "authenticated"
-
-    update_level = meta_model.get_property(
-        prop_name='m_update_minimum_level', default_value='authenticated'
+    retrieve_level = get_minimum_level(
+        meta_model=meta_model,
+        prop_name='m_retrieve_minimum_level',
+        default_value='authenticated',
     )
 
-    delete_level = meta_model.get_property(
-        prop_name='m_delete_minimum_level', default_value='superuser'
+    update_level = get_minimum_level(
+        meta_model=meta_model,
+        prop_name='m_update_minimum_level',
+        default_value='authenticated',
+    )
+
+    delete_level = get_minimum_level(
+        meta_model=meta_model,
+        prop_name='m_delete_minimum_level',
+        default_value='superuser',
     )
 
     attrs = {
