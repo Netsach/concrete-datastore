@@ -988,8 +988,9 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             url_format = serializer.validated_data["url_format"]
 
             #:  To avoid template injections, we use replace instead of format
-            uri = url_format.replace('{token}', str(set_password_token.uid))
-            uri = uri.replace('{email}', user.email)
+            uri = url_format.replace(
+                '{token}', str(set_password_token.uid)
+            ).replace('{email}', user.email)
 
             referer = request.META.get(
                 'HTTP_REFERER', settings.AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO
