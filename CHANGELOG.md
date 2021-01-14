@@ -4,7 +4,7 @@
 
 ### Added
 
-- Add checks on the url_format for reset password view to avoid template injections
+- nothing added
 
 ### Changed
 
@@ -13,6 +13,12 @@
 ### Removed
 
 - nothing removed
+
+## [1.23.0] - 2021-01-14
+
+### Added
+
+- Add checks on the url_format for reset password view to avoid template injections
 
 ## [1.22.0] - 2021-01-13
 
