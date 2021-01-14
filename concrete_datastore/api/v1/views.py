@@ -1114,9 +1114,7 @@ class ResetPasswordApiView(SecurityRulesMixin, generics.GenericAPIView):
         reset_token = PasswordChangeToken.objects.create(user=user)
 
         url_format = serializer.validated_data["url_format"]
-        try:
-            uri = url_format.format(token=reset_token.uid, email=user.email)
-        except (KeyError, IndexError):
+        if '{token}' not in url_format or '{email}' not in url_format:
             return Response(
                 data={
                     'message': 'url_format is not a valid format_string',
@@ -1124,6 +1122,9 @@ class ResetPasswordApiView(SecurityRulesMixin, generics.GenericAPIView):
                 },
                 status=HTTP_400_BAD_REQUEST,
             )
+        uri = url_format.replace('{token}', str(reset_token.uid)).replace(
+            '{email}', user.email
+        )
 
         referer = request.META.get(
             'HTTP_REFERER', settings.AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO

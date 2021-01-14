@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Add checks on the url_format for reset password view to avoid template injections
 
 ### Changed
 
