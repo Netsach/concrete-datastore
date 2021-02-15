@@ -851,9 +851,12 @@ def make_django_model(meta_model, divider):
             args.update({'on_delete': getattr(models, on_delete_rule)})
 
         elif field.f_type in ('GenericIPAddressField',):
+            #: If blank is True, null should be too
+            #: https://docs.djangoproject.com/fr/3.1/ref/models/fields/#genericipaddressfield
             if args.get('blank', False) is True:
                 args['null'] = True
             else:
+                args.setdefault('blank', False)
                 args['null'] = False
 
         elif field.f_type in ('DateTimeField',):
