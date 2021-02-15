@@ -850,6 +850,12 @@ def make_django_model(meta_model, divider):
 
             args.update({'on_delete': getattr(models, on_delete_rule)})
 
+        elif field.f_type in ('GenericIPAddressField',):
+            if args.get('blank', False) is True:
+                args['null'] = True
+            else:
+                args['null'] = False
+
         elif field.f_type in ('DateTimeField',):
             if args.get('null', False) is True:
                 args['null'] = True
@@ -870,7 +876,6 @@ def make_django_model(meta_model, divider):
             # Copy args to not alter the real field.f_args
             args = args.copy()
             args.pop('null', None)
-
         attrs.update({field_name: getattr(models, field.f_type)(**args)})
     if meta_model.get_model_name() != divider:
         if meta_model.get_model_name() == "User":
