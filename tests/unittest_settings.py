@@ -450,7 +450,12 @@ META_MODEL_DEFINITIONS = (
         "ext.m_retrieve_minimum_level": 'anonymous',
         "ext.m_list_display": ['name', 'archived'],
         "ext.m_search_fields": ['name'],
-        "ext.m_filter_fields": ['name', 'archived', 'expected_skills'],
+        "ext.m_filter_fields": [
+            'name',
+            'archived',
+            'expected_skills',
+            'ip_address',
+        ],
         "std.fields": [
             {
                 "std.name": "name",
@@ -460,6 +465,15 @@ META_MODEL_DEFINITIONS = (
                 "std.type": "data",
                 "ext.f_type": "CharField",
                 "ext.f_args": {'max_length': 200},
+            },
+            {
+                "std.name": "ip_address",
+                "std.specifier": "Field",
+                "std.verbose_name": "IP",
+                "std.description": "IP of the project",
+                "std.type": "data",
+                "ext.f_type": "GenericIPAddressField",
+                "ext.f_args": {'protocol': 'ipv4', 'blank': True},
             },
             {
                 "std.name": "archived",
