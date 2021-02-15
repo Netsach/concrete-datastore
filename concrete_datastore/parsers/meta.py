@@ -347,7 +347,7 @@ def make_modelisation_cls(modelisation_spec, version, base=Model):
             if datatype == 'char':
                 attributes.setdefault('max_length', 250)
             if datatype == 'ip':
-                attributes.setdefault('protocol', 'both')
+                attributes.setdefault('protocol', 'ipv4_6')
                 protocol = attributes['protocol'].lower()
                 if protocol not in AUTHORIZED_IP_PROTOCOLS:
                     raise UnknownIPProtocol(
