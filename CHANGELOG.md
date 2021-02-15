@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- New field type `ip`
 
 ### Changed
 

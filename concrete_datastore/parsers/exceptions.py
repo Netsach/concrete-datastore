@@ -1,5 +1,8 @@
 # coding: utf-8
-from concrete_datastore.parsers.constants import VERSIONS_ATTRIBUTES
+from concrete_datastore.parsers.constants import (
+    VERSIONS_ATTRIBUTES,
+    AUTHORIZED_IP_PROTOCOLS,
+)
 
 
 class ModelManagerGenericException(Exception):
@@ -31,6 +34,17 @@ class MissingKeyForDefinition(ModelManagerGenericException):
 class UnknownDatamodelVersionError(ModelManagerGenericException):
     code = 'WRONG_VERSION'
     message = 'Key "version" of manifest should be 1.0.0.'
+
+
+class UnknownIPProtocol(ModelManagerGenericException):
+    code = 'UnknownIPProtocol'
+
+    def __init__(self, protocol, source, field_name, *args, **kwargs):
+        self.message = (
+            f"Unknow protocol '{protocol}' for model {source}"
+            f" and field {field_name}. "
+            f"Authorized protocols are {AUTHORIZED_IP_PROTOCOLS}"
+        )
 
 
 class MissingRelationForModel(ModelManagerGenericException):

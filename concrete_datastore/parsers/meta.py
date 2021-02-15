@@ -5,7 +5,7 @@ from collections import namedtuple, defaultdict
 from copy import deepcopy
 from keyword import iskeyword
 from six import with_metaclass
-
+from django.core.validators import validate_ipv46_address
 from concrete_datastore.parsers.exceptions import (
     UnknownDatamodelVersionError,
     MissingRelationForModel,
@@ -19,6 +19,7 @@ from concrete_datastore.parsers.exceptions import (
     MissingKeyForDefinition,
     ProtectedModelNameError,
     ProtectedFieldNameError,
+    UnknownIPProtocol,
 )
 from concrete_datastore.parsers.validators import validate_specifier
 from concrete_datastore.parsers.constants import (
@@ -26,6 +27,8 @@ from concrete_datastore.parsers.constants import (
     CONCRETE_USER_PROTECTED_FIELDS,
     CONCRETE_MODELS_PROTECTED_FIELDS,
     CONCRETE_CUSTOM_MODELS,
+    PROTOCOL_EQUIVALENCE,
+    AUTHORIZED_IP_PROTOCOLS,
 )
 from concrete_datastore.parsers.models import Model
 from concrete_datastore.parsers.fields import (
@@ -249,6 +252,7 @@ def make_modelisation_cls(modelisation_spec, version, base=Model):
                     'date',
                     'int',
                     'fk',
+                    'ip',
                 ]
                 #: we should consider only simple types
             ]
@@ -342,6 +346,18 @@ def make_modelisation_cls(modelisation_spec, version, base=Model):
                 attributes.update({'null': allow_empty, 'blank': allow_empty})
             if datatype == 'char':
                 attributes.setdefault('max_length', 250)
+            if datatype == 'ip':
+                attributes.setdefault('protocol', 'ipv4_6')
+                protocol = attributes['protocol'].lower()
+                if protocol not in AUTHORIZED_IP_PROTOCOLS:
+                    raise UnknownIPProtocol(
+                        protocol, model_name, spec[self.element_name]
+                    )
+                default_ip = attributes.get('default')
+                if default_ip:
+                    #: Raise Validation Error if the default IP is invalid
+                    validate_ipv46_address(default_ip)
+                attributes['protocol'] = PROTOCOL_EQUIVALENCE[protocol]
             if datatype in ['fk', 'm2m']:
                 field_type = (
                     f'rel_{"single" if datatype == "fk" else "iterable"}'
