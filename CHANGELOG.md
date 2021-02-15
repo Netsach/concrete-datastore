@@ -4,7 +4,7 @@
 
 ### Added
 
-- New field type `ip`
+- nothing added
 
 ### Changed
 
@@ -13,6 +13,12 @@
 ### Removed
 
 - nothing removed
+
+## [1.24.0] - 2021-02-15
+
+### Added
+
+- New field type `ip`
 
 ## [1.23.0] - 2021-01-14
 
