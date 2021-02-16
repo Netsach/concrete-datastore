@@ -13,7 +13,7 @@ def load_datamodel(datamodel_path='current-datamodel.meta'):
     datamodel_path = os.getenv('DATAMODEL_FILE') or datamodel_path
 
     try:
-        with open(datamodel_path, "r") as f:
+        with open(datamodel_path, "r", encoding='utf8') as f:
             try:
                 #:  Try to load datamodel with 'yaml.safe_load'.
                 #:  This method loads both yaml and json files

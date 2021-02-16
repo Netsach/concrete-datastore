@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Add utf8 encoding while loading datamodel
 
 ### Changed
 
