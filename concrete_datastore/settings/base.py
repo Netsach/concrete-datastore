@@ -242,6 +242,8 @@ INSTALLED_APPS = [
     'social_django',
     'django_otp',
     'rest_framework',
+    'rest_framework_gis',
+    'django.contrib.gis',
     'corsheaders',
     'concrete_datastore.concrete',
 ]

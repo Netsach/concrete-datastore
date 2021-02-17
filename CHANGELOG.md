@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- GeoDjango PointField to compute distances
 
 ### Changed
 

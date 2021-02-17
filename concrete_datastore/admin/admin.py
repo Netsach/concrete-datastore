@@ -4,7 +4,6 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
-
 from concrete_datastore.concrete.meta import list_of_meta
 from concrete_datastore.admin.admin_models import MetaUserAdmin, MetaAdmin
 from concrete_datastore.admin.admin_site import get_admin_site

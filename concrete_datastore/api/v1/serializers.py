@@ -8,6 +8,7 @@ from django.apps import apps
 
 from rest_framework.reverse import reverse
 from rest_framework import serializers
+from drf_extra_fields.geo_fields import PointField
 
 from concrete_datastore.concrete.models import LIST_USER_LEVEL
 from concrete_datastore.concrete.models import (
@@ -338,6 +339,7 @@ def make_serializer_class(
         if field.type.startswith("rel_"):
             _fields += ['{}_uid'.format(name)]
             fk_read_only_fields += [name]
+
     class Meta:
         model = concrete.models[meta_model.get_model_name().lower()]
         fields = _fields
@@ -371,6 +373,14 @@ def make_serializer_class(
                 {
                     name: serializers.FileField(
                         required=False, validators=[validate_file]
+                    )
+                }
+            )
+        if field.f_type == 'PointField':
+            attrs.update(
+                {
+                    name: PointField(
+                        required=not field.f_args.get("blank", False)
                     )
                 }
             )

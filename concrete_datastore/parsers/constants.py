@@ -95,6 +95,7 @@ TYPE_EQ_V1 = {
     'fk': 'ForeignKey',
     'm2m': 'ManyToManyField',
     'ip': 'GenericIPAddressField',
+    'point': 'PointField',
 }
 
 
