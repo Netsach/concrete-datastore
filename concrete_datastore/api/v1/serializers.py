@@ -338,6 +338,7 @@ def make_serializer_class(
         if field.type.startswith("rel_"):
             _fields += ['{}_uid'.format(name)]
             fk_read_only_fields += [name]
+
     class Meta:
         model = concrete.models[meta_model.get_model_name().lower()]
         fields = _fields
