@@ -5,6 +5,7 @@ from concrete_datastore.concrete.models import User, UserConfirmation, Project
 from django.test import override_settings
 from django.contrib.gis.measure import D
 from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.geos import Point, Polygon
 
 
 @override_settings(DEBUG=True)
@@ -88,7 +89,8 @@ class PointFieldTestCase(APITestCase):
             {"latitude": 48.925_432_928_223, "longitude": 2.555_056_530_762},
             msg=resp.content,
         )
-        pnt = GEOSGeometry('POINT(2.32 32.0)', srid=4326)
+
+        pnt = Point(2.32, 32.0)
 
         self.assertEqual(
             Project.objects.filter(
@@ -112,30 +114,13 @@ class PointFieldTestCase(APITestCase):
 
         #: The distance is in meter and it's longitude first
         resp = self.client.get(
-            f'{url_projects}?dist=1883000&point=2.32,32.0',
-            HTTP_AUTHORIZATION='Token {}'.format(self.token),
-        )
-        self.assertEqual(resp.json()['objects_count'], 1, msg=resp.content)
-
-        #: There is an approximation to compute degrees to meters so 1882 gives
-        #: the project anyway
-        #: https://github.com/openwisp/django-rest-framework-gis#distancetopointfilter
-        #:  the errors at latitudes > 60 degrees are > 25%.
-        resp = self.client.get(
-            f'{url_projects}?dist=1882000&point=2.32,32.0',
-            HTTP_AUTHORIZATION='Token {}'.format(self.token),
-        )
-        self.assertEqual(resp.json()['objects_count'], 1, msg=resp.content)
-        #: With the API, the distance between the two points is approximately 1745 km
-        #: There is a difference of ~130 km between the queryset filter and the API filtering
-        resp = self.client.get(
-            f'{url_projects}?dist=1750000&point=2.32,32.0',
+            f'{url_projects}?gps_address__distance=1883000,2.32,32.0',
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
         )
         self.assertEqual(resp.json()['objects_count'], 1, msg=resp.content)
 
         resp = self.client.get(
-            f'{url_projects}?dist=1740000&point=2.32,32.0',
+            f'{url_projects}?gps_address__distance=1882000,2.32,32.0',
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
         )
         self.assertEqual(resp.json()['objects_count'], 0, msg=resp.content)

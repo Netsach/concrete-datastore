@@ -82,6 +82,7 @@ from concrete_datastore.api.v1.filters import (
     FilterForeignKeyIsNullBackend,
     FilterSupportingForeignKey,
     FilterSupportingManyToMany,
+    FilterDistanceBackend
 )
 
 from concrete_datastore.api.v1.authentication import (
@@ -1220,6 +1221,7 @@ class AccountMeApiView(
 class PaginatedViewSet(object):
     pagination_class = ExtendedPagination
     filter_backends = (
+        FilterDistanceBackend,
         SearchFilter,
         OrderingFilter,
         FilterSupportingOrBackend,
@@ -1233,11 +1235,7 @@ class PaginatedViewSet(object):
         FilterForeignKeyIsNullBackend,
         FilterSupportingForeignKey,
         FilterSupportingManyToMany,
-        DistanceToPointFilter,
     )
-    distance_filter_field = None
-    # Use meters instead of degrees for distance filtering
-    distance_filter_convert_meters = True
     filterset_fields = ()
     ordering_fields = '__all__'
     ordering = ('-creation_date',)

@@ -455,6 +455,7 @@ META_MODEL_DEFINITIONS = (
             'archived',
             'expected_skills',
             'ip_address',
+            'gps_address',
         ],
         "ext.m_distance_filter_field": "gps_address",
         "std.fields": [
