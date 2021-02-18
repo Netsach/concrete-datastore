@@ -4,8 +4,7 @@
 
 ### Added
 
-- Add utf8 encoding while loading datamodel
-- GeoDjango PointField to compute distances
+- nothing added
 
 ### Changed
 
@@ -14,6 +13,13 @@
 ### Removed
 
 - nothing removed
+
+## [1.25.0] - 2021-02-18
+
+### Added
+
+- Add utf8 encoding while loading datamodel
+- GeoDjango PointField to compute distances
 
 ## [1.24.0] - 2021-02-15
 
