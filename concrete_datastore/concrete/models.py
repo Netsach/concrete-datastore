@@ -23,7 +23,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.urls import reverse
 from django.apps import apps
-from django.db import models
+from django.contrib.gis.db import models  # it includes all default fields
 
 from rest_framework.authtoken.models import Token
 

@@ -145,6 +145,9 @@ def make_modelisation_cls(modelisation_spec, version, base=Model):
         return {
             'm_search_fields': resource_dict['search_fields'],
             'm_filter_fields': resource_dict['filter_fields'],
+            'm_distance_filter_field': resource_dict.get(
+                'distance_filter_field', ''
+            ),
             'm_export_fields': resource_dict['export_fields'],
             'm_list_display': resource_dict['display_fields'],
         }
