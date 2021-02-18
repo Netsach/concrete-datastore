@@ -58,7 +58,7 @@ POSTGRES_PORT = int(os.environ.get('POSTGRES_PORT', 5432))
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': POSTGRES_DB,
         'USER': POSTGRES_USER,
         'PASSWORD': POSTGRES_PASSWORD,
@@ -455,7 +455,9 @@ META_MODEL_DEFINITIONS = (
             'archived',
             'expected_skills',
             'ip_address',
+            'gps_address',
         ],
+        "ext.m_distance_filter_field": "gps_address",
         "std.fields": [
             {
                 "std.name": "name",
@@ -465,6 +467,15 @@ META_MODEL_DEFINITIONS = (
                 "std.type": "data",
                 "ext.f_type": "CharField",
                 "ext.f_args": {'max_length': 200},
+            },
+            {
+                "std.name": "gps_address",
+                "std.specifier": "Field",
+                "std.verbose_name": "GPS Address",
+                "std.description": "GPS adress of the project",
+                "std.type": "data",
+                "ext.f_type": "PointField",
+                "ext.f_args": {'blank': True, 'null': True},
             },
             {
                 "std.name": "ip_address",

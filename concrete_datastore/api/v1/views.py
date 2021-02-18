@@ -19,12 +19,16 @@ from django.core.exceptions import (
     ObjectDoesNotExist,
     SuspiciousOperation,
 )
+from django.contrib.gis.db.models import (
+    PointField,
+)  # it includes all default fields
+
 from django.contrib.auth import authenticate, get_user_model
 from django.http.request import QueryDict
 from django.utils import timezone
 from django.apps import apps
 from django.conf import settings
-
+from rest_framework_gis.filters import DistanceToPointFilter
 from rest_framework.decorators import action
 from rest_framework.utils.urls import remove_query_param, replace_query_param
 from rest_framework.response import Response
@@ -78,7 +82,9 @@ from concrete_datastore.api.v1.filters import (
     FilterForeignKeyIsNullBackend,
     FilterSupportingForeignKey,
     FilterSupportingManyToMany,
+    FilterDistanceBackend
 )
+
 from concrete_datastore.api.v1.authentication import (
     TokenExpiryAuthentication,
     expire_secure_token,
@@ -1215,6 +1221,7 @@ class AccountMeApiView(
 class PaginatedViewSet(object):
     pagination_class = ExtendedPagination
     filter_backends = (
+        FilterDistanceBackend,
         SearchFilter,
         OrderingFilter,
         FilterSupportingOrBackend,
@@ -1981,6 +1988,9 @@ def make_api_viewset_generic_attributes_class(
         ordering_fields = tuple(meta_model.get_property('m_list_display', []))
         search_fields = tuple(meta_model.get_property('m_search_fields', []))
         filterset_fields = model_filterset_fields
+        distance_filter_field = meta_model.get_property(
+            'm_distance_filter_field'
+        )
         export_fields = tuple(meta_model.get_property('m_export_fields', []))
         fields = [f for f, _ in meta_model.get_fields()]
         serializer_class = make_serializer_class_fct(

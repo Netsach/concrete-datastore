@@ -39,3 +39,9 @@ or
 ```shell
 pytest -s concrete_datastore --pyargs -q tests.tests_permissions.test_permissions_with_user_level
 ```
+
+### Create new migrations
+
+If you change the datamodel in the `unittest_settings.py`, you have to create new migrations.  
+Run this command:
+`concrete-datastore makemigrations --settings=tests.unittest_settings`
