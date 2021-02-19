@@ -82,7 +82,7 @@ from concrete_datastore.api.v1.filters import (
     FilterForeignKeyIsNullBackend,
     FilterSupportingForeignKey,
     FilterSupportingManyToMany,
-    FilterDistanceBackend
+    FilterDistanceBackend,
 )
 
 from concrete_datastore.api.v1.authentication import (
