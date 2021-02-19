@@ -58,7 +58,39 @@ class CustomShemaOperationParameters:
         return []
 
 
-class FilterDistanceBackend(BaseFilterBackend):
+class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
+    def remove_from_queryset(self, view):
+        #: Remove PointField field from filterset_fields because
+        #: they cannot be filtered with the other filter backends
+        filterset_fields = getattr(view, 'filterset_fields', ())
+        new_filterset_fields = tuple(
+            filter_field
+            for filter_field in filterset_fields
+            if (
+                view.model_class._meta.get_field(
+                    filter_field
+                ).get_internal_type()
+                != 'PointField'
+            )
+        )
+        setattr(view, 'filterset_fields', new_filterset_fields)
+
+    def get_schema_operation_parameters(self, view):
+        params = [
+            {
+                'name': f'{field_name}__distance',
+                'required': False,
+                'in': 'query',
+                'description': 'DISTANCE,LONGITUDE,LATITUDE',
+                'schema': {'type': 'string'},
+            }
+            for field_name in getattr(view, 'filterset_fields', ())
+            if view.model_class._meta.get_field(field_name).get_internal_type()
+            == 'PointField'
+        ]
+        self.remove_from_queryset(view=view)
+        return self.return_if_not_details(view=view, value=params)
+
     def filter_queryset(self, request, queryset, view):
         # Only applicable on PointField objects
         #: The filter is __distance=XXX,LONGITUDE,LATITUDE
@@ -96,19 +128,7 @@ class FilterDistanceBackend(BaseFilterBackend):
             else:
                 q_object &= Q(**custom_filter)
 
-        new_filterset_fields = tuple(
-            filter_field
-            for filter_field in filterset_fields
-            if (
-                queryset.model._meta.get_field(
-                    filter_field
-                ).get_internal_type()
-                != 'PointField'
-            )
-        )
-        #: Remove PointField field from filterset_fields because
-        #: they cannot be filtered with the other filter backends
-        setattr(view, 'filterset_fields', new_filterset_fields)
+        self.remove_from_queryset(view=view)
         if q_object is None:
             return queryset
 
