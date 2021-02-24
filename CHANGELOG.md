@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Use OpenStreetMap for admin PointField
 
 ### Removed
 
