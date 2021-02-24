@@ -8,11 +8,17 @@
 
 ### Changed
 
-- Use OpenStreetMap for admin PointField
+- nothing changed
 
 ### Removed
 
 - nothing removed
+
+## [1.27.0] - 2021-02-24
+
+### Changed
+
+- Use OpenStreetMap for admin PointField
 
 ## [1.26.0] - 2021-02-19
 
