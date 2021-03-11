@@ -1,0 +1,1448 @@
+manifest:
+  version: 1.0.0
+  attributes: []
+  data_modeling:
+    roles: []
+    models:
+      - fields:
+          - attributes:
+              default: ""
+              max_length: 250
+              allow_empty: false
+            datatype: char
+            name: name
+          - attributes:
+              to:
+                uid: 33e90a71-25d0-48ba-a779-51a634bc4b70
+                name: User
+              reverse: concrete_groups
+              allow_empty: false
+            datatype: m2m
+            name: members
+        name: Group
+        uid: 4c0029b3-ecfe-42cf-bae1-718513906343
+        description: Groupes d'utilisateurs
+        representation_field: ""
+        is_default_public: false
+      - fields:
+          - attributes: {}
+            datatype: email
+            name: email
+        name: User
+        uid: 33e90a71-25d0-48ba-a779-51a634bc4b70
+        description: Utilisateur de l'application
+        representation_field: email
+        is_default_public: false
+      - fields:
+          - attributes:
+              default: "{}"
+              allow_empty: true
+            datatype: json
+            name: context
+          - attributes:
+              default: RAS
+              allow_empty: true
+            datatype: txt
+            name: feedback
+          - attributes:
+              upload_to: extra_files
+              max_length: 255
+              allow_empty: true
+            datatype: file
+            name: extra_file
+          - attributes:
+              default: ""
+              max_length: 255
+              allow_empty: true
+            datatype: char
+            name: instance_id
+          - attributes:
+              default: ""
+              max_length: 255
+              allow_empty: false
+            datatype: char
+            name: model_name
+          - attributes:
+              default: ""
+              allow_empty: true
+            datatype: json
+            name: results
+          - attributes:
+              default: PENDING
+              max_length: 255
+              allow_empty: false
+            datatype: char
+            name: status
+        name: CreationRequest
+        uid: 0745cae6-11ba-4a43-b805-72452aca6bb7
+        description: Creation Request object
+        representation_field: ""
+        is_default_public: false
+      - fields:
+          - attributes:
+              default: false
+              allow_empty: true
+            datatype: bool
+            name: archived
+          - attributes:
+              default: ""
+              max_length: 250
+              allow_empty: false
+            datatype: char
+            name: client_name
+          - attributes:
+              default: ""
+              max_length: 250
+              allow_empty: false
+            datatype: char
+            name: site_name
+          - attributes:
+              default: ""
+              allow_empty: false
+            datatype: txt
+            name: address
+          - attributes:
+              default: 0
+              allow_empty: false
+            datatype: float
+            name: electricity_price
+          - attributes:
+              default: ""
+              max_length: 250
+              allow_empty: true
+            datatype: char
+            name: contact_client
+          - attributes:
+              default: ""
+              allow_empty: true
+            datatype: txt
+            name: comment
+          - attributes: {}
+            datatype: char
+            name: name
+          - attributes:
+              default: null
+              allow_empty: true
+            datatype: date
+            name: start
+          - attributes:
+              ? default
+            datatype: date
+            name: end
+          - attributes:
+              allow_empty: false
+            datatype: char
+            name: operational_mod
+          - attributes:
+              allow_empty: true
+            datatype: image
+            name: site_image
+          - attributes:
+              default: "0.0"
+            datatype: decimal
+            name: cee_price
+          - attributes: {}
+            datatype: char
+            name: naf_code
+          - attributes:
+              default: "0.0"
+            datatype: decimal
+            name: yearly_consumption
+          - attributes: {}
+            datatype: json
+            name: edf_delegates
+        name: Factory
+        uid: 45b7a4fc-ad2d-4425-a1e7-0c864ae60c26
+        description: Site d'un client
+        representation_field: end
+        is_default_public: false
+      - fields:
+          - attributes:
+              default: false
+              allow_empty: true
+            datatype: bool
+            name: archived
+          - attributes:
+              default: ""
+              allow_empty: false
+            datatype: json
+            name: costs
+          - attributes:
+              default: null
+              upload_to: current_measures
+              allow_empty: true
+            datatype: file
+            name: current_measures
+          - attributes:
+              default: ""
+              allow_empty: false
+            datatype: json
+            name: custom_current_motor
+          - attributes:
+              default: ""
+              allow_empty: false
+            datatype: json
+            name: custom_tested_solutions
+          - attributes:
+              default: ""
+              allow_empty: false
+            datatype: json
+            name: default_current_motor
+          - attributes:
+              default: ""
+              allow_empty: false
+            datatype: json
+            name: default_tested_solutions
+          - attributes:
+              default: null
+              allow_empty: true
+            datatype: datetime
+            name: end_date
+          - attributes:
+              default: ""
+              allow_empty: false
+            datatype: json
+            name: feedback
+          - attributes:
+              default: ""
+              allow_empty: false
+            datatype: json
+            name: gains_euros
+          - attributes:
+              default: ""
+              allow_empty: false
+            datatype: json
+            name: gains_kwh
+          - attributes:
+              default: ""
+              allow_empty: false
+            datatype: json
+            name: gains_percent
+          - attributes:
+              default: ""
+              allow_empty: true
+            datatype: txt
+            name: log_admin
+          - attributes:
+              default: ""
+              allow_empty: true
+            datatype: txt
+            name: log_client
+          - attributes:
+              default: ""
+              max_length: 255
+              allow_empty: false
+            datatype: char
+            name: name
+          - attributes:
+              default: ""
+              max_length: 255
+              allow_empty: false
+            datatype: char
+            name: notify_status
+          - attributes:
+              default: null
+              upload_to: pa_graph_file
+              allow_empty: true
+            datatype: file
+            name: pa_graph_file
+          - attributes:
+              default: ""
+              allow_empty: true
+            datatype: json
+            name: report_context
+          - attributes:
+              default: null
+              allow_empty: true
+            datatype: datetime
+            name: start_date
+          - attributes:
+              default: ""
+              max_length: 255
+              allow_empty: false
+            datatype: char
+            name: status
+          - attributes:
+              default: ""
+              allow_empty: false
+            datatype: json
+            name: times_before_benefit
+          - attributes:
+              default: false
+              allow_empty: true
+            datatype: bool
+            name: warning
+          - attributes:
+              default: null
+              upload_to: xlsx_simulation
+              allow_empty: true
+            datatype: file
+            name: xlsx_simulation
+          - attributes:
+              to:
+                uid: f5103992-db86-4495-8f92-2e001de69a67
+                name: Motor
+              default: null
+              reverse: simulations
+              allow_empty: true
+            datatype: fk
+            name: motor
+          - attributes:
+              to:
+                uid: 96efa8c0-48a8-489f-9ef4-a0b3395fd93b
+                name: Report
+              default: null
+              reverse: simulations
+              allow_empty: true
+            datatype: fk
+            name: report_client
+          - attributes:
+              to:
+                uid: 96efa8c0-48a8-489f-9ef4-a0b3395fd93b
+                name: Report
+              default: null
+              reverse: simulations_expert
+              allow_empty: true
+            datatype: fk
+            name: report_expert
+          - attributes:
+              to:
+                uid: 33e90a71-25d0-48ba-a779-51a634bc4b70
+                name: User
+              default: null
+              reverse: simulations
+              allow_empty: true
+            datatype: fk
+            name: user
+          - attributes: {}
+            datatype: json
+            name: cee
+          - attributes:
+              default: false
+              allow_empty: true
+            datatype: bool
+            name: is_latest
+          - attributes:
+              allow_empty: true
+            datatype: json
+            name: alerts_data
+          - attributes:
+              allow_empty: true
+            datatype: json
+            name: error_data
+        name: Simulation
+        uid: 96a71619-e945-4983-9c04-eae3182a788d
+        description: ""
+        representation_field: ""
+        is_default_public: false
+      - fields:
+          - attributes:
+              default: false
+              allow_empty: true
+            datatype: bool
+            name: archived
+          - attributes:
+              default: ""
+              max_length: 250
+              allow_empty: false
+            datatype: char
+            name: name
+          - attributes:
+              default: 0
+              allow_empty: false
+            datatype: float
+            name: nominal_power
+          - attributes:
+              default: 0
+              allow_empty: false
+            datatype: float
+            name: nominal_voltage
+          - attributes:
+              default: 0
+              allow_empty: false
+            datatype: float
+            name: nominal_current
+          - attributes:
+              default: 0
+              allow_empty: false
+            datatype: float
+            name: cos_phi
+          - attributes:
+              default: 0
+              allow_empty: false
+            datatype: float
+            name: nominal_speed
+          - attributes:
+              choices:
+                - - ""
+                  - ---------
+                - - centrifugal_ventilation
+                  - Centrifugal ventilation
+                - - axial_ventilation
+                  - Axial ventilation
+                - - pumping
+                  - Pumping
+                - - motor
+                  - Motor
+              max_length: 250
+              allow_empty: false
+            datatype: char
+            name: application_type
+          - attributes:
+              choices:
+                - - ""
+                  - ---------
+                - - by_pass
+                  - By-pass
+                - - coupler
+                  - Coupler
+                - - drawing_beforehand_with_registers
+                  - Drawing beforehand with registers
+                - - drawing_beforehand_with_valves
+                  - Drawing beforehand with valves
+                - - drawing_afterwards
+                  - Drawing afterwards
+                - - drawing_afterwards_with_registers
+                  - Drawing afterwards with registers
+                - - no_adjustment
+                  - No adjustment
+                - - blades_with_self_adjusting_interval
+                  - Blades with self-adjusting interval
+                - - all_or_none
+                  - All-or-None
+                - - throttle_valve
+                  - Throttle valve
+                - - electronic_speed_variation
+                  - Electronic speed variation
+              max_length: 250
+              allow_empty: false
+            datatype: char
+            name: regulation_type
+          - attributes:
+              choices:
+                - - ""
+                  - ---------
+                - - aluminium
+                  - Aluminium
+                - - cast_iron
+                  - Cast iron
+                - - atex
+                  - ATEX
+              max_length: 250
+              allow_empty: false
+            datatype: char
+            name: casing_type
+          - attributes:
+              default: "0"
+              allow_empty: false
+            datatype: int
+            name: annual_working_time
+          - attributes:
+              to:
+                uid: 45b7a4fc-ad2d-4425-a1e7-0c864ae60c26
+                name: Factory
+              reverse: motors
+              allow_empty: true
+            datatype: fk
+            name: factory
+          - attributes: {}
+            datatype: json
+            name: trained_machine
+          - attributes:
+              default: ""
+              allow_empty: true
+            datatype: txt
+            name: comment
+          - attributes:
+              default: "1"
+              allow_empty: true
+            datatype: int
+            name: number
+          - attributes:
+              default: moteur
+            datatype: char
+            name: equipment_type
+        name: Motor
+        uid: f5103992-db86-4495-8f92-2e001de69a67
+        description: Moteur présent sur un site
+        representation_field: ""
+        is_default_public: false
+      - fields:
+          - attributes:
+              default: ""
+              max_length: 250
+              allow_empty: false
+            datatype: char
+            name: name
+          - attributes: {}
+            datatype: json
+            name: efficiencies
+          - attributes: {}
+            datatype: json
+            name: costs
+        name: SwitchMotor
+        uid: 722d245d-9f02-486e-b4ed-39bfc331d7dd
+        description: Moteur de remplacement
+        representation_field: ""
+        is_default_public: false
+      - fields:
+          - attributes:
+              default: ""
+              max_length: 250
+              allow_empty: false
+            datatype: char
+            name: name
+          - attributes:
+              default: false
+            datatype: bool
+            name: has_variator
+          - attributes:
+              to:
+                uid: 722d245d-9f02-486e-b4ed-39bfc331d7dd
+                name: SwitchMotor
+              reverse: tested_solutions
+              allow_empty: true
+            datatype: fk
+            name: switch_motor
+        name: TestedSolution
+        uid: 034a79e7-802b-4019-8800-61290b2cc371
+        description: Solution d'installation à tester
+        representation_field: ""
+        is_default_public: false
+      - fields:
+          - attributes:
+              default: ""
+              max_length: 250
+              allow_empty: false
+            datatype: char
+            name: name
+          - attributes: {}
+            datatype: json
+            name: json_data
+        name: Parameter
+        uid: a1f2d8b7-dcbc-46a4-8344-0350e70ac5de
+        description: Paramètre de calcul
+        representation_field: ""
+        is_default_public: false
+      - fields:
+          - attributes:
+              default: null
+              allow_empty: true
+            datatype: datetime
+            name: date
+          - attributes:
+              default: PENDING
+              max_length: 255
+              allow_empty: true
+            datatype: char
+            name: docx_generation_status
+          - attributes:
+              default: null
+              upload_to: docx_report
+              allow_empty: true
+            datatype: file
+            name: docx_report
+          - attributes:
+              default: PENDING
+              max_length: 255
+              allow_empty: true
+            datatype: char
+            name: global_status
+          - attributes:
+              default: ""
+              allow_empty: true
+            datatype: txt
+            name: md_report
+          - attributes:
+              default: Report
+              max_length: 255
+              allow_empty: true
+            datatype: char
+            name: name
+        name: Report
+        uid: 96efa8c0-48a8-489f-9ef4-a0b3395fd93b
+        description: Report
+        representation_field: ""
+        is_default_public: true
+      - fields:
+          - attributes:
+              default: null
+              upload_to: file
+              allow_empty: true
+            datatype: file
+            name: file
+          - attributes:
+              default: ""
+              max_length: 255
+              allow_empty: true
+            datatype: char
+            name: name
+          - attributes:
+              to:
+                uid: 3222694d-d031-40d9-ae73-ec1a4f490616
+                name: ReportRequest
+              default: null
+              reverse: report_requests
+              allow_empty: true
+            datatype: fk
+            name: report_request
+        name: ReportAsset
+        uid: cb531c1e-0657-4f0d-b78d-5d032a993bcf
+        description: ReportAsset
+        representation_field: ""
+        is_default_public: false
+      - fields:
+          - attributes:
+              default: PENDING
+              max_length: 255
+              allow_empty: true
+            datatype: char
+            name: create_reports_status
+          - attributes:
+              default: ""
+              max_length: 255
+              allow_empty: true
+            datatype: char
+            name: name
+          - attributes:
+              to:
+                uid: 96efa8c0-48a8-489f-9ef4-a0b3395fd93b
+                name: Report
+              default: null
+              reverse: client_report_requests
+              allow_empty: true
+            datatype: fk
+            name: client_report
+          - attributes:
+              to:
+                uid: 96efa8c0-48a8-489f-9ef4-a0b3395fd93b
+                name: Report
+              default: null
+              reverse: expert_report_requests
+              allow_empty: true
+            datatype: fk
+            name: expert_report
+          - attributes:
+              to:
+                uid: f5103992-db86-4495-8f92-2e001de69a67
+                name: Motor
+              default: null
+              reverse: report_requests
+              allow_empty: true
+            datatype: fk
+            name: motor
+          - attributes:
+              to:
+                uid: 96a71619-e945-4983-9c04-eae3182a788d
+                name: Simulation
+              default: null
+              reverse: report_requests
+              allow_empty: true
+            datatype: fk
+            name: simulation
+        name: ReportRequest
+        uid: 3222694d-d031-40d9-ae73-ec1a4f490616
+        description: ReportRequest
+        representation_field: ""
+        is_default_public: false
+      - fields:
+          - attributes:
+              default: false
+              allow_empty: true
+            datatype: bool
+            name: archived
+          - attributes:
+              default: null
+              upload_to: file
+              allow_empty: true
+            datatype: file
+            name: file
+          - attributes:
+              default: ""
+              max_length: 255
+              allow_empty: true
+            datatype: char
+            name: name
+        name: StyleTemplate
+        uid: f46edb7e-61be-409c-be7b-b37e853ae905
+        description: StyleTemplate
+        representation_field: ""
+        is_default_public: false
+      - fields:
+          - attributes: {}
+            datatype: char
+            name: name
+          - attributes: {}
+            datatype: char
+            name: delivery_address
+          - attributes: {}
+            datatype: char
+            name: billing_address
+          - attributes: {}
+            datatype: char
+            name: siret
+          - attributes: {}
+            datatype: char
+            name: tva_number
+          - attributes: {}
+            datatype: char
+            name: contact_edf
+          - attributes:
+              allow_empty: true
+            datatype: char
+            name: contact_edf_phone
+          - attributes: {}
+            datatype: char
+            name: contact_client
+          - attributes:
+              allow_empty: true
+            datatype: char
+            name: contact_client_phone
+          - attributes:
+              default: 2000-01-01T00:00:00
+              allow_empty: true
+            datatype: datetime
+            name: simulation_counter_reference_datetime
+          - attributes:
+              default: "0"
+              allow_empty: true
+            datatype: int
+            name: simulation_counter
+          - attributes:
+              default: "{}"
+              allow_empty: true
+            datatype: json
+            name: simulations_count_per_day
+          - attributes:
+              to:
+                uid: 45b7a4fc-ad2d-4425-a1e7-0c864ae60c26
+                name: Factory
+              reverse: related_client
+              allow_empty: true
+            datatype: m2m
+            name: related_factories
+        name: Client
+        uid: b37581e7-4500-41e7-a5b5-91abe6136a64
+        description: null
+        representation_field: name
+        is_default_public: false
+      - fields:
+          - attributes: {}
+            datatype: char
+            name: name
+          - attributes:
+              allow_empty: false
+            datatype: json
+            name: values
+          - attributes: {}
+            datatype: bool
+            name: in_use
+        name: PriceList
+        uid: 3242688b-6a5e-41cb-834d-edc2d6511722
+        description: null
+        representation_field: ""
+        is_default_public: false
+      - fields:
+          - attributes:
+              to:
+                uid: b37581e7-4500-41e7-a5b5-91abe6136a64
+                name: Client
+              reverse: bills
+            datatype: fk
+            name: client
+          - attributes: {}
+            datatype: date
+            name: start_date
+          - attributes: {}
+            datatype: date
+            name: end_date
+          - attributes: {}
+            datatype: float
+            name: total_amount
+          - attributes:
+              default: "0"
+            datatype: int
+            name: free_simulation_number
+          - attributes: {}
+            datatype: json
+            name: extra_performance
+          - attributes:
+              allow_empty: true
+            datatype: txt
+            name: comment
+          - attributes:
+              allow_empty: true
+            datatype: json
+            name: saved_data
+        name: Bill
+        uid: 7f65a5d1-351e-40e7-99f2-dde3068abe0e
+        description: null
+        representation_field: ""
+        is_default_public: false
+      - fields:
+          - attributes:
+              default: PENDING
+            datatype: char
+            name: prepare_status
+          - attributes:
+              default: WAITING
+            datatype: char
+            name: generate_status
+          - attributes: {}
+            datatype: char
+            name: model_name
+          - attributes: {}
+            datatype: json
+            name: config
+          - attributes: {}
+            datatype: json
+            name: audit_data
+          - attributes: {}
+            datatype: json
+            name: user_data
+          - attributes: {}
+            datatype: json
+            name: template
+          - attributes:
+              to:
+                uid: 45b7a4fc-ad2d-4425-a1e7-0c864ae60c26
+                name: Factory
+              reverse: audit_reports
+            datatype: fk
+            name: audit
+          - attributes:
+              allow_empty: true
+            datatype: file
+            name: report
+          - attributes:
+              allow_empty: true
+            datatype: char
+            name: verbose_status
+          - attributes:
+              default: "0.0"
+              allow_empty: true
+            datatype: float
+            name: security_coeff
+          - attributes:
+              allow_empty: true
+            datatype: json
+            name: audit_data_overridden
+        name: AuditReport
+        uid: 9fc7ad8e-32b6-4f0b-b181-b76416aee725
+        representation_field: ""
+        is_default_public: false
+      - fields:
+          - attributes: {}
+            datatype: file
+            name: pdf
+          - attributes:
+              to:
+                uid: 9fc7ad8e-32b6-4f0b-b181-b76416aee725
+                name: AuditReport
+              reverse: audit_report_files
+            datatype: fk
+            name: report
+        name: AuditReportFile
+        uid: a276d82f-1f0a-475f-8a74-f0f8a54ed597
+        representation_field: ""
+        is_default_public: false
+      - fields:
+          - attributes: {}
+            datatype: char
+            name: name
+          - attributes: {}
+            datatype: json
+            name: template
+          - attributes:
+              default: true
+              allow_empty: true
+            datatype: bool
+            name: activate_cee
+        name: ModelReport
+        uid: 08783ffc-b344-41b5-9349-d939af3505b7
+        representation_field: name
+        is_default_public: false
+      - fields:
+          - attributes: {}
+            datatype: char
+            name: name
+          - attributes: {}
+            datatype: char
+            name: description
+          - attributes: {}
+            datatype: file
+            name: background_file
+          - attributes: {}
+            datatype: json
+            name: text_zones
+          - attributes: {}
+            datatype: json
+            name: graph_zones
+        name: ModelReportPage
+        uid: 31f03556-9955-48b8-ad90-37d7c8e08cdb
+        representation_field: name
+        is_default_public: false
+      - fields:
+          - attributes: {}
+            datatype: char
+            name: name
+          - attributes: {}
+            datatype: json
+            name: front_side
+          - attributes: {}
+            datatype: json
+            name: back_side
+        name: NAF
+        uid: 103b77a7-a489-4049-ac3b-b7f51deeccc3
+        representation_field: name
+        is_default_public: true
+      - fields:
+          - attributes: {}
+            datatype: char
+            name: type_name
+          - attributes:
+              default: "0"
+            datatype: float
+            name: type_cosphi
+        name: EquipmentType
+        uid: ebb6dc2a-d553-4eaa-bdd0-22bda69e646f
+        representation_field: ""
+        is_default_public: false
+    version: "1.0"
+    attributes: []
+    permissions:
+      - model_uid: 4c0029b3-ecfe-42cf-bae1-718513906343
+        model_name: Group
+        lookups: []
+        minimum_levels:
+          create: manager
+          delete: admin
+          update: manager
+          retrieve: authenticated
+      - model_uid: 33e90a71-25d0-48ba-a779-51a634bc4b70
+        model_name: User
+        lookups: []
+        minimum_levels:
+          create: authenticated
+          delete: superuser
+          update: authenticated
+          retrieve: authenticated
+      - model_uid: 0745cae6-11ba-4a43-b805-72452aca6bb7
+        model_name: CreationRequest
+        lookups: []
+        minimum_levels:
+          create: authenticated
+          delete: superuser
+          update: superuser
+          retrieve: authenticated
+      - model_uid: 45b7a4fc-ad2d-4425-a1e7-0c864ae60c26
+        model_name: Factory
+        lookups: []
+        minimum_levels:
+          create: authenticated
+          delete: superuser
+          update: authenticated
+          retrieve: authenticated
+      - model_uid: 96a71619-e945-4983-9c04-eae3182a788d
+        model_name: Simulation
+        lookups: []
+        minimum_levels:
+          create: authenticated
+          delete: authenticated
+          update: authenticated
+          retrieve: authenticated
+      - model_uid: f5103992-db86-4495-8f92-2e001de69a67
+        model_name: Motor
+        lookups: []
+        minimum_levels:
+          create: authenticated
+          delete: superuser
+          update: authenticated
+          retrieve: authenticated
+      - model_uid: 722d245d-9f02-486e-b4ed-39bfc331d7dd
+        model_name: SwitchMotor
+        lookups: []
+        minimum_levels: {}
+      - model_uid: 034a79e7-802b-4019-8800-61290b2cc371
+        model_name: TestedSolution
+        lookups: []
+        minimum_levels: {}
+      - model_uid: a1f2d8b7-dcbc-46a4-8344-0350e70ac5de
+        model_name: Parameter
+        lookups: []
+        minimum_levels: {}
+      - model_uid: 96efa8c0-48a8-489f-9ef4-a0b3395fd93b
+        model_name: Report
+        lookups: []
+        minimum_levels:
+          create: superuser
+          delete: superuser
+          update: authenticated
+          retrieve: authenticated
+      - model_uid: cb531c1e-0657-4f0d-b78d-5d032a993bcf
+        model_name: ReportAsset
+        lookups: []
+        minimum_levels:
+          create: admin
+          delete: superuser
+          update: admin
+          retrieve: admin
+      - model_uid: 3222694d-d031-40d9-ae73-ec1a4f490616
+        model_name: ReportRequest
+        lookups: []
+        minimum_levels:
+          create: authenticated
+          delete: superuser
+          update: superuser
+          retrieve: authenticated
+      - model_uid: f46edb7e-61be-409c-be7b-b37e853ae905
+        model_name: StyleTemplate
+        lookups: []
+        minimum_levels:
+          create: superuser
+          delete: superuser
+          update: superuser
+          retrieve: superuser
+      - model_uid: b37581e7-4500-41e7-a5b5-91abe6136a64
+        model_name: Client
+        lookups: []
+        minimum_levels:
+          create: superuser
+          delete: superuser
+          update: superuser
+          retrieve: superuser
+      - model_uid: 3242688b-6a5e-41cb-834d-edc2d6511722
+        model_name: PriceList
+        lookups: []
+        minimum_levels:
+          create: superuser
+          delete: superuser
+          update: superuser
+          retrieve: superuser
+      - model_uid: 7f65a5d1-351e-40e7-99f2-dde3068abe0e
+        model_name: Bill
+        lookups: []
+        minimum_levels:
+          create: manager
+          delete: superuser
+          update: manager
+          retrieve: manager
+      - model_uid: 9fc7ad8e-32b6-4f0b-b181-b76416aee725
+        model_name: AuditReport
+        lookups: []
+        minimum_levels:
+          create: authenticated
+          delete: superuser
+          update: authenticated
+          retrieve: authenticated
+      - model_uid: a276d82f-1f0a-475f-8a74-f0f8a54ed597
+        model_name: AuditReportFile
+        lookups: []
+        minimum_levels:
+          create: superuser
+          delete: superuser
+          update: superuser
+          retrieve: superuser
+      - model_uid: 08783ffc-b344-41b5-9349-d939af3505b7
+        model_name: ModelReport
+        lookups: []
+        minimum_levels:
+          create: superuser
+          delete: superuser
+          update: superuser
+          retrieve: authenticated
+      - model_uid: 31f03556-9955-48b8-ad90-37d7c8e08cdb
+        model_name: ModelReportPage
+        lookups: []
+        minimum_levels:
+          create: superuser
+          delete: superuser
+          update: superuser
+          retrieve: superuser
+      - model_uid: 103b77a7-a489-4049-ac3b-b7f51deeccc3
+        model_name: NAF
+        lookups: []
+        minimum_levels:
+          create: superuser
+          delete: superuser
+          update: superuser
+          retrieve: authenticated
+      - model_uid: ebb6dc2a-d553-4eaa-bdd0-22bda69e646f
+        model_name: EquipmentType
+        lookups: []
+        minimum_levels:
+          create: manager
+          retrieve: authenticated
+          update: authenticated
+          delete: superuser
+    application_id: 4a674cd4f14366b8248d46d739
+    resource_queries:
+      - model_uid: 4c0029b3-ecfe-42cf-bae1-718513906343
+        model_name: Group
+        search_fields:
+          - name
+        filter_fields:
+          - name
+        display_fields:
+          - name
+        export_fields: []
+      - model_uid: 33e90a71-25d0-48ba-a779-51a634bc4b70
+        model_name: User
+        search_fields:
+          - email
+        filter_fields:
+          - email
+        display_fields:
+          - first_name
+          - last_name
+          - email
+        export_fields: []
+      - model_uid: 0745cae6-11ba-4a43-b805-72452aca6bb7
+        model_name: CreationRequest
+        search_fields: []
+        filter_fields:
+          - model_name
+          - status
+        display_fields:
+          - instance_id
+          - model_name
+          - status
+        export_fields: []
+      - model_uid: 45b7a4fc-ad2d-4425-a1e7-0c864ae60c26
+        model_name: Factory
+        search_fields:
+          - start
+        filter_fields:
+          - archived
+          - start
+          - contact_client
+        display_fields:
+          - archived
+          - start
+          - client_name
+          - address
+          - contact_client
+          - electricity_price
+        export_fields: []
+      - model_uid: 96a71619-e945-4983-9c04-eae3182a788d
+        model_name: Simulation
+        search_fields:
+          - name
+          - status
+        filter_fields:
+          - archived
+          - end_date
+          - name
+          - notify_status
+          - start_date
+          - status
+          - warning
+          - report_client
+          - report_expert
+          - motor
+          - is_latest
+        display_fields:
+          - archived
+          - end_date
+          - name
+          - notify_status
+          - start_date
+          - status
+          - user
+        export_fields: []
+      - model_uid: f5103992-db86-4495-8f92-2e001de69a67
+        model_name: Motor
+        search_fields:
+          - name
+        filter_fields:
+          - archived
+          - name
+          - equipment_type
+        display_fields:
+          - archived
+          - name
+          - application_type
+          - regulation_type
+          - casing_type
+          - equipment_type
+        export_fields: []
+      - model_uid: 722d245d-9f02-486e-b4ed-39bfc331d7dd
+        model_name: SwitchMotor
+        search_fields:
+          - name
+        filter_fields:
+          - name
+        display_fields:
+          - name
+        export_fields: []
+      - model_uid: 034a79e7-802b-4019-8800-61290b2cc371
+        model_name: TestedSolution
+        search_fields:
+          - name
+        filter_fields:
+          - name
+        display_fields:
+          - name
+          - switch_motor
+          - has_variator
+        export_fields: []
+      - model_uid: a1f2d8b7-dcbc-46a4-8344-0350e70ac5de
+        model_name: Parameter
+        search_fields:
+          - name
+        filter_fields:
+          - name
+        display_fields:
+          - name
+        export_fields: []
+      - model_uid: 96efa8c0-48a8-489f-9ef4-a0b3395fd93b
+        model_name: Report
+        search_fields: []
+        filter_fields:
+          - docx_generation_status
+          - global_status
+        display_fields:
+          - docx_generation_status
+          - global_status
+          - name
+        export_fields: []
+      - model_uid: cb531c1e-0657-4f0d-b78d-5d032a993bcf
+        model_name: ReportAsset
+        search_fields: []
+        filter_fields:
+          - report_request
+        display_fields:
+          - name
+        export_fields: []
+      - model_uid: 3222694d-d031-40d9-ae73-ec1a4f490616
+        model_name: ReportRequest
+        search_fields: []
+        filter_fields:
+          - create_reports_status
+          - client_report
+          - expert_report
+          - motor
+          - simulation
+        display_fields:
+          - create_reports_status
+        export_fields: []
+      - model_uid: f46edb7e-61be-409c-be7b-b37e853ae905
+        model_name: StyleTemplate
+        search_fields: []
+        filter_fields:
+          - archived
+        display_fields:
+          - archived
+          - name
+        export_fields: []
+      - model_uid: b37581e7-4500-41e7-a5b5-91abe6136a64
+        model_name: Client
+        search_fields:
+          - name
+          - simulation_counter
+        filter_fields: []
+        display_fields:
+          - name
+        export_fields: []
+      - model_uid: 3242688b-6a5e-41cb-834d-edc2d6511722
+        model_name: PriceList
+        search_fields: []
+        filter_fields:
+          - in_use
+        display_fields: []
+        export_fields: []
+      - model_uid: 7f65a5d1-351e-40e7-99f2-dde3068abe0e
+        model_name: Bill
+        search_fields: []
+        filter_fields:
+          - total_amount
+          - client
+          - end_date
+          - start_date
+        display_fields:
+          - client
+          - start_date
+          - start_date
+          - total_amount
+        export_fields:
+          - client
+          - start_date
+          - start_date
+          - total_amount
+          - end_date
+      - model_uid: 9fc7ad8e-32b6-4f0b-b181-b76416aee725
+        model_name: AuditReport
+        search_fields:
+          - prepare_status
+          - generate_status
+          - model_name
+        filter_fields:
+          - prepare_status
+          - generate_status
+          - model_name
+          - audit
+        display_fields:
+          - model_name
+          - generate_status
+          - prepare_status
+          - security_coeff
+        export_fields:
+          - prepare_status
+          - generate_status
+          - config
+          - model_name
+          - audit_data
+          - user_data
+          - template
+      - model_uid: a276d82f-1f0a-475f-8a74-f0f8a54ed597
+        model_name: AuditReportFile
+        search_fields: []
+        filter_fields: []
+        display_fields: []
+        export_fields: []
+      - model_uid: 08783ffc-b344-41b5-9349-d939af3505b7
+        model_name: ModelReport
+        search_fields: []
+        filter_fields: []
+        display_fields:
+          - name
+          - activate_cee
+        export_fields: []
+      - model_uid: 31f03556-9955-48b8-ad90-37d7c8e08cdb
+        model_name: ModelReportPage
+        search_fields: []
+        filter_fields: []
+        display_fields:
+          - name
+        export_fields: []
+      - model_uid: 103b77a7-a489-4049-ac3b-b7f51deeccc3
+        model_name: NAF
+        search_fields: []
+        filter_fields: []
+        display_fields: []
+        export_fields: []
+      - model_uid: ebb6dc2a-d553-4eaa-bdd0-22bda69e646f
+        model_name: EquipmentType
+        search_fields:
+          - type_name
+        filter_fields:
+          - type_name
+        display_fields:
+          - type_name
+          - type_cosphi
+        export_fields: []
+    one_to_one_relations: []
+    one_to_many_relations:
+      - source_field: motor
+        source_model:
+          uid: 96a71619-e945-4983-9c04-eae3182a788d
+          name: Simulation
+        target_model:
+          uid: f5103992-db86-4495-8f92-2e001de69a67
+          name: Motor
+      - source_field: report_client
+        source_model:
+          uid: 96a71619-e945-4983-9c04-eae3182a788d
+          name: Simulation
+        target_model:
+          uid: 96efa8c0-48a8-489f-9ef4-a0b3395fd93b
+          name: Report
+      - source_field: report_expert
+        source_model:
+          uid: 96a71619-e945-4983-9c04-eae3182a788d
+          name: Simulation
+        target_model:
+          uid: 96efa8c0-48a8-489f-9ef4-a0b3395fd93b
+          name: Report
+      - source_field: user
+        source_model:
+          uid: 96a71619-e945-4983-9c04-eae3182a788d
+          name: Simulation
+        target_model:
+          uid: 33e90a71-25d0-48ba-a779-51a634bc4b70
+          name: User
+      - source_field: factory
+        source_model:
+          uid: f5103992-db86-4495-8f92-2e001de69a67
+          name: Motor
+        target_model:
+          uid: 45b7a4fc-ad2d-4425-a1e7-0c864ae60c26
+          name: Factory
+      - source_field: switch_motor
+        source_model:
+          uid: 034a79e7-802b-4019-8800-61290b2cc371
+          name: TestedSolution
+        target_model:
+          uid: 722d245d-9f02-486e-b4ed-39bfc331d7dd
+          name: SwitchMotor
+      - source_field: report_request
+        source_model:
+          uid: cb531c1e-0657-4f0d-b78d-5d032a993bcf
+          name: ReportAsset
+        target_model:
+          uid: 3222694d-d031-40d9-ae73-ec1a4f490616
+          name: ReportRequest
+      - source_field: client_report
+        source_model:
+          uid: 3222694d-d031-40d9-ae73-ec1a4f490616
+          name: ReportRequest
+        target_model:
+          uid: 96efa8c0-48a8-489f-9ef4-a0b3395fd93b
+          name: Report
+      - source_field: expert_report
+        source_model:
+          uid: 3222694d-d031-40d9-ae73-ec1a4f490616
+          name: ReportRequest
+        target_model:
+          uid: 96efa8c0-48a8-489f-9ef4-a0b3395fd93b
+          name: Report
+      - source_field: motor
+        source_model:
+          uid: 3222694d-d031-40d9-ae73-ec1a4f490616
+          name: ReportRequest
+        target_model:
+          uid: f5103992-db86-4495-8f92-2e001de69a67
+          name: Motor
+      - source_field: simulation
+        source_model:
+          uid: 3222694d-d031-40d9-ae73-ec1a4f490616
+          name: ReportRequest
+        target_model:
+          uid: 96a71619-e945-4983-9c04-eae3182a788d
+          name: Simulation
+      - source_field: client
+        source_model:
+          uid: 7f65a5d1-351e-40e7-99f2-dde3068abe0e
+          name: Bill
+        target_model:
+          uid: b37581e7-4500-41e7-a5b5-91abe6136a64
+          name: Client
+      - source_field: audit
+        source_model:
+          uid: 9fc7ad8e-32b6-4f0b-b181-b76416aee725
+          name: AuditReport
+        target_model:
+          uid: 45b7a4fc-ad2d-4425-a1e7-0c864ae60c26
+          name: Factory
+      - source_field: report
+        source_model:
+          uid: a276d82f-1f0a-475f-8a74-f0f8a54ed597
+          name: AuditReportFile
+        target_model:
+          uid: 9fc7ad8e-32b6-4f0b-b181-b76416aee725
+          name: AuditReport
+    many_to_many_relations:
+      - source_field: members
+        source_model:
+          uid: 4c0029b3-ecfe-42cf-bae1-718513906343
+          name: Group
+        target_model:
+          uid: 33e90a71-25d0-48ba-a779-51a634bc4b70
+          name: User
+      - source_field: related_factories
+        source_model:
+          uid: b37581e7-4500-41e7-a5b5-91abe6136a64
+          name: Client
+        target_model:
+          uid: 45b7a4fc-ad2d-4425-a1e7-0c864ae60c26
+          name: Factory
