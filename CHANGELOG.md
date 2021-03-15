@@ -8,11 +8,17 @@
 
 ### Changed
 
-- Allow NULL values for FileField and PointField serializer
+- nothing changed
 
 ### Removed
 
 - nothing removed
+
+## [1.28.0] - 2021-03-15
+
+### Changed
+
+- Allow NULL values for FileField and PointField serializer
 
 ## [1.27.0] - 2021-02-24
 
