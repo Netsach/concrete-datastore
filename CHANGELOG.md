@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Allow NULL values for FileField and PointField serializer
 
 ### Removed
 
