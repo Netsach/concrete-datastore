@@ -12,7 +12,7 @@ When you try out the `concrete-datastore` yourself, you might stumble across one
 - [Running the migration scripts throws an error: role does not exists](#running-the-migration-scripts-throws-an-error-role-does-not-exists)
 - [Troubleshooting Docker](#troubleshooting-docker)
 - [How do I quit my virtualenv session?](#how-do-i-quit-my-virtualenv-session)
-- [Is GDAL installed ?](#)
+- [Is GDAL installed ?](#is-gdal-installed-?)
 
 <!-- /MarkdownTOC -->
 
