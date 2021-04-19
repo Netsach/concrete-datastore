@@ -11,7 +11,7 @@ When you try out the `concrete-datastore` yourself, you might stumble across one
 - [I can not pip install: UNKNOWN error](#i-can-not-pip-install-unknown-error)
 - [Running the migration scripts throws an error: role does not exists](#running-the-migration-scripts-throws-an-error-role-does-not-exists)
 - [Troubleshooting Docker](#troubleshooting-docker)
-- [How do I quit my virtualenv session?](#how-do-i-quit-my-virtualenv-session
+- [How do I quit my virtualenv session?](#how-do-i-quit-my-virtualenv-session)
 - [Is GDAL installed ?](#is-gdal-installed-)
 <!-- /MarkdownTOC -->
 
