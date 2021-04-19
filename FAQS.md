@@ -94,7 +94,7 @@ deactivate
 
 ## Is GDAL installed ?
 ### For MacOS
-If your terminal print an error like : ```Could not find the GDAL library ... is GDAL installed``` try to run ```brew install gdal``` in your terminus. (N.B : this command requires to have Xcode installed on your Mac)
+If your terminal prints an error like : ```Could not find the GDAL library ... is GDAL installed``` try to run ```brew install gdal``` in your shell. (N.B : this command requires to have Xcode installed on your Mac)
 If this doesn't fix your issue, try :
 ```shell
 brew install PostgreSQL
