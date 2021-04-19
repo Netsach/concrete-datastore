@@ -102,7 +102,7 @@ brew install postgis
 ```
 
 ### For Linux
-If your terminal print an error like : ```Could not find the GDAL library ... is GDAL installed``` try to run in your terminal :
+If your terminal prints an error like : ```Could not find the GDAL library ... is GDAL installed``` try to run in your terminal :
 ```shell
 sudo apt-get install gdal-bin
 ``` 
