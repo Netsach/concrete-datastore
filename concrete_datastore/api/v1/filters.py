@@ -2,7 +2,14 @@
 import uuid
 import functools
 
-from django.db.models import Q, CharField, TextField, ForeignKey, BooleanField
+from django.db.models import (
+    Q,
+    CharField,
+    TextField,
+    ForeignKey,
+    BooleanField,
+    UUIDField,
+)
 from django.contrib.gis.db.models import PointField
 from django.contrib.gis.measure import D
 from django.db.models.fields.related import ManyToManyField
@@ -203,8 +210,22 @@ class FilterSupportingOrBackend(
                 continue
             if param.replace('__in', '') not in filterset_fields:
                 continue
-
             values = query_params.get(param).split(',')
+            if isinstance(
+                queryset.model._meta.get_field(param.replace('__in', '')),
+                (UUIDField, ForeignKey),
+            ):
+                for value in values:
+                    try:
+                        uuid.UUID(value)
+                    except ValueError:
+                        raise ValidationError(
+                            {
+                                "message": (
+                                    f"{param}: '{value}' is not a valid UUID"
+                                )
+                            }
+                        )
             if isinstance(
                 queryset.model._meta.get_field(param.replace('__in', '')),
                 BooleanField,

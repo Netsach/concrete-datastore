@@ -695,3 +695,82 @@ class FilterContainsBackend(APITestCase):
         self.assertEqual(resp.data['total_objects_count'], 2)
         names = {project['name'] for project in resp.data['results']}
         self.assertEqual(names, {'Project1', 'Project2'})
+
+
+@override_settings(DEBUG=True)
+class FilterObjectByUid(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('user@netsach.org')
+        self.user.set_password('plop')
+        self.user.set_level('superuser')
+        self.user.save()
+        confirmation = UserConfirmation.objects.create(user=self.user)
+        confirmation.confirmed = True
+        confirmation.save()
+        url = '/api/v1.1/auth/login/'
+        resp = self.client.post(
+            url, {"email": "user@netsach.org", "password": "plop"}
+        )
+        self.token = resp.data['token']
+
+        self.project1 = Project.objects.create(
+            name='Project1', description='text of description1'
+        )
+        self.project2 = Project.objects.create(
+            name='Project2', description='text of description2'
+        )
+        self.project3 = Project.objects.create(
+            name='Project3', description='text of description3'
+        )
+        self.category1 = Category.objects.create(name='category_test')
+        self.skill_1 = Skill.objects.create(
+            name='skill_test 1', category=self.category1, score=5
+        )
+
+    def test_filter_against_uid_field(self):
+        resp = self.client.get(
+            '/api/v1.1/project/',
+            data={'uid__in': f'{self.project1.uid},{self.project3.uid}'},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('results', resp.data)
+        self.assertIn('total_objects_count', resp.data)
+        self.assertEqual(resp.data['total_objects_count'], 2)
+        names = {project['name'] for project in resp.data['results']}
+        self.assertEqual(names, {'Project1', 'Project3'})
+
+    def test_filter_against_uid_with_wrong_uid(self):
+        resp = self.client.get(
+            '/api/v1.1/project/',
+            data={
+                'uid__in': f'{self.project1.uid},{self.project3.uid},notanuid'
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            resp.data, {"message": "uid__in: 'notanuid' is not a valid UUID"}
+        )
+
+    def test_filter_against_uid_with_no_values(self):
+        resp = self.client.get(
+            '/api/v1.1/project/',
+            data={'uid__in': ''},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            resp.data, {"message": "uid__in: '' is not a valid UUID"}
+        )
+
+    def test_filter_against_foreign_key_uid_with_no_values(self):
+        resp = self.client.get(
+            '/api/v1.1/skill/',
+            data={'category__in': ''},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            resp.data, {"message": "category__in: '' is not a valid UUID"}
+        )
