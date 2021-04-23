@@ -1,8 +1,45 @@
 # coding: utf-8
 from rest_framework.test import APITestCase
 from rest_framework import status
-from concrete_datastore.concrete.models import User, UserConfirmation, Project
+from concrete_datastore.concrete.models import (
+    User,
+    UserConfirmation,
+    Project,
+    PublicModelManagerRetrieve,
+)
 from django.test import override_settings
+
+
+@override_settings(DEBUG=True)
+class MinimumLevelCrossPublicTestCase(APITestCase):
+    def setUp(self):
+        # User A
+        self.user = User.objects.create_user('user_a@netsach.org')
+        self.user.set_password('userA')
+        self.user.save()
+        UserConfirmation.objects.create(user=self.user, confirmed=True).save()
+        url_login = '/api/v1.1/auth/login/'
+        resp = self.client.post(
+            url_login, {"email": "user_a@netsach.org", "password": "userA"}
+        )
+        self.token_user_a = resp.data['token']
+
+    def test_public_minimum_retrieve_manager(self):
+        self.assertEqual(self.user.level, 'simpleuser')
+        url = '/api/v1.1/public-model-manager-retrieve/'
+        obj = PublicModelManagerRetrieve.objects.create(name='test')
+        self.assertEqual(PublicModelManagerRetrieve.objects.count(), 1)
+        #:  List
+        resp = self.client.get(
+            url, HTTP_AUTHORIZATION=f'Token {self.token_user_a}'
+        )
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+
+        #:  Retrieve
+        resp = self.client.get(
+            f'{url}{obj.uid}/', HTTP_AUTHORIZATION=f'Token {self.token_user_a}'
+        )
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
 
 
 @override_settings(DEBUG=True)

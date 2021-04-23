@@ -213,6 +213,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'concrete_datastore.api.v1.authentication.TokenExpiryAuthentication',
+        'concrete_datastore.api.v1.authentication.URLTokenExpiryAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'DEFAULT_RENDERER_CLASSES': (
@@ -241,6 +242,8 @@ INSTALLED_APPS = [
     'social_django',
     'django_otp',
     'rest_framework',
+    'rest_framework_gis',
+    'django.contrib.gis',
     'corsheaders',
     'concrete_datastore.concrete',
 ]
@@ -477,3 +480,5 @@ IGNORED_MODELS_ON_DELETE = [
     "TemporaryToken",
     "SecureConnectToken",
 ]
+ADMIN_URL_ENABLED = True
+ADMIN_ROOT_URI = "concrete-datastore-admin"

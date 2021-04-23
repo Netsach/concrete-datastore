@@ -58,7 +58,7 @@ POSTGRES_PORT = int(os.environ.get('POSTGRES_PORT', 5432))
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': POSTGRES_DB,
         'USER': POSTGRES_USER,
         'PASSWORD': POSTGRES_PASSWORD,
@@ -176,6 +176,41 @@ META_MODEL_DEFINITIONS = (
         "ext.m_delete_minimum_level": "superuser",
         "std.name": "NotScopedModel",
         "ext.m_retrieve_minimum_level": "authenticated",
+        "ext.m_update_minimum_level": "manager",
+        "ext.m_unicode": "None",
+        "ext.m_export_fields": [],
+    },
+    {
+        "ext.m_search_fields": ["name"],
+        "ext.m_filter_fields": ["name"],
+        "ext.m_list_display": ["name"],
+        "std.verbose_name": "PublicModelManagerRetrieve",
+        "ext.m_unique_together": [],
+        "ext.m_creation_minimum_level": "admin",
+        "ext.m_is_default_public": True,
+        "std.description": "",
+        "std.fields": [
+            {
+                "std.specifier": "Field",
+                "ext.f_args": {
+                    "default": "",
+                    "null": False,
+                    "blank": False,
+                    "max_length": 255,
+                },
+                "std.verbose_name": "name",
+                "ext.force_nested": False,
+                "std.name": "name",
+                "std.type": "data",
+                "std.description": "name",
+                "ext.f_type": "CharField",
+            }
+        ],
+        "std.specifier": "Model",
+        "std.verbose_name_plural": "PublicModelManagerRetrieves",
+        "ext.m_delete_minimum_level": "superuser",
+        "std.name": "PublicModelManagerRetrieve",
+        "ext.m_retrieve_minimum_level": "manager",
         "ext.m_update_minimum_level": "manager",
         "ext.m_unicode": "None",
         "ext.m_export_fields": [],
@@ -415,7 +450,14 @@ META_MODEL_DEFINITIONS = (
         "ext.m_retrieve_minimum_level": 'anonymous',
         "ext.m_list_display": ['name', 'archived'],
         "ext.m_search_fields": ['name'],
-        "ext.m_filter_fields": ['name', 'archived', 'expected_skills'],
+        "ext.m_filter_fields": [
+            'name',
+            'archived',
+            'expected_skills',
+            'ip_address',
+            'gps_address',
+        ],
+        "ext.m_distance_filter_field": "gps_address",
         "std.fields": [
             {
                 "std.name": "name",
@@ -425,6 +467,24 @@ META_MODEL_DEFINITIONS = (
                 "std.type": "data",
                 "ext.f_type": "CharField",
                 "ext.f_args": {'max_length': 200},
+            },
+            {
+                "std.name": "gps_address",
+                "std.specifier": "Field",
+                "std.verbose_name": "GPS Address",
+                "std.description": "GPS adress of the project",
+                "std.type": "data",
+                "ext.f_type": "PointField",
+                "ext.f_args": {'blank': True, 'null': True},
+            },
+            {
+                "std.name": "ip_address",
+                "std.specifier": "Field",
+                "std.verbose_name": "IP",
+                "std.description": "IP of the project",
+                "std.type": "data",
+                "ext.f_type": "GenericIPAddressField",
+                "ext.f_args": {'protocol': 'ipv4', 'blank': True},
             },
             {
                 "std.name": "archived",

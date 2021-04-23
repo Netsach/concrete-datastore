@@ -39,7 +39,7 @@ EXACT_LEVEL_ATTRS = {
     },
 }
 
-CRUD_LEVEL = ["anonymous", "authenticated", "admin", "superuser", "staff"]
+CRUD_LEVEL = ["anonymous", "authenticated", "admin", "superuser", "manager"]
 
 LIST_USER_LEVEL = ["blocked", "simpleuser", "manager", "admin", "superuser"]
 

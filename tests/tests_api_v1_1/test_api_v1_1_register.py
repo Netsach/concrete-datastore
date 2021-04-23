@@ -100,6 +100,125 @@ class RegisterWithAllowSendEmailOnRegisterTestCase(APITestCase):
         ALLOW_SEND_EMAIL_ON_REGISTER=True,
         AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO="https://netsach.com",
     )
+    def test_register_url_format_security_issues(self):
+        url_register = '/api/v1.1/auth/register/'
+        self.assertEqual(User.objects.count(), 0)
+
+        #:  Create a superuser to perform authenticated requests
+        superuser = User.objects.create_user('superuser@netsach.com')
+        superuser.set_password('plop')
+        superuser.set_level('superuser')
+        superuser.save()
+        UserConfirmation.objects.create(user=superuser, confirmed=True)
+
+        url_login = '/api/v1.1/auth/login/'
+        resp = self.client.post(
+            url_login, {"email": "superuser@netsach.com", "password": "plop"}
+        )
+        super_token = resp.data['token']
+        resp = self.client.post(
+            url_register,
+            {
+                "email": "johndoe@netsach.com",
+                "url_format": '{token.__class__.__init__.__globals__}/{email}',
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(super_token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+        resp = self.client.post(
+            url_register,
+            {
+                "email": "johndoe@netsach.com",
+                "url_format": '{token.__class__.__init__.__globals__}/{email}/{token}',
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(super_token),
+        )
+        #:  This case is not a problem since the {token.__class__.__init__.__globals__}
+        #:  will be kept as it is and won't be formatted
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+    @override_settings(
+        ALLOW_SEND_EMAIL_ON_REGISTER=True,
+        AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO="https://netsach.com",
+    )
+    def test_register_without_password_email_format_user_levels(self):
+        url_register = '/api/v1.1/auth/register/'
+        self.assertEqual(User.objects.count(), 0)
+
+        #:  AnonymousUser cannot set an email format
+        resp = self.client.post(
+            url_register,
+            {
+                "email": "johndoe@netsach.com",
+                "email_format": (
+                    "<h1>Hello</h1>, <p>please click <a rel='notrack' "
+                    "href='{link}'>here</a> to complete your registration</p>"
+                ),
+            },
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+        url_login = '/api/v1.1/auth/login/'
+        #:  Create a simpleuser to perform authenticated requests
+        simpleuser = User.objects.create_user('simpleuser@netsach.com')
+        simpleuser.set_password('plop')
+        simpleuser.save()
+        UserConfirmation.objects.create(user=simpleuser, confirmed=True)
+        resp = self.client.post(
+            url_login, {"email": "simpleuser@netsach.com", "password": "plop"}
+        )
+        simple_token = resp.data['token']
+
+        #:  Create a manager to perform authenticated requests
+        manager = User.objects.create_user('manager@netsach.com')
+        manager.set_password('plop')
+        manager.set_level('manager')
+        manager.save()
+        UserConfirmation.objects.create(user=manager, confirmed=True)
+        resp = self.client.post(
+            url_login, {"email": "manager@netsach.com", "password": "plop"}
+        )
+        manager_token = resp.data['token']
+
+        #:  a simple user cannot set an email format
+        resp = self.client.post(
+            url_register,
+            {
+                "email": "johndoe1@netsach.com",
+                "url_format": "confirm/register/{token}/{email}",
+                "email_format": (
+                    "<h1>Hello</h1><br> <p>please click <a rel='notrack' "
+                    "href='{link}'>here</a> to complete your registration</p>"
+                ),
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(simple_token),
+        )
+        self.assertEqual(
+            resp.status_code, status.HTTP_400_BAD_REQUEST, msg=resp.content
+        )
+
+        #:  a user at least staff (manager for example) can set an email format
+        resp = self.client.post(
+            url_register,
+            {
+                "email": "johndoe2@netsach.com",
+                "url_format": "confirm/register/{token}/{email}",
+                "email_format": (
+                    "<h1>Hello</h1><br> <p>please click <a rel='notrack' "
+                    "href='{link}'>here</a> to complete your registration</p>"
+                ),
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(manager_token),
+        )
+        self.assertEqual(
+            resp.status_code, status.HTTP_201_CREATED, msg=resp.content
+        )
+
+    @override_settings(
+        ALLOW_SEND_EMAIL_ON_REGISTER=True,
+        AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO="https://netsach.com",
+    )
     def test_register_without_password_email_format(self):
         url_register = '/api/v1.1/auth/register/'
         self.assertEqual(User.objects.count(), 0)
