@@ -1987,7 +1987,6 @@ def make_api_viewset_generic_attributes_class(
         ordering_fields = tuple(meta_model.get_property('m_list_display', []))
         search_fields = tuple(meta_model.get_property('m_search_fields', []))
         filterset_fields = model_filterset_fields + ('uid',)
-        filterset_fields = model_filterset_fields
         distance_filter_field = meta_model.get_property(
             'm_distance_filter_field'
         )
