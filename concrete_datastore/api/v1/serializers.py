@@ -372,7 +372,9 @@ def make_serializer_class(
             attrs.update(
                 {
                     name: serializers.FileField(
-                        required=False, validators=[validate_file]
+                        required=False,
+                        allow_null=True,
+                        validators=[validate_file],
                     )
                 }
             )
@@ -380,7 +382,8 @@ def make_serializer_class(
             attrs.update(
                 {
                     name: PointField(
-                        required=not field.f_args.get("blank", False)
+                        required=not field.f_args.get("blank", False),
+                        allow_null=True,
                     )
                 }
             )

@@ -14,6 +14,18 @@
 
 - nothing removed
 
+## [1.28.0] - 2021-03-15
+
+### Changed
+
+- Allow NULL values for FileField and PointField serializer
+
+## [1.27.0] - 2021-02-24
+
+### Changed
+
+- Use OpenStreetMap for admin PointField
+
 ## [1.26.0] - 2021-02-19
 
 ## [1.25.0] - 2021-02-18

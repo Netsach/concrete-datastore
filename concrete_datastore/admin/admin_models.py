@@ -9,10 +9,10 @@ from concrete_datastore.admin.admin_form import (
     MyCreationUserForm,
 )
 from concrete_datastore.concrete.models import divider_field_name
-from django.contrib.gis.admin import GeoModelAdmin
+from django.contrib.gis.admin import OSMGeoAdmin
 
 
-class MetaUserAdmin(UserAdmin, GeoModelAdmin):
+class MetaUserAdmin(UserAdmin, OSMGeoAdmin):
     display_wkt = True
     models_fields = ()
     readonly_fields = ['uid', 'creation_date', 'modification_date']
@@ -69,7 +69,7 @@ class MetaUserAdmin(UserAdmin, GeoModelAdmin):
         super(MetaUserAdmin, self).save_model(request, obj, form, change)
 
 
-class MetaAdmin(GeoModelAdmin):
+class MetaAdmin(OSMGeoAdmin):
     display_wkt = True
     models_fields = ()
     date_fields = ('creation_date', 'modification_date')
