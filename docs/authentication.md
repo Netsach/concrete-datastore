@@ -1,5 +1,9 @@
 ## Authentication
 
+### Usage with HTTP Headers
+
+**Note** : HTTPS shall be used to ensure privacy
+
 It's a Token authentication system. When the user logs in, a token is generated and associated to the user. By sending a HTTP request with the token, the server knows which user made the request.
 
 **Headers:**
@@ -7,6 +11,14 @@ It's a Token authentication system. When the user logs in, a token is generated 
 ```json
 {"Authorization": "Token [Token]"}
 ```
+
+### Usage with token in URL
+
+**Note** : HTTPS shall be used to ensure privacy
+
+Use the query param `c_auth_with_token=<token value>` in any URL
+
+Ex. `/api/v1.1/project/?c_auth_with_token=xxxxx`
 
 ### Register
 
@@ -390,7 +402,7 @@ Used to reset your own password.
     "url_format": "[valid url_format]"
 }
 ```
-The url_format will be used to send the reset password email with a link to allow the user to reset his own password. It should be a string containing `"{email}"` and `"{token}"`. Example: `"/redirection-url/{email}/{token}"`.  
+The url_format will be used to send the reset password email with a link to allow the user to reset his own password. It should be a string containing `"{email}"` and `"{token}"`. Example: `"/redirection-url/{email}/{token}"`.
 
 Default value: `"/#/reset-password/{token}/{email}/"`.
 

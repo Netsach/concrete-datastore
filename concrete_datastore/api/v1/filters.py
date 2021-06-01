@@ -3,11 +3,14 @@ import uuid
 import functools
 
 from django.db.models import Q, CharField, TextField, ForeignKey, BooleanField
+from django.contrib.gis.db.models import PointField
+from django.contrib.gis.measure import D
 from django.db.models.fields.related import ManyToManyField
 from django.contrib.auth import get_user_model
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import BaseFilterBackend
 from concrete_datastore.api.v1.datetime import format_datetime, ensure_pendulum
+from django.contrib.gis.geos import Point
 
 # target_field type is date or datetime or int or float
 RANGEABLE_TYPES = (
@@ -53,6 +56,83 @@ class CustomShemaOperationParameters:
         if view.detail is False and extra_condition:
             return value
         return []
+
+
+class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
+    def remove_from_queryset(self, view):
+        #: Remove PointField field from filterset_fields because
+        #: they cannot be filtered with the other filter backends
+        filterset_fields = getattr(view, 'filterset_fields', ())
+        new_filterset_fields = tuple(
+            filter_field
+            for filter_field in filterset_fields
+            if (
+                view.model_class._meta.get_field(
+                    filter_field
+                ).get_internal_type()
+                != 'PointField'
+            )
+        )
+        setattr(view, 'filterset_fields', new_filterset_fields)
+
+    def get_schema_operation_parameters(self, view):
+        params = [
+            {
+                'name': f'{field_name}__distance',
+                'required': False,
+                'in': 'query',
+                'description': 'DISTANCE,LONGITUDE,LATITUDE',
+                'schema': {'type': 'string'},
+            }
+            for field_name in getattr(view, 'filterset_fields', ())
+            if view.model_class._meta.get_field(field_name).get_internal_type()
+            == 'PointField'
+        ]
+        self.remove_from_queryset(view=view)
+        return self.return_if_not_details(view=view, value=params)
+
+    def filter_queryset(self, request, queryset, view):
+        # Only applicable on PointField objects
+        #: The filter is __distance=XXX,LONGITUDE,LATITUDE
+        q_object = None
+        query_params = request.query_params
+        filterset_fields = getattr(view, 'filterset_fields', ())
+        for param in query_params:
+            if not param.endswith('__distance'):
+                continue
+            param_field = param.replace('__distance', '')
+            if param_field not in filterset_fields:
+                continue
+            if (
+                queryset.model._meta.get_field(param_field).get_internal_type()
+                != 'PointField'
+            ):
+                continue
+            #: The split should have three elements
+            values = query_params.get(param).split(',')
+            if len(values) != 3:
+                raise ValidationError(
+                    "Distance filter needs the following parameters: "
+                    "Distance, longitude and latitude."
+                )
+            distance = int(values[0])
+            longitude = float(values[1])
+            latitude = float(values[2])
+
+            point = Point(longitude, latitude)
+            custom_filter = {
+                '{}__distance_lte'.format(param_field): (point, D(m=distance))
+            }
+            if q_object is None:
+                q_object = Q(**custom_filter)
+            else:
+                q_object &= Q(**custom_filter)
+
+        self.remove_from_queryset(view=view)
+        if q_object is None:
+            return queryset
+
+        return queryset.filter(q_object)
 
 
 class FilterUserByLevel(BaseFilterBackend, CustomShemaOperationParameters):

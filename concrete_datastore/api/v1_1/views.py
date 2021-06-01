@@ -49,6 +49,7 @@ from concrete_datastore.api.v1_1.serializers import (
 from concrete_datastore.api.v1.authentication import (
     TokenExpiryAuthentication,
     expire_temporary_tokens,
+    URLTokenExpiryAuthentication,
 )
 from concrete_datastore.api.v1.views import (
     validate_request_permissions,
@@ -362,6 +363,7 @@ class EmailDeviceAuthView(PaginatedViewSet, viewsets.ModelViewSet):
         authentication.BasicAuthentication,
         authentication.SessionAuthentication,
         TokenExpiryAuthentication,
+        URLTokenExpiryAuthentication,
     )
     model_class = EmailDevice
     permission_classes = (IsAuthenticated,)
@@ -589,6 +591,7 @@ class UnBlockUsersApiViewset(generics.GenericAPIView):
     authentication_classes = (
         authentication.SessionAuthentication,
         TokenExpiryAuthentication,
+        URLTokenExpiryAuthentication,
     )
     permission_classes = (BlockedUsersPermission,)
     model_class = UserModel

@@ -12,7 +12,7 @@ When you try out the `concrete-datastore` yourself, you might stumble across one
 - [Running the migration scripts throws an error: role does not exists](#running-the-migration-scripts-throws-an-error-role-does-not-exists)
 - [Troubleshooting Docker](#troubleshooting-docker)
 - [How do I quit my virtualenv session?](#how-do-i-quit-my-virtualenv-session)
-
+- [Is GDAL installed ?](#is-gdal-installed-)
 <!-- /MarkdownTOC -->
 
 
@@ -91,3 +91,18 @@ If you are done working with the virtual environment, just deactivate it by runn
 ``` shell
 deactivate
 ```
+
+## Is GDAL installed ?
+### For MacOS
+If your terminal prints an error like : ```Could not find the GDAL library ... is GDAL installed``` try to run ```brew install gdal``` in your shell. (N.B : this command requires to have Xcode installed on your Mac)
+If this doesn't fix your issue, try :
+```shell
+brew install PostgreSQL
+brew install postgis
+```
+
+### For Linux
+If your terminal prints an error like : ```Could not find the GDAL library ... is GDAL installed``` try to run in your terminal :
+```shell
+sudo apt-get install gdal-bin
+``` 

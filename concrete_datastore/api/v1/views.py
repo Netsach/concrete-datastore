@@ -19,12 +19,16 @@ from django.core.exceptions import (
     ObjectDoesNotExist,
     SuspiciousOperation,
 )
+from django.contrib.gis.db.models import (
+    PointField,
+)  # it includes all default fields
+
 from django.contrib.auth import authenticate, get_user_model
 from django.http.request import QueryDict
 from django.utils import timezone
 from django.apps import apps
 from django.conf import settings
-
+from rest_framework_gis.filters import DistanceToPointFilter
 from rest_framework.decorators import action
 from rest_framework.utils.urls import remove_query_param, replace_query_param
 from rest_framework.response import Response
@@ -78,10 +82,13 @@ from concrete_datastore.api.v1.filters import (
     FilterForeignKeyIsNullBackend,
     FilterSupportingForeignKey,
     FilterSupportingManyToMany,
+    FilterDistanceBackend,
 )
+
 from concrete_datastore.api.v1.authentication import (
     TokenExpiryAuthentication,
     expire_secure_token,
+    URLTokenExpiryAuthentication,
 )
 from concrete_datastore.concrete.automation.signals import user_logged_in
 from concrete_datastore.concrete.meta import list_of_meta
@@ -888,26 +895,26 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             send_register_email = True
             password = f"{uuid.uuid4()}-{uuid.uuid4()}-{uuid.uuid4()}"
             email_format = serializer.validated_data.get("email_format", None)
-            if (
-                isinstance(self.get_request_user(), AnonymousUser)
-                and email_format is not None
-            ):
+            request_user = self.get_request_user()
+            user_not_allowed_to_email_format = (
+                isinstance(request_user, AnonymousUser) is True
+                or request_user.is_at_least_staff is False
+            )
+            if email_format is not None and user_not_allowed_to_email_format:
                 return Response(
                     data={
                         'message': (
-                            'Only registered users are allowed to set an email_format'
+                            'Only registered users with a level of staff or '
+                            'higher levels are allowed to set an email_format'
                         ),
                         '_errors': ['INVALID_PARAMETER'],
                     },
                     status=HTTP_400_BAD_REQUEST,
                 )
-            #:  Before creating the user, we check if url_format and
-            #:  email_format have the right format by setting empty args
-            try:
-                serializer.validated_data["url_format"].format(  # nosec
-                    token="", email=""
-                )
-            except (KeyError, IndexError):
+            #:  Before creating the user, we check that url_format and
+            #:  email_format have the right format
+            url_format = serializer.validated_data["url_format"]
+            if '{token}' not in url_format or '{email}' not in url_format:
                 return Response(
                     data={
                         'errors': 'url_format is not a valid format_string',
@@ -916,17 +923,14 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
                     status=HTTP_400_BAD_REQUEST,
                 )
 
-            if email_format is not None:
-                try:
-                    email_format.format(link="")
-                except (KeyError, IndexError):
-                    return Response(
-                        data={
-                            'errors': 'url_format is not a valid format_string',
-                            '_errors': ['INVALID_PARAMETER'],
-                        },
-                        status=HTTP_400_BAD_REQUEST,
-                    )
+            if email_format is not None and '{link}' not in email_format:
+                return Response(
+                    data={
+                        'errors': 'email_format is not a valid format_string',
+                        '_errors': ['INVALID_PARAMETER'],
+                    },
+                    status=HTTP_400_BAD_REQUEST,
+                )
 
         else:
             send_register_email = False
@@ -989,9 +993,10 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             )
             url_format = serializer.validated_data["url_format"]
 
-            uri = url_format.format(
-                token=set_password_token.uid, email=user.email
-            )
+            #:  To avoid template injections, we use replace instead of format
+            uri = url_format.replace(
+                '{token}', str(set_password_token.uid)
+            ).replace('{email}', user.email)
 
             referer = request.META.get(
                 'HTTP_REFERER', settings.AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO
@@ -1004,7 +1009,7 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
 
             link = urljoin(referer, uri)
 
-            email_body = email_format.format(link=link)
+            email_body = email_format.replace('{link}', link)
 
             if settings.AUTH_CONFIRM_EMAIL_ENABLE is True:
                 confirmation = user.get_or_create_confirmation(
@@ -1115,9 +1120,7 @@ class ResetPasswordApiView(SecurityRulesMixin, generics.GenericAPIView):
         reset_token = PasswordChangeToken.objects.create(user=user)
 
         url_format = serializer.validated_data["url_format"]
-        try:
-            uri = url_format.format(token=reset_token.uid, email=user.email)
-        except (KeyError, IndexError):
+        if '{token}' not in url_format or '{email}' not in url_format:
             return Response(
                 data={
                     'message': 'url_format is not a valid format_string',
@@ -1125,6 +1128,9 @@ class ResetPasswordApiView(SecurityRulesMixin, generics.GenericAPIView):
                 },
                 status=HTTP_400_BAD_REQUEST,
             )
+        uri = url_format.replace('{token}', str(reset_token.uid)).replace(
+            '{email}', user.email
+        )
 
         referer = request.META.get(
             'HTTP_REFERER', settings.AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO
@@ -1158,6 +1164,7 @@ class AccountMeApiView(
     authentication_classes = (
         authentication.SessionAuthentication,
         TokenExpiryAuthentication,
+        URLTokenExpiryAuthentication,
     )
     permission_classes = (UserAccessPermission,)
     api_namespace = DEFAULT_API_NAMESPACE
@@ -1214,6 +1221,7 @@ class AccountMeApiView(
 class PaginatedViewSet(object):
     pagination_class = ExtendedPagination
     filter_backends = (
+        FilterDistanceBackend,
         SearchFilter,
         OrderingFilter,
         FilterSupportingOrBackend,
@@ -1512,6 +1520,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         authentication.BasicAuthentication,
         authentication.SessionAuthentication,
         TokenExpiryAuthentication,
+        URLTokenExpiryAuthentication,
     )
 
     def dispatch(self, request, *args, **kwargs):
@@ -1978,6 +1987,10 @@ def make_api_viewset_generic_attributes_class(
         ordering_fields = tuple(meta_model.get_property('m_list_display', []))
         search_fields = tuple(meta_model.get_property('m_search_fields', []))
         filterset_fields = model_filterset_fields + ('uid',)
+        distance_filter_field = meta_model.get_property(
+            'm_distance_filter_field'
+        )
+
         export_fields = tuple(meta_model.get_property('m_export_fields', []))
         fields = [f for f, _ in meta_model.get_fields()] + ['uid']
         serializer_class = make_serializer_class_fct(

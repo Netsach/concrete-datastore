@@ -23,7 +23,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.urls import reverse
 from django.apps import apps
-from django.db import models
+from django.contrib.gis.db import models  # it includes all default fields
 
 from rest_framework.authtoken.models import Token
 
@@ -697,6 +697,15 @@ def get_divider_notification_fields(model):
     }
 
 
+def get_minimum_level(meta_model, prop_name, default_value):
+    level = meta_model.get_property(
+        prop_name=prop_name, default_value=default_value
+    )
+    if level not in CRUD_LEVEL:
+        return default_value
+    return level
+
+
 def make_django_model(meta_model, divider):
     class Meta:
         verbose_name = _(meta_model.get_verbose_name())
@@ -716,22 +725,28 @@ def make_django_model(meta_model, divider):
     ):
         raise ValueError('Unknown modelisation format')
 
-    creation_level = meta_model.get_property(
-        prop_name='m_creation_minimum_level', default_value='authenticated'
+    creation_level = get_minimum_level(
+        meta_model=meta_model,
+        prop_name='m_creation_minimum_level',
+        default_value='authenticated',
     )
 
-    retrieve_level = meta_model.get_property(
-        prop_name='m_retrieve_minimum_level', default_value='authenticated'
-    )
-    if retrieve_level not in CRUD_LEVEL:
-        retrieve_level = "authenticated"
-
-    update_level = meta_model.get_property(
-        prop_name='m_update_minimum_level', default_value='authenticated'
+    retrieve_level = get_minimum_level(
+        meta_model=meta_model,
+        prop_name='m_retrieve_minimum_level',
+        default_value='authenticated',
     )
 
-    delete_level = meta_model.get_property(
-        prop_name='m_delete_minimum_level', default_value='superuser'
+    update_level = get_minimum_level(
+        meta_model=meta_model,
+        prop_name='m_update_minimum_level',
+        default_value='authenticated',
+    )
+
+    delete_level = get_minimum_level(
+        meta_model=meta_model,
+        prop_name='m_delete_minimum_level',
+        default_value='superuser',
     )
 
     attrs = {
@@ -835,6 +850,15 @@ def make_django_model(meta_model, divider):
 
             args.update({'on_delete': getattr(models, on_delete_rule)})
 
+        elif field.f_type in ('GenericIPAddressField',):
+            #: If blank is True, null should be too
+            #: https://docs.djangoproject.com/fr/3.1/ref/models/fields/#genericipaddressfield
+            if args.get('blank', False) is True:
+                args['null'] = True
+            else:
+                args.setdefault('blank', False)
+                args['null'] = False
+
         elif field.f_type in ('DateTimeField',):
             if args.get('null', False) is True:
                 args['null'] = True
@@ -855,7 +879,6 @@ def make_django_model(meta_model, divider):
             # Copy args to not alter the real field.f_args
             args = args.copy()
             args.pop('null', None)
-
         attrs.update({field_name: getattr(models, field.f_type)(**args)})
     if meta_model.get_model_name() != divider:
         if meta_model.get_model_name() == "User":

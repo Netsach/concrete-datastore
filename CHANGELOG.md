@@ -14,6 +14,64 @@
 
 - nothing removed
 
+## [1.28.0] - 2021-03-15
+
+### Changed
+
+- Allow NULL values for FileField and PointField serializer
+
+## [1.27.0] - 2021-02-24
+
+### Changed
+
+- Use OpenStreetMap for admin PointField
+
+## [1.26.0] - 2021-02-19
+
+## [1.25.0] - 2021-02-18
+
+### Added
+
+- Add utf8 encoding while loading datamodel
+- GeoDjango PointField to compute distances
+
+## [1.24.0] - 2021-02-15
+
+### Added
+
+- New field type `ip`
+
+## [1.23.0] - 2021-01-14
+
+### Added
+
+- Add checks on the url_format for reset password view to avoid template injections
+
+## [1.22.0] - 2021-01-13
+
+### Added
+
+- Add checks on the levels of users that are allowed to set an email_format when reset password
+- Add checks on the url_format to avoid template injections
+
+## [1.21.0] - 2021-01-13
+
+### Added
+
+- Enable admin url view with settings
+
+### Changed
+
+- Change staff to manager in CRUD_LEVELS
+
+## [1.20.0] - 2020-12-07
+
+## [1.19.0] - 2020-12-07
+
+### Added
+
+- Added the capability to authenticate using `c_auth_with_token` query parameter in urls when using HTTP headers is not possible (webhooks).
+
 ## [1.18.0] - 2020-11-30
 
 ## [1.17.0] - 2020-11-30

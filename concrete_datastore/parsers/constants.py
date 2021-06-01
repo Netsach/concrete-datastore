@@ -1,6 +1,8 @@
 # coding: utf-8
 from __future__ import unicode_literals, absolute_import, print_function
 
+AUTHORIZED_IP_PROTOCOLS = ("ipv4", "ipv6", "ipv4_6")
+PROTOCOL_EQUIVALENCE = {"ipv4": "IPv4", "ipv6": "IPv6", "ipv4_6": "both"}
 
 STD_MODEL_SPECIFIER_KEYS = (
     "std.specifier",
@@ -92,6 +94,8 @@ TYPE_EQ_V1 = {
     'email': 'EmailField',
     'fk': 'ForeignKey',
     'm2m': 'ManyToManyField',
+    'ip': 'GenericIPAddressField',
+    'point': 'PointField',
 }
 
 
