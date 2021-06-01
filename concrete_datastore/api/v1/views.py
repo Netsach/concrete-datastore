@@ -1392,7 +1392,6 @@ class PaginatedViewSet(object):
         excluded_instances = all_instances.exclude(
             pk__in=list(queryset.values_list('pk', flat=True))
         )
-
         extra_informations = self.get_extra_informations(queryset=queryset)
 
         if incremental_loading:
@@ -1985,7 +1984,11 @@ def make_api_viewset_generic_attributes_class(
 
         model_class = main_app.models[meta_model.get_model_name().lower()]
         list_display = meta_model.get_property('m_list_display') or []
-        ordering_fields = tuple(meta_model.get_property('m_list_display', []))
+        # Ordering fields default value is display_fields to stay
+        # retrocompatible
+        ordering_fields = tuple(
+            meta_model.get_property('m_ordering_fields', list_display)
+        )
         search_fields = tuple(meta_model.get_property('m_search_fields', []))
         filterset_fields = model_filterset_fields
         distance_filter_field = meta_model.get_property(

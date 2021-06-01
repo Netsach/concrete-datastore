@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Add ordering fields to metadata to allow ordering against fk field
 
 ### Changed
 
