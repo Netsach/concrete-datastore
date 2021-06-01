@@ -29,7 +29,8 @@ As opposed to a classic database server such as PostgreSQL or MySQL where querie
 ```shell
 git clone https://github.com/Netsach/concrete-datastore.git
 cd concrete-datastore
-docker run --name postgres-concrete-datastore -d -p 5432:5432 postgres
+docker run --name postgres-concrete-datastore -e POSTGRES_DB=db-concrete-datastore -e POSTGRES_USER=user-concrete-datastore -e POSTGRES_PASSWORD=pwd-concrete-datastore -d -p XXXX:5432 postgis/postgis:12-master
+export POSTGRES_PORT=XXXX
 export DATAMODEL_FILE=./docs/assets/sample-datamodel.yml
 python3 -m venv env
 source env/bin/activate
@@ -62,6 +63,10 @@ In order to describe the database schema, the developer has to write a `datamode
 Each API requests is controlled by this `datamodel` file as it acts as a specification of what is in the database and what should be allowed per user.
 
 You can create manually the `datamodel` file following the examples and the documentation or use the online editor [microservices.rest](https://www.microservices.rest/)
+
+## F.A.Q
+
+If you have questions, they may have already been answered in the [FAQS.md](FAQS.md)
 
 ## Official documentation
 
