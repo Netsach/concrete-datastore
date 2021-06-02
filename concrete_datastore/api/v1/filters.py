@@ -29,9 +29,9 @@ RANGEABLE_TYPES = (
 )
 
 
-def ensure_uuid_valid(value):
+def ensure_uuid_valid(value, version=None):
     try:
-        uuid.UUID(value)
+        uuid.UUID(value, version=version)
     except ValueError:
         return False
     else:
@@ -551,10 +551,8 @@ class FilterSupportingForeignKey(
             value = query_params.get(param)
             custom_filter = {cleaned_param: value}
             #:  "value" must be a valid UUID4, otherwise raise ValidationError
-            try:
-                #:  raises ValueError if not UUID4
-                uuid.UUID(value, version=4)
-            except ValueError:
+            #:  raises ValueError if not UUID4
+            if not ensure_uuid_valid(value, version=4):
                 raise ValidationError(
                     {"message": f'{param}: « {value} » is not a valid UUID'}
                 )
@@ -651,10 +649,8 @@ class FilterSupportingManyToMany(
 
             #:  "value" must be a valid UUID4, otherwise raise ValidationError
             for value in values:
-                try:
+                if not ensure_uuid_valid(value, version=4):
                     #:  raises ValueError if not UUID4
-                    uuid.UUID(value, version=4)
-                except ValueError:
                     raise ValidationError(
                         {
                             "message": f'{param}: « {value} » is not a valid UUID'
