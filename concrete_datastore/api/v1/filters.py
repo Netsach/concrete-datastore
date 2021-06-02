@@ -52,7 +52,7 @@ def get_filter_field_type(model_class, param):
 
     # If we have field__fkfield__fkfieldfkfield or more, raise an error
     # We can at most have field__fkfield as filter
-    elif len(splitted_param) > 2:
+    else:
         raise ValidationError(
             {
                 "message": (
