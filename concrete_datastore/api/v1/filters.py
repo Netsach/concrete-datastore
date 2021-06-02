@@ -2,10 +2,8 @@
 import uuid
 import functools
 
-from django.db.models import Q, CharField, TextField, ForeignKey, BooleanField
-from django.contrib.gis.db.models import PointField
+from django.db.models import Q
 from django.contrib.gis.measure import D
-from django.db.models.fields.related import ManyToManyField
 from django.contrib.auth import get_user_model
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import BaseFilterBackend
@@ -20,6 +18,48 @@ RANGEABLE_TYPES = (
     'IntegerField',
     'FloatField',
 )
+
+
+def get_filter_field_type(model_class, param):
+    """
+    Return the type of the target field that we want to filter
+    """
+    splitted_param = param.split('__')
+
+    if len(splitted_param) == 1:
+        return model_class._meta.get_field(
+            splitted_param[0]
+        ).get_internal_type()
+    elif len(splitted_param) == 2:
+        first_param, second_param = splitted_param
+        if (
+            model_class._meta.get_field(first_param).get_internal_type()
+            != 'ForeignKey'
+        ):
+            raise ValidationError(
+                {
+                    "message": (
+                        f"{param}: Multi level filters"
+                        " available only for foreign keys"
+                    )
+                }
+            )
+        return (
+            model_class._meta.get_field(first_param)
+            .remote_field.model._meta.get_field(second_param)
+            .get_internal_type()
+        )
+
+    # If we have field__fkfield__fkfieldfkfield or more, raise an error
+    # We can at most have field__fkfield as filter
+    elif len(splitted_param) > 2:
+        raise ValidationError(
+            {
+                "message": (
+                    f"{param}: filter not available for more than 2 levels"
+                )
+            }
+        )
 
 
 def convert_type(string, field_type, close_period=True):
@@ -67,9 +107,7 @@ class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
             filter_field
             for filter_field in filterset_fields
             if (
-                view.model_class._meta.get_field(
-                    filter_field
-                ).get_internal_type()
+                get_filter_field_type(view.model_class, filter_field)
                 != 'PointField'
             )
         )
@@ -85,10 +123,11 @@ class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
                 'schema': {'type': 'string'},
             }
             for field_name in getattr(view, 'filterset_fields', ())
-            if view.model_class._meta.get_field(field_name).get_internal_type()
+            if get_filter_field_type(view.model_class, field_name)
             == 'PointField'
         ]
         self.remove_from_queryset(view=view)
+
         return self.return_if_not_details(view=view, value=params)
 
     def filter_queryset(self, request, queryset, view):
@@ -104,7 +143,7 @@ class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
             if param_field not in filterset_fields:
                 continue
             if (
-                queryset.model._meta.get_field(param_field).get_internal_type()
+                get_filter_field_type(queryset.model, param_field)
                 != 'PointField'
             ):
                 continue
@@ -179,6 +218,7 @@ class FilterSupportingOrBackend(
     BaseFilterBackend, CustomShemaOperationParameters
 ):
     def get_schema_operation_parameters(self, view):
+
         params = [
             {
                 'name': f'{field_name}__in',
@@ -188,8 +228,8 @@ class FilterSupportingOrBackend(
                 'schema': {'type': 'string'},
             }
             for field_name in getattr(view, 'filterset_fields', ())
-            if type(view.model_class._meta.get_field(field_name))
-            != ManyToManyField
+            if get_filter_field_type(view.model_class, field_name)
+            != 'ManyToManyField'
         ]
         return self.return_if_not_details(view=view, value=params)
 
@@ -203,12 +243,11 @@ class FilterSupportingOrBackend(
                 continue
             if param.replace('__in', '') not in filterset_fields:
                 continue
-
             values = query_params.get(param).split(',')
-            if isinstance(
-                queryset.model._meta.get_field(param.replace('__in', '')),
-                BooleanField,
-            ):
+            filter_field_type = get_filter_field_type(
+                queryset.model, param.replace('__in', '')
+            )
+            if filter_field_type == 'BooleanField':
                 if set(values).difference(['True', 'False', 'None']):
                     raise ValidationError(
                         {
@@ -241,10 +280,8 @@ class FilterSupportingContainsBackend(
                 'schema': {'type': 'string'},
             }
             for field_name in getattr(view, 'filterset_fields', ())
-            if isinstance(
-                view.model_class._meta.get_field(field_name),
-                (CharField, TextField),
-            )
+            if get_filter_field_type(view.model_class, field_name)
+            in ('CharField', 'TextField')
         ]
         return self.return_if_not_details(view=view, value=params)
 
@@ -259,9 +296,9 @@ class FilterSupportingContainsBackend(
             param_field = param.replace('__contains', '')
             if param_field not in filterset_fields:
                 continue
-            if not isinstance(
-                queryset.model._meta.get_field(param_field),
-                (CharField, TextField),
+            if not get_filter_field_type(queryset.model, param_field) in (
+                'CharField',
+                'TextField',
             ):
                 continue
 
@@ -289,10 +326,8 @@ class FilterSupportingEmptyBackend(
                 'schema': {'type': 'boolean'},
             }
             for field_name in getattr(view, 'filterset_fields', ())
-            if isinstance(
-                view.model_class._meta.get_field(field_name),
-                (CharField, TextField),
-            )
+            if get_filter_field_type(view.model_class, field_name)
+            in ('CharField', 'TextField')
         ]
         return self.return_if_not_details(view=view, value=params)
 
@@ -309,8 +344,9 @@ class FilterSupportingEmptyBackend(
             param = param.replace('__isempty', '')
             if param not in filterset_fields:
                 continue
-            if isinstance(
-                queryset.model._meta.get_field(param), (CharField, TextField)
+            if get_filter_field_type(queryset.model, param) in (
+                'CharField',
+                'TextField',
             ):
                 custom_filter = {'{}__exact'.format(param): ''}
             else:
@@ -340,7 +376,7 @@ class FilterSupportingRangeBackend(
             }
             for field_name in getattr(view, 'filterset_fields', ())
             + ('creation_date', 'modification_date')
-            if view.model_class._meta.get_field(field_name).get_internal_type()
+            if get_filter_field_type(view.model_class, field_name)
             in RANGEABLE_TYPES
         ]
         return self.return_if_not_details(view=view, value=params)
@@ -360,9 +396,9 @@ class FilterSupportingRangeBackend(
             if target_field not in filterset_fields:
                 continue
 
-            target_field_type = queryset.model._meta.get_field(
-                target_field
-            ).get_internal_type()
+            target_field_type = get_filter_field_type(
+                queryset.model, target_field
+            )
             if target_field_type not in RANGEABLE_TYPES:
                 continue
 
@@ -434,9 +470,7 @@ class FilterSupportingComparaisonBackend(
                     }
                     for field_name in getattr(view, 'filterset_fields', ())
                     + ('creation_date', 'modification_date')
-                    if view.model_class._meta.get_field(
-                        field_name
-                    ).get_internal_type()
+                    if get_filter_field_type(view.model_class, field_name)
                     in RANGEABLE_TYPES
                 ]
             )
@@ -468,9 +502,9 @@ class FilterSupportingComparaisonBackend(
             if target_field not in filterset_fields:
                 return None
 
-            target_field_type = queryset.model._meta.get_field(
-                target_field
-            ).get_internal_type()
+            target_field_type = get_filter_field_type(
+                queryset.model, target_field
+            )
             if target_field_type not in RANGEABLE_TYPES:
                 return None
             value = convert_type(query_params.get(param), target_field_type)
@@ -503,7 +537,8 @@ class FilterSupportingForeignKey(
                 'schema': {'type': 'string'},
             }
             for field_name in getattr(view, 'filterset_fields', ())
-            if type(view.model_class._meta.get_field(field_name)) == ForeignKey
+            if get_filter_field_type(view.model_class, field_name)
+            == 'ForeignKey'
         ]
         return self.return_if_not_details(view=view, value=params)
 
@@ -517,8 +552,10 @@ class FilterSupportingForeignKey(
             cleaned_param = param.replace('_uid', '')
             if cleaned_param not in filterset_fields:
                 continue
-            cleaned_param_type = queryset.model._meta.get_field(cleaned_param)
-            if not type(cleaned_param_type) == ForeignKey:
+            cleaned_param_type = get_filter_field_type(
+                queryset.model, cleaned_param
+            )
+            if not cleaned_param_type == 'ForeignKey':
                 continue
             value = query_params.get(param)
             custom_filter = {cleaned_param: value}
@@ -553,8 +590,8 @@ class FilterForeignKeyIsNullBackend(
                 'schema': {'type': 'boolean'},
             }
             for field_name in getattr(view, 'filterset_fields', ())
-            if type(view.model_class._meta.get_field(field_name))
-            in (ForeignKey, ManyToManyField)
+            if get_filter_field_type(view.model_class, field_name)
+            in ('ForeignKey', 'ManyToManyField')
         ]
         return self.return_if_not_details(view=view, value=params)
 
@@ -572,8 +609,10 @@ class FilterForeignKeyIsNullBackend(
             if field_name not in filterset_fields:
                 continue
             param_value = True if query_params.get(param) == 'true' else False
-            cleaned_param_type = queryset.model._meta.get_field(field_name)
-            if type(cleaned_param_type) in (ForeignKey, ManyToManyField):
+            cleaned_param_type = get_filter_field_type(
+                queryset.model, field_name
+            )
+            if cleaned_param_type in ('ForeignKey', 'ManyToManyField'):
                 custom_filter = {param: param_value}
             else:
                 continue
@@ -601,8 +640,8 @@ class FilterSupportingManyToMany(
                 'schema': {'type': 'string'},
             }
             for field_name in getattr(view, 'filterset_fields', ())
-            if type(view.model_class._meta.get_field(field_name))
-            == ManyToManyField
+            if get_filter_field_type(view.model_class, field_name)
+            == 'ManyToManyField'
         ]
         return self.return_if_not_details(view=view, value=params)
 
@@ -616,8 +655,10 @@ class FilterSupportingManyToMany(
             field_name = param.replace('__in', '')
             if field_name not in filterset_fields:
                 continue
-            cleaned_param_type = queryset.model._meta.get_field(field_name)
-            if not type(cleaned_param_type) == ManyToManyField:
+            cleaned_param_type = get_filter_field_type(
+                queryset.model, field_name
+            )
+            if not cleaned_param_type == 'ManyToManyField':
                 continue
             values = set(query_params.get(param).split(','))
 
