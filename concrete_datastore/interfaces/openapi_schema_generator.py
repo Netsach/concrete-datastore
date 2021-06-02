@@ -393,9 +393,9 @@ class AutoSchema(AutoSchemaSuper):
             parameters = deepcopy(DEFAULT_LIST_VIEW_PARAMETERS)
         if hasattr(self.view, 'model_class'):
             for field in getattr(self.view, 'filterset_fields', []):
-                field_type = self.view.model_class._meta.get_field(
-                    field
-                ).get_internal_type()
+                field_type = concrete_datastore.api.v1.filters.get_filter_field_type(
+                    self.view.model_class, field
+                )
                 if field_type in ('ForeignKey', 'ManyToManyField'):
                     continue
                 swagger_filed_type = FILED_TYPES_MAP.get(field_type, 'string')
@@ -454,6 +454,7 @@ class AutoSchema(AutoSchemaSuper):
             if model is not None:
                 # Attempt to infer a field description if possible.
                 try:
+
                     model_field = model._meta.get_field(variable)
                 except Exception:
                     model_field = None
