@@ -642,7 +642,7 @@ META_MODEL_DEFINITIONS = (
         "ext.m_unicode": 'name',
         "ext.m_list_display": ['name'],
         "ext.m_search_fields": ['name', 'score'],
-        "ext.m_filter_fields": ['name', 'score', 'category'],
+        "ext.m_filter_fields": ['name', 'score', 'category', 'category__name'],
         "std.fields": [
             {
                 "std.name": "name",
