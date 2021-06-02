@@ -11,7 +11,9 @@ from concrete_datastore.concrete.models import (
 from django.test import override_settings
 
 
-@override_settings(API_MAX_PAGINATION_SIZE_NESTED=10)
+@override_settings(API_MAX_PAGINATION_SIZE_NESTED=20)
+@override_settings(API_MAX_PAGINATION_SIZE=20)
+@override_settings(DEFAULT_PAGE_SIZE=20)
 class TestFiltersOrderingFK(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user('test@netsach.org')
@@ -30,7 +32,8 @@ class TestFiltersOrderingFK(APITestCase):
 
         category_1 = Category.objects.create(name="cat1")
         category_2 = Category.objects.create(name="cat2")
-        category_3 = Category.objects.create(name="cat3")
+        category_3 = Category.objects.create(name="forcontains3")
+        category_4 = Category.objects.create(name="")
 
         skill_1_1 = Skill.objects.create(
             name="skill_a", category=category_1, score=10
@@ -61,9 +64,12 @@ class TestFiltersOrderingFK(APITestCase):
         skill_3_2 = Skill.objects.create(
             name="skill_j", category=category_3, score=90
         )
+        skill_4_1 = Skill.objects.create(
+            name="skill_k", category=category_4, score=90
+        )
 
-        self.assertEqual(Category.objects.count(), 3)
-        self.assertEqual(Skill.objects.count(), 9)
+        self.assertEqual(Category.objects.count(), 4)
+        self.assertEqual(Skill.objects.count(), 10)
 
     def test_filter_on_same_key(self):
         get_url = '/api/v1.1/skill/?name__in=skill_a,skill_b'
@@ -109,3 +115,37 @@ class TestFiltersOrderingFK(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertIn('results', resp.data)
         self.assertEqual(len(resp.data['results']), 7, msg=resp.content)
+
+    def test_filter_on_fk_isempty(self):
+
+        get_url = '/api/v1.1/skill/?category__name__isempty=true'
+
+        resp = self.client.get(
+            get_url, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('results', resp.data)
+        self.assertEqual(len(resp.data['results']), 1, msg=resp.content)
+
+    def test_filter_on_fk_contains(self):
+
+        get_url = '/api/v1.1/skill/?category__name__contains=cat'
+
+        resp = self.client.get(
+            get_url, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('results', resp.data)
+        self.assertEqual(len(resp.data['results']), 7, msg=resp.content)
+
+        get_url = '/api/v1.1/skill/?category__name__contains=for'
+
+        resp = self.client.get(
+            get_url, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('results', resp.data)
+        self.assertEqual(len(resp.data['results']), 2, msg=resp.content)
