@@ -1623,6 +1623,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
                 )
             else:
                 return True, None
+
         for query_param in request.GET:
             param_values_list = request.GET[query_param].split(',')
             param = query_param.split('__')[0].replace('_uid', '')
