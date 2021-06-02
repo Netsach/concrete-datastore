@@ -393,8 +393,10 @@ class AutoSchema(AutoSchemaSuper):
             parameters = deepcopy(DEFAULT_LIST_VIEW_PARAMETERS)
         if hasattr(self.view, 'model_class'):
             for field in getattr(self.view, 'filterset_fields', []):
-                field_type = concrete_datastore.api.v1.filters.get_filter_field_type(
-                    self.view.model_class, field
+                field_type = (
+                    concrete_datastore.api.v1.filters.get_filter_field_type(
+                        self.view.model_class, field
+                    )
                 )
                 if field_type in ('ForeignKey', 'ManyToManyField'):
                     continue
