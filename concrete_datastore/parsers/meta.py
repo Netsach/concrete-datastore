@@ -142,9 +142,14 @@ def make_modelisation_cls(modelisation_spec, version, base=Model):
     def get_resource_queries(resource_dict, version):
         if version != '1.0.0':
             raise UnknownDatamodelVersionError()
+            # Ordering fields default value is display_fields to stay
+            # retrocompatible
         return {
             'm_search_fields': resource_dict['search_fields'],
             'm_filter_fields': resource_dict['filter_fields'],
+            'm_ordering_fields': resource_dict.get(
+                'ordering_fields', resource_dict['display_fields']
+            ),
             'm_distance_filter_field': resource_dict.get(
                 'distance_filter_field', ''
             ),

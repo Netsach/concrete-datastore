@@ -640,6 +640,10 @@ META_MODEL_DEFINITIONS = (
         "ext.m_update_minimum_level": "authenticated",
         "ext.m_delete_minimum_level": "authenticated",
         "ext.m_unicode": 'name',
+        "ext.m_ordering_fields": [
+            'name',
+            'category__name',
+        ],
         "ext.m_list_display": ['name'],
         "ext.m_search_fields": ['name', 'score'],
         "ext.m_filter_fields": ['name', 'score', 'category'],
