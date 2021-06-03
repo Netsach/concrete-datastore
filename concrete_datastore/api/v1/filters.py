@@ -56,7 +56,7 @@ def get_filter_field_type(model_class, param):
         raise ValidationError(
             {
                 "message": (
-                    f"{param}: filter not available for more than 2 levels"
+                    f"{param}: filter not available for more than 1 level"
                 )
             }
         )
