@@ -5,6 +5,7 @@
 ### Added
 
 - Add ordering fields to metadata to allow ordering against fk field 
+- Objects can be filtered with the uid
 
 ### Changed
 
