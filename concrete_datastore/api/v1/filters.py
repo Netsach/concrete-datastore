@@ -20,9 +20,9 @@ RANGEABLE_TYPES = (
 )
 
 
-def get_filter_field_type(model_class, param):
+def get_filter_field_type(model_class, param) -> str:
     """
-    Return the type of the target field that we want to filter
+    Return the type (as String) of the target field that we want to filter
     """
     splitted_param = param.split('__')
 
