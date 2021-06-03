@@ -62,6 +62,15 @@ def get_filter_field_type(model_class, param):
         )
 
 
+def ensure_uuid_valid(value, version=None):
+    try:
+        uuid.UUID(value, version=version)
+    except ValueError:
+        return False
+    else:
+        return True
+
+
 def convert_type(string, field_type, close_period=True):
     if string == '':
         raise ValidationError(
@@ -244,9 +253,21 @@ class FilterSupportingOrBackend(
             if param.replace('__in', '') not in filterset_fields:
                 continue
             values = query_params.get(param).split(',')
+
             filter_field_type = get_filter_field_type(
                 queryset.model, param.replace('__in', '')
             )
+            if filter_field_type in ('UUIDField', 'ForeignKey'):
+                for value in values:
+                    if not ensure_uuid_valid(value):
+                        raise ValidationError(
+                            {
+                                "message": (
+                                    f"{param}: '{value}' is not a valid UUID"
+                                )
+                            }
+                        )
+
             if filter_field_type == 'BooleanField':
                 if set(values).difference(['True', 'False', 'None']):
                     raise ValidationError(
@@ -560,10 +581,8 @@ class FilterSupportingForeignKey(
             value = query_params.get(param)
             custom_filter = {cleaned_param: value}
             #:  "value" must be a valid UUID4, otherwise raise ValidationError
-            try:
-                #:  raises ValueError if not UUID4
-                uuid.UUID(value, version=4)
-            except ValueError:
+            #:  raises ValueError if not UUID4
+            if not ensure_uuid_valid(value, version=4):
                 raise ValidationError(
                     {"message": f'{param}: « {value} » is not a valid UUID'}
                 )
@@ -664,10 +683,8 @@ class FilterSupportingManyToMany(
 
             #:  "value" must be a valid UUID4, otherwise raise ValidationError
             for value in values:
-                try:
+                if not ensure_uuid_valid(value, version=4):
                     #:  raises ValueError if not UUID4
-                    uuid.UUID(value, version=4)
-                except ValueError:
                     raise ValidationError(
                         {
                             "message": f'{param}: « {value} » is not a valid UUID'
