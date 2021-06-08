@@ -2,7 +2,14 @@
 import uuid
 import functools
 
-from django.db.models import Q, CharField, TextField, ForeignKey, BooleanField
+from django.db.models import (
+    Q,
+    CharField,
+    TextField,
+    ForeignKey,
+    BooleanField,
+    UUIDField,
+)
 from django.contrib.gis.db.models import PointField
 from django.contrib.gis.measure import D
 from django.db.models.fields.related import ManyToManyField
@@ -20,6 +27,15 @@ RANGEABLE_TYPES = (
     'IntegerField',
     'FloatField',
 )
+
+
+def ensure_uuid_valid(value, version=None):
+    try:
+        uuid.UUID(value, version=version)
+    except ValueError:
+        return False
+    else:
+        return True
 
 
 def convert_type(string, field_type, close_period=True):
@@ -203,8 +219,20 @@ class FilterSupportingOrBackend(
                 continue
             if param.replace('__in', '') not in filterset_fields:
                 continue
-
             values = query_params.get(param).split(',')
+            if isinstance(
+                queryset.model._meta.get_field(param.replace('__in', '')),
+                (UUIDField, ForeignKey),
+            ):
+                for value in values:
+                    if not ensure_uuid_valid(value):
+                        raise ValidationError(
+                            {
+                                "message": (
+                                    f"{param}: '{value}' is not a valid UUID"
+                                )
+                            }
+                        )
             if isinstance(
                 queryset.model._meta.get_field(param.replace('__in', '')),
                 BooleanField,
@@ -523,10 +551,8 @@ class FilterSupportingForeignKey(
             value = query_params.get(param)
             custom_filter = {cleaned_param: value}
             #:  "value" must be a valid UUID4, otherwise raise ValidationError
-            try:
-                #:  raises ValueError if not UUID4
-                uuid.UUID(value, version=4)
-            except ValueError:
+            #:  raises ValueError if not UUID4
+            if not ensure_uuid_valid(value, version=4):
                 raise ValidationError(
                     {"message": f'{param}: « {value} » is not a valid UUID'}
                 )
@@ -623,10 +649,8 @@ class FilterSupportingManyToMany(
 
             #:  "value" must be a valid UUID4, otherwise raise ValidationError
             for value in values:
-                try:
+                if not ensure_uuid_valid(value, version=4):
                     #:  raises ValueError if not UUID4
-                    uuid.UUID(value, version=4)
-                except ValueError:
                     raise ValidationError(
                         {
                             "message": f'{param}: « {value} » is not a valid UUID'

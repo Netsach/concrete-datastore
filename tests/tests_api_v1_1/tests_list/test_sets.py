@@ -65,7 +65,9 @@ class ApiV1_1SetsTestCase(APITestCase):
             .get('sets')
         )
 
-        self.assertDictEqual(users_set, {})
+        self.assertDictEqual(
+            users_set, {'uid': [str(self.user.uid)]}
+        )
 
     def test_sets_simple_list(self):
 

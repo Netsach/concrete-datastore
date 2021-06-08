@@ -717,6 +717,9 @@ manifest:
         display_fields:
           - name
         export_fields: []
+        ordering_fields:
+          - name
+          - category__name
       - model_uid: 960000d8-e8fe-485f-a4b0-d2cef89db39a
         model_name: ExpectedSkill
         search_fields:
