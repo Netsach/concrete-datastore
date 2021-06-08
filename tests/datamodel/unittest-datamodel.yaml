@@ -226,8 +226,7 @@ manifest:
             description: Name of the crud
           - name: json_field
             datatype: json
-            attributes:
-              ? encoder
+            attributes: {}
             description: Name of the crud
         uid: a78a2c6a-849a-4887-93a1-fdb3aa3b49ae
       - name: Skill
@@ -714,6 +713,7 @@ manifest:
           - name
           - score
           - category
+          - category__name
         display_fields:
           - name
         export_fields: []

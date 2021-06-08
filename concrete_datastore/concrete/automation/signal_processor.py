@@ -1,4 +1,5 @@
 # coding: utf-8
+import os
 from django.conf import settings
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete, post_save
@@ -24,6 +25,19 @@ def on_pre_delete(sender, instance, **kwargs):
         concrete_datastore.concrete.models.DeletedModel.objects.create(
             model_name=instance.__class__.__name__, uid=instance.uid
         )
+
+        # Remove files of a deleted instance, if this instance has a FileField
+        file_fields = [
+            field.name
+            for field in instance._meta.fields
+            if field.get_internal_type() in ['FileField', 'ImageField']
+        ]
+        for field_name in file_fields:
+            try:
+                file_path = getattr(instance, field_name).path
+                os.remove(file_path)
+            except Exception:
+                continue
 
 
 @receiver(post_save, sender=get_user_model())
