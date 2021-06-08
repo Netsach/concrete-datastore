@@ -4,8 +4,7 @@
 
 ### Added
 
-- Add ordering fields to metadata to allow ordering against fk field 
-- Objects can be filtered with the uid
+- nothing added
 
 ### Changed
 
@@ -14,6 +13,13 @@
 ### Removed
 
 - nothing removed
+
+## [1.29.0] - 2021-06-08
+
+### Added
+
+- Add ordering fields to metadata to allow ordering against fk field 
+- Objects can be filtered with the uid
 
 ## [1.28.0] - 2021-03-15
 

@@ -213,7 +213,7 @@ https://<webapp>/api/v1.1/article/?price__gte=50.0&timestamp_start=1603717103.92
 
 
 ### Ordering
-API `GET` requests support ordering on fields in the model's `list_display`.  
+API `GET` requests support ordering on fields in the model's `ordering_fields`.  
 In order to get a sorted result from the api, you can use the query parameter `?ordering=<field_name>` (for ascending results) or `?ordering=-<field_name>` (for descending results).
 
 **Examples**:
