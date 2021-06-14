@@ -4,16 +4,26 @@
 
 ### Added
 
+- nothing added
+
+### Changed
+
+- nothing changed
+
+### Removed
+
+- nothing removed
+
+## [1.30.0] - 2021-06-14
+
+### Added
+
 - When deleting an instance with a File or Image field, remove the local file
 - Add creation_date and modification_date to the list_display and ordering_field when parsing datamodel
 
 ### Changed
 
 - Unittest data model is now in a yaml file
-
-### Removed
-
-- nothing removed
 
 ## [1.29.0] - 2021-06-08
 
