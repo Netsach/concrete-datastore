@@ -5,6 +5,7 @@
 ### Added
 
 - When deleting an instance with a File or Image field, remove the local file
+- Add creation_date and modification_date to the list_display and ordering_field when parsing datamodel
 
 ### Changed
 

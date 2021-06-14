@@ -148,11 +148,59 @@ class OrderingForeignKeyTestCase(APITestCase):
             ['Skill3', 'Skill1', 'Skill2', 'Skill4'],
         )
 
+    def test_ordering_creation_modification_date(self):
+        url = "/api/v1.1/skill/"
+
+        rsp = self.client.get(
+            f'{url}?ordering=creation_date',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_a),
+        )
+
+        results = rsp.data.get('results')
+        self.assertEqual(
+            [skill['name'] for skill in results],
+            ['Skill4', 'Skill2', 'Skill1', 'Skill3'],
+        )
+
+        rsp = self.client.get(
+            f'{url}?ordering=modification_date',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_a),
+        )
+
+        results = rsp.data.get('results')
+        self.assertEqual(
+            [skill['name'] for skill in results],
+            ['Skill4', 'Skill2', 'Skill1', 'Skill3'],
+        )
+
+        rsp = self.client.get(
+            f'{url}?ordering=-creation_date',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_a),
+        )
+
+        results = rsp.data.get('results')
+        self.assertEqual(
+            [skill['name'] for skill in results],
+            ['Skill3', 'Skill1', 'Skill2', 'Skill4'],
+        )
+
+        rsp = self.client.get(
+            f'{url}?ordering=-modification_date',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_a),
+        )
+
+        results = rsp.data.get('results')
+        self.assertEqual(
+            [skill['name'] for skill in results],
+            ['Skill3', 'Skill1', 'Skill2', 'Skill4'],
+        )
+
     def test_ordering_against_fk_field(self):
         url = "/api/v1.1/skill/"
 
         rsp = self.client.get(
-            f'{url}?ordering=category__name', HTTP_AUTHORIZATION='Token {}'.format(self.token_a)
+            f'{url}?ordering=category__name',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_a),
         )
 
         results = rsp.data.get('results')
@@ -167,7 +215,8 @@ class OrderingForeignKeyTestCase(APITestCase):
         )
 
         rsp = self.client.get(
-            f'{url}?ordering=-category__name', HTTP_AUTHORIZATION='Token {}'.format(self.token_a)
+            f'{url}?ordering=-category__name',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_a),
         )
 
         results = rsp.data.get('results')

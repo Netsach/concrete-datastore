@@ -42,8 +42,7 @@ for meta_model in list_of_meta:
 
     if model_name == 'User':
         list_display = (meta_model.get_property('m_list_display') or []) + [
-            'level',
-            'creation_date',
+            'level'
         ]
         #:  Model user necessarily have an email field. It should be
         #:  on top of the list display
@@ -63,10 +62,8 @@ for meta_model in list_of_meta:
         ancestors = [meta_user_admin_cls]
 
     else:
-        list_display = (
-            ['uid']
-            + (meta_model.get_property('m_list_display') or [])
-            + ['creation_date', 'modification_date']
+        list_display = ['uid'] + (
+            meta_model.get_property('m_list_display') or []
         )
         ancestors = [MetaAdmin]
         meta_fieldsets = MetaAdmin.fieldsets

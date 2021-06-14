@@ -149,12 +149,14 @@ def make_modelisation_cls(modelisation_spec, version, base=Model):
             'm_filter_fields': resource_dict['filter_fields'],
             'm_ordering_fields': resource_dict.get(
                 'ordering_fields', resource_dict['display_fields']
-            ),
+            )
+            + ['creation_date', 'modification_date'],
             'm_distance_filter_field': resource_dict.get(
                 'distance_filter_field', ''
             ),
             'm_export_fields': resource_dict['export_fields'],
-            'm_list_display': resource_dict['display_fields'],
+            'm_list_display': resource_dict['display_fields']
+            + ['creation_date', 'modification_date'],
         }
 
     def get_relation_for_field(
