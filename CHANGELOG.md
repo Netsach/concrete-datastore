@@ -4,11 +4,11 @@
 
 ### Added
 
-- nothing added
+- When deleting an instance with a File or Image field, remove the local file
 
 ### Changed
 
-- nothing changed
+- Unittest data model is now in a yaml file
 
 ### Removed
 

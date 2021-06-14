@@ -1,0 +1,762 @@
+manifest:
+  data_modeling:
+    application_id: 4a674cd4f14366b8248d46d739
+    version: "1.0"
+    models:
+      - name: RoleModel
+        description: ""
+        representation_field: name
+        fields:
+          - name: name
+            datatype: char
+            attributes:
+              default: ""
+              max_length: 255
+              allow_empty: false
+            description: name
+        uid: efd342b7-3b60-4f91-bd74-9097f90308b7
+      - name: ScopedModel
+        description: ""
+        representation_field: None
+        fields:
+          - name: name
+            datatype: char
+            attributes:
+              default: ""
+              max_length: 255
+              allow_empty: false
+            description: name
+        is_default_public: true
+        uid: be9d486b-c198-40cd-850c-ff1f39903872
+      - name: NotScopedModel
+        description: ""
+        representation_field: None
+        fields:
+          - name: name
+            datatype: char
+            attributes:
+              default: ""
+              max_length: 255
+              allow_empty: false
+            description: name
+        uid: 498145c4-01df-408e-88d4-f5c31156e8b4
+        is_default_public: true
+      - name: PublicModelManagerRetrieve
+        description: ""
+        representation_field: None
+        fields:
+          - name: name
+            datatype: char
+            attributes:
+              default: ""
+              max_length: 255
+              allow_empty: false
+            description: name
+        is_default_public: true
+        uid: 9a7d29f4-c169-43f2-89db-9c4f000a0761
+      - name: Group
+        description: Group
+        representation_field: name
+        fields:
+          - name: name
+            datatype: char
+            attributes:
+              max_length: 250
+            description: Name of the group
+          - name: members
+            datatype: m2m
+            attributes:
+              to:
+                name: User
+                uid: a2ce4b1e-8dae-4267-a0ab-7c38f50fe853
+              allow_empty: true
+              reverse: concrete_groups
+            description: Members of the group
+        uid: fc1844ae-fb46-4947-ad16-6eeeef231876
+      - name: UniqueTogetherModel
+        description: UniqueTogetherModel
+        representation_field: name
+        unique_together:
+          - name
+          - field1
+        fields:
+          - name: name
+            datatype: char
+            attributes:
+              max_length: 250
+            description: Name
+          - name: field1
+            datatype: char
+            attributes:
+              max_length: 250
+            description: Field1
+        uid: 14c4ee6f-209d-4074-a39a-969d784f58c3
+      - name: Village
+        description: ville
+        representation_field: name
+        fields:
+          - name: name
+            datatype: char
+            attributes:
+              max_length: 250
+            description: name
+        uid: fa2704da-74d3-442a-8637-bbca97e1b34d
+      - name: Fusee
+        description: Fusée
+        representation_field: name
+        fields:
+          - name: name
+            datatype: char
+            attributes:
+              max_length: 250
+            description: name
+        uid: 7c5183a9-4f43-4621-a71d-2afc2b23b1fd
+      - name: Entity
+        description: Entity
+        representation_field: name
+        fields:
+          - name: name
+            datatype: char
+            attributes:
+              default: entity name
+              max_length: 250
+              allow_empty: false
+            description: Nom de l'Entity
+        uid: 87f96531-d688-4ff8-87d9-ad8b069a639a
+      - name: User
+        description: User
+        representation_field: email
+        fields:
+          - name: first_name
+            datatype: char
+            attributes:
+              default: ""
+              max_length: 250
+              allow_empty: true
+            description: Prenom
+          - name: last_name
+            datatype: char
+            attributes:
+              default: ""
+              max_length: 250
+              allow_empty: true
+            description: Nom
+        uid: a2ce4b1e-8dae-4267-a0ab-7c38f50fe853
+      - name: Project
+        description: Project
+        representation_field: name
+        fields:
+          - name: name
+            datatype: char
+            attributes:
+              max_length: 200
+            description: Name of the project
+          - name: gps_address
+            datatype: point
+            attributes:
+              allow_empty: true
+            description: GPS adress of the project
+          - name: ip_address
+            datatype: ip
+            attributes:
+              protocol: ipv4
+              allow_empty: true
+            description: IP of the project
+          - name: archived
+            datatype: bool
+            attributes:
+              default: false
+              allow_empty: true
+            description: Is project archived
+          - name: description
+            datatype: txt
+            attributes: {}
+            description: Description of the project
+          - name: members
+            datatype: m2m
+            attributes:
+              to:
+                name: User
+                uid: a2ce4b1e-8dae-4267-a0ab-7c38f50fe853
+              allow_empty: true
+              reverse: projects
+            description: Members of the project
+          - name: expected_skills
+            datatype: m2m
+            attributes:
+              to:
+                name: ExpectedSkill
+                uid: 960000d8-e8fe-485f-a4b0-d2cef89db39a
+              allow_empty: true
+              reverse: projects
+            description: Expected Skills of the project
+          - name: picture
+            datatype: file
+            attributes: {}
+            description: Photo of the project
+        uid: 7158d6af-8c79-4613-82cb-c1b0b20400ab
+      - name: Category
+        description: Category
+        representation_field: name
+        fields:
+          - name: name
+            datatype: char
+            attributes:
+              max_length: 50
+            description: Name of the category
+        uid: 3c484e20-96ee-4aa7-ba89-14cee84affe4
+      - name: Crud
+        description: Crud
+        representation_field: name
+        fields:
+          - name: name
+            datatype: char
+            attributes:
+              max_length: 50
+            description: Name of the crud
+        uid: a0d9172e-0a60-40c2-a9c0-5bae6d9bd542
+      - name: JsonField
+        description: Crud
+        representation_field: name
+        fields:
+          - name: name
+            datatype: char
+            attributes:
+              max_length: 50
+            description: Name of the crud
+          - name: json_field
+            datatype: json
+            attributes: {}
+            description: Name of the crud
+        uid: a78a2c6a-849a-4887-93a1-fdb3aa3b49ae
+      - name: Skill
+        description: Skill
+        representation_field: name
+        fields:
+          - name: name
+            datatype: char
+            attributes:
+              max_length: 200
+            description: Name of the skill
+          - name: category
+            datatype: fk
+            attributes:
+              to:
+                name: Category
+                uid: 3c484e20-96ee-4aa7-ba89-14cee84affe4
+              allow_empty: true
+              reverse: skills
+            description: Category of the skill
+          - name: score
+            datatype: int
+            attributes: {}
+            description: Score of the skill
+          - name: description
+            datatype: txt
+            attributes: {}
+            description: Description of the skill
+          - name: user
+            datatype: fk
+            attributes:
+              to:
+                name: User
+                uid: a2ce4b1e-8dae-4267-a0ab-7c38f50fe853
+              allow_empty: true
+              reverse: skills
+            description: User
+        uid: c36b0253-7137-4944-92c8-ef5c60083411
+      - name: ExpectedSkill
+        description: ExpectedSkill
+        representation_field: name
+        fields:
+          - name: name
+            datatype: char
+            attributes:
+              max_length: 200
+            description: Name of the skill
+          - name: category
+            datatype: fk
+            attributes:
+              to:
+                name: Category
+                uid: 3c484e20-96ee-4aa7-ba89-14cee84affe4
+              reverse: expected_skills
+            description: Category of the skill
+          - name: score
+            datatype: int
+            attributes: {}
+            description: Score of the skill
+          - name: description
+            datatype: txt
+            attributes: {}
+            description: Description of the skill
+        uid: 960000d8-e8fe-485f-a4b0-d2cef89db39a
+      - name: DateUtc
+        description: DateUtc
+        representation_field: date
+        fields:
+          - name: datetime
+            datatype: datetime
+            attributes:
+              allow_empty: true
+            description: Name of the skill
+          - name: date
+            datatype: date
+            attributes:
+              allow_empty: true
+            description: Name of the skill
+        uid: 2175c661-7036-49f4-b727-ce4711760a23
+      - name: TestDataLeak
+        description: TestDataLeak
+        representation_field: value
+        fields:
+          - name: value
+            datatype: txt
+            attributes:
+              default: a value
+            description: Arbitrary value
+        uid: 438c5a4f-286e-4ce4-874d-a9ac727350a3
+      - name: ItemPack
+        description: ""
+        representation_field: name
+        fields:
+          - name: name
+            datatype: char
+            attributes:
+              default: ""
+              max_length: 255
+              allow_empty: false
+            description: name
+          - name: description
+            datatype: char
+            attributes:
+              default: ""
+              max_length: 255
+              allow_empty: true
+            description: description
+          - name: status
+            datatype: char
+            attributes:
+              default: PENDING
+              max_length: 255
+              allow_empty: false
+            description: status
+          - name: nb_articles
+            datatype: int
+            attributes:
+              allow_empty: false
+            description: nb_articles
+          - name: cost
+            datatype: decimal
+            attributes:
+              default: 10
+              decimal_places: 2
+              max_digits: 20
+              allow_empty: false
+            description: cost
+          - name: sold
+            datatype: bool
+            attributes:
+              default: false
+              allow_empty: false
+            description: sold
+        uid: 6cef7b80-9c82-4fa6-9449-7dd4538bb542
+    one_to_one_relations: []
+    many_to_many_relations:
+      - source_model:
+          name: Group
+          uid: fc1844ae-fb46-4947-ad16-6eeeef231876
+        source_field: members
+        target_model:
+          name: User
+          uid: a2ce4b1e-8dae-4267-a0ab-7c38f50fe853
+      - source_model:
+          name: Project
+          uid: 7158d6af-8c79-4613-82cb-c1b0b20400ab
+        source_field: members
+        target_model:
+          name: User
+          uid: a2ce4b1e-8dae-4267-a0ab-7c38f50fe853
+      - source_model:
+          name: Project
+          uid: 7158d6af-8c79-4613-82cb-c1b0b20400ab
+        source_field: expected_skills
+        target_model:
+          name: ExpectedSkill
+          uid: 960000d8-e8fe-485f-a4b0-d2cef89db39a
+    one_to_many_relations:
+      - source_model:
+          name: Skill
+          uid: c36b0253-7137-4944-92c8-ef5c60083411
+        source_field: category
+        target_model:
+          name: Category
+          uid: 3c484e20-96ee-4aa7-ba89-14cee84affe4
+      - source_model:
+          name: Skill
+          uid: c36b0253-7137-4944-92c8-ef5c60083411
+        source_field: user
+        target_model:
+          name: User
+          uid: a2ce4b1e-8dae-4267-a0ab-7c38f50fe853
+      - source_model:
+          name: ExpectedSkill
+          uid: 960000d8-e8fe-485f-a4b0-d2cef89db39a
+        source_field: category
+        target_model:
+          name: Category
+          uid: 3c484e20-96ee-4aa7-ba89-14cee84affe4
+    attributes: []
+    permissions:
+      - model_uid: efd342b7-3b60-4f91-bd74-9097f90308b7
+        model_name: RoleModel
+        minimum_levels:
+          create: manager
+          delete: manager
+          update: manager
+          retrieve: manager
+        lookups:
+          - model_uid: d8725b42-82b4-4198-9fe0-1b285caa9897
+            model_name: DefaultDivider
+      - model_uid: be9d486b-c198-40cd-850c-ff1f39903872
+        model_name: ScopedModel
+        minimum_levels:
+          create: admin
+          delete: superuser
+          update: manager
+          retrieve: authenticated
+        lookups:
+          - model_uid: d8725b42-82b4-4198-9fe0-1b285caa9897
+            model_name: DefaultDivider
+      - model_uid: 498145c4-01df-408e-88d4-f5c31156e8b4
+        model_name: NotScopedModel
+        minimum_levels:
+          create: admin
+          delete: superuser
+          update: manager
+          retrieve: authenticated
+        lookups: []
+      - model_uid: 9a7d29f4-c169-43f2-89db-9c4f000a0761
+        model_name: PublicModelManagerRetrieve
+        minimum_levels:
+          create: admin
+          delete: superuser
+          update: manager
+          retrieve: manager
+        lookups:
+          - model_uid: d8725b42-82b4-4198-9fe0-1b285caa9897
+            model_name: DefaultDivider
+      - model_uid: fc1844ae-fb46-4947-ad16-6eeeef231876
+        model_name: Group
+        minimum_levels:
+          create: authenticated
+          delete: authenticated
+          update: authenticated
+          retrieve: authenticated
+        lookups:
+          - model_uid: d8725b42-82b4-4198-9fe0-1b285caa9897
+            model_name: DefaultDivider
+      - model_uid: 14c4ee6f-209d-4074-a39a-969d784f58c3
+        model_name: UniqueTogetherModel
+        minimum_levels:
+          create: authenticated
+          delete: authenticated
+          update: authenticated
+          retrieve: authenticated
+        lookups:
+          - model_uid: d8725b42-82b4-4198-9fe0-1b285caa9897
+            model_name: DefaultDivider
+      - model_uid: fa2704da-74d3-442a-8637-bbca97e1b34d
+        model_name: Village
+        minimum_levels: {}
+        lookups: []
+      - model_uid: 7c5183a9-4f43-4621-a71d-2afc2b23b1fd
+        model_name: Fusee
+        minimum_levels: {}
+        lookups: []
+      - model_uid: 87f96531-d688-4ff8-87d9-ad8b069a639a
+        model_name: Entity
+        minimum_levels:
+          create: authenticated
+          delete: authenticated
+          update: authenticated
+          retrieve: authenticated
+        lookups:
+          - model_uid: d8725b42-82b4-4198-9fe0-1b285caa9897
+            model_name: DefaultDivider
+      - model_uid: a2ce4b1e-8dae-4267-a0ab-7c38f50fe853
+        model_name: User
+        minimum_levels:
+          create: authenticated
+          delete: authenticated
+          update: authenticated
+          retrieve: authenticated
+        lookups:
+          - model_uid: d8725b42-82b4-4198-9fe0-1b285caa9897
+            model_name: DefaultDivider
+      - model_uid: 7158d6af-8c79-4613-82cb-c1b0b20400ab
+        model_name: Project
+        minimum_levels:
+          create: authenticated
+          delete: authenticated
+          update: authenticated
+          retrieve: anonymous
+        lookups:
+          - model_uid: d8725b42-82b4-4198-9fe0-1b285caa9897
+            model_name: DefaultDivider
+      - model_uid: 3c484e20-96ee-4aa7-ba89-14cee84affe4
+        model_name: Category
+        minimum_levels:
+          create: admin
+          delete: admin
+          update: admin
+          retrieve: authenticated
+        lookups:
+          - model_uid: d8725b42-82b4-4198-9fe0-1b285caa9897
+            model_name: DefaultDivider
+      - model_uid: a0d9172e-0a60-40c2-a9c0-5bae6d9bd542
+        model_name: Crud
+        minimum_levels:
+          create: admin
+          delete: admin
+          update: admin
+          retrieve: admin
+        lookups:
+          - model_uid: d8725b42-82b4-4198-9fe0-1b285caa9897
+            model_name: DefaultDivider
+      - model_uid: a78a2c6a-849a-4887-93a1-fdb3aa3b49ae
+        model_name: JsonField
+        minimum_levels:
+          create: authenticated
+          delete: authenticated
+          update: authenticated
+          retrieve: authenticated
+        lookups:
+          - model_uid: d8725b42-82b4-4198-9fe0-1b285caa9897
+            model_name: DefaultDivider
+      - model_uid: c36b0253-7137-4944-92c8-ef5c60083411
+        model_name: Skill
+        minimum_levels:
+          create: authenticated
+          delete: authenticated
+          update: authenticated
+          retrieve: authenticated
+        lookups:
+          - model_uid: d8725b42-82b4-4198-9fe0-1b285caa9897
+            model_name: DefaultDivider
+      - model_uid: 960000d8-e8fe-485f-a4b0-d2cef89db39a
+        model_name: ExpectedSkill
+        minimum_levels:
+          create: authenticated
+          delete: authenticated
+          update: authenticated
+          retrieve: authenticated
+        lookups:
+          - model_uid: d8725b42-82b4-4198-9fe0-1b285caa9897
+            model_name: DefaultDivider
+      - model_uid: 2175c661-7036-49f4-b727-ce4711760a23
+        model_name: DateUtc
+        minimum_levels:
+          create: authenticated
+          delete: authenticated
+          update: authenticated
+          retrieve: authenticated
+        lookups:
+          - model_uid: d8725b42-82b4-4198-9fe0-1b285caa9897
+            model_name: DefaultDivider
+      - model_uid: 438c5a4f-286e-4ce4-874d-a9ac727350a3
+        model_name: TestDataLeak
+        minimum_levels:
+          create: authenticated
+          retrieve: authenticated
+        lookups:
+          - model_uid: d8725b42-82b4-4198-9fe0-1b285caa9897
+            model_name: DefaultDivider
+      - model_uid: 6cef7b80-9c82-4fa6-9449-7dd4538bb542
+        model_name: ItemPack
+        minimum_levels:
+          create: manager
+          delete: manager
+          update: manager
+          retrieve: manager
+        lookups:
+          - model_uid: d8725b42-82b4-4198-9fe0-1b285caa9897
+            model_name: DefaultDivider
+    resource_queries:
+      - model_uid: efd342b7-3b60-4f91-bd74-9097f90308b7
+        model_name: RoleModel
+        search_fields:
+          - name
+        filter_fields:
+          - name
+        display_fields:
+          - name
+        export_fields: []
+      - model_uid: be9d486b-c198-40cd-850c-ff1f39903872
+        model_name: ScopedModel
+        search_fields:
+          - name
+        filter_fields:
+          - name
+        display_fields:
+          - name
+        export_fields: []
+      - model_uid: 498145c4-01df-408e-88d4-f5c31156e8b4
+        model_name: NotScopedModel
+        search_fields:
+          - name
+        filter_fields:
+          - name
+        display_fields:
+          - name
+        export_fields: []
+      - model_uid: 9a7d29f4-c169-43f2-89db-9c4f000a0761
+        model_name: PublicModelManagerRetrieve
+        search_fields:
+          - name
+        filter_fields:
+          - name
+        display_fields:
+          - name
+        export_fields: []
+      - model_uid: fc1844ae-fb46-4947-ad16-6eeeef231876
+        model_name: Group
+        search_fields:
+          - name
+        filter_fields: []
+        display_fields:
+          - name
+        export_fields: []
+      - model_uid: 14c4ee6f-209d-4074-a39a-969d784f58c3
+        model_name: UniqueTogetherModel
+        search_fields: []
+        filter_fields: []
+        display_fields: []
+        export_fields: []
+      - model_uid: fa2704da-74d3-442a-8637-bbca97e1b34d
+        model_name: Village
+        search_fields: []
+        filter_fields: []
+        display_fields:
+          - name
+        export_fields: []
+      - model_uid: 7c5183a9-4f43-4621-a71d-2afc2b23b1fd
+        model_name: Fusee
+        search_fields: []
+        filter_fields: []
+        display_fields:
+          - name
+        export_fields: []
+      - model_uid: 87f96531-d688-4ff8-87d9-ad8b069a639a
+        model_name: Entity
+        search_fields: []
+        filter_fields: []
+        display_fields: []
+        export_fields: []
+      - model_uid: a2ce4b1e-8dae-4267-a0ab-7c38f50fe853
+        model_name: User
+        search_fields:
+          - first_name
+          - last_name
+        filter_fields: []
+        display_fields:
+          - first_name
+          - last_name
+        export_fields: []
+      - model_uid: 7158d6af-8c79-4613-82cb-c1b0b20400ab
+        model_name: Project
+        search_fields:
+          - name
+        filter_fields:
+          - name
+          - archived
+          - expected_skills
+          - ip_address
+          - gps_address
+        display_fields:
+          - name
+          - archived
+        export_fields: []
+      - model_uid: 3c484e20-96ee-4aa7-ba89-14cee84affe4
+        model_name: Category
+        search_fields:
+          - name
+        filter_fields:
+          - name
+        display_fields:
+          - name
+        export_fields: []
+      - model_uid: a0d9172e-0a60-40c2-a9c0-5bae6d9bd542
+        model_name: Crud
+        search_fields:
+          - name
+        filter_fields:
+          - name
+        display_fields:
+          - name
+        export_fields: []
+      - model_uid: a78a2c6a-849a-4887-93a1-fdb3aa3b49ae
+        model_name: JsonField
+        search_fields:
+          - name
+        filter_fields:
+          - name
+        display_fields:
+          - name
+        export_fields: []
+      - model_uid: c36b0253-7137-4944-92c8-ef5c60083411
+        model_name: Skill
+        search_fields:
+          - name
+          - score
+        filter_fields:
+          - name
+          - score
+          - category
+          - category__name
+        display_fields:
+          - name
+        export_fields: []
+        ordering_fields:
+          - name
+          - category__name
+      - model_uid: 960000d8-e8fe-485f-a4b0-d2cef89db39a
+        model_name: ExpectedSkill
+        search_fields:
+          - name
+        filter_fields:
+          - name
+        display_fields:
+          - name
+        export_fields: []
+      - model_uid: 2175c661-7036-49f4-b727-ce4711760a23
+        model_name: DateUtc
+        search_fields:
+          - date
+        filter_fields:
+          - date
+          - datetime
+        display_fields:
+          - date
+        export_fields: []
+      - model_uid: 438c5a4f-286e-4ce4-874d-a9ac727350a3
+        model_name: TestDataLeak
+        search_fields:
+          - value
+        filter_fields:
+          - value
+        display_fields:
+          - value
+        export_fields: []
+      - model_uid: 6cef7b80-9c82-4fa6-9449-7dd4538bb542
+        model_name: ItemPack
+        search_fields:
+          - name
+        filter_fields:
+          - name
+        display_fields:
+          - name
+        export_fields: []
+    roles: []
+  version: 1.0.0
+  attributes: []

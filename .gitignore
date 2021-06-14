@@ -110,6 +110,8 @@ concrete_datastore/concrete/migrations/0*
 env-ci/
 .integration-setup
 development/datamodel/*
+!development/datamodel/sample-data-model.yml
+
 .installed-requirements.txt
 bin
 local-migrations/
@@ -123,4 +125,5 @@ Makefile
 
 concrete_datastore/settings/media/
 concrete_datastore/settings/static/
-
+development/media/
+development/static/
