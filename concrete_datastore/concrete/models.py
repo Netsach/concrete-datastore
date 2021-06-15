@@ -621,7 +621,7 @@ class UserManager(BaseUserManager):
 
 # custom imageField that allows .svg files in parameters
 # (regular ImageField does not)
-class CustomImageField(models.Model):
+class CustomImageField(models.ImageField):
     """
     A custom image field.
     """
@@ -673,8 +673,8 @@ class CustomImageField(models.Model):
         return forms.CharField(**universal_kwargs)
 
     class Meta:
-        # unique_together = ("name", "content_type")
         abstract = True
+        unique_together = ("name", "content_type")
 
 
 class CustomImageFieldValue(models.Model):
@@ -711,8 +711,8 @@ class CustomImageFieldValue(models.Model):
         return self.field.get_form_field()
 
     class Meta:
-        # unique_together = ("field", "object_id")
         abstract = True
+        unique_together = ("field", "object_id")
 
 
 def get_common_fields(public_default_value=False):
