@@ -15,6 +15,10 @@ from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.validators import FileExtensionValidator
+from django.contrib.contenttypes import fields
+from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.utils.encoding import force_text
 from django_otp.models import Device
 from django_otp.oath import totp
@@ -615,6 +619,58 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
+# custom imageField that allows .svg files in parameters
+# (regular ImageField does not)
+class CustomImageField(models.ImageField):
+    """
+    A custom image field.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super().deconstruct()
+        return name, path, args, kwargs
+
+    name = models.CharField(max_length=150)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    default_value = models.CharField(
+        blank=True,
+    )
+    is_required = models.BooleanField(default=False)
+    upload = models.FileField(upload_to='')
+    instance = models.CharField(max_length=255)
+    model_name = models.CharField(max_length=255, default='')
+    modification_date = models.DateTimeField(auto_now=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+    # ??
+    filename = models.CharField(max_length=255)
+    # Actual svg file parsing
+
+    # filename = models.FileField(
+    #     validators=[
+    #         FileExtensionValidator(['pdf', 'doc', 'svg', 'png', 'jpg'])
+    #     ]
+    # )
+
+    objects = models.Manager()
+
+    def __str__(self):
+        return self.name
+
+    def get_form_field(self):
+        universal_kwargs = {
+            "initial": self.default_value,
+            "required": self.is_required,
+        }
+        return forms.CharField(**universal_kwargs)
+
+    class Meta:
+        unique_together = ("name", "content_type")
+
+
 def get_common_fields(public_default_value=False):
     if public_default_value not in (True, False):
         raise ValueError(
@@ -879,6 +935,13 @@ def make_django_model(meta_model, divider):
             # Copy args to not alter the real field.f_args
             args = args.copy()
             args.pop('null', None)
+
+        elif field.f_type in ('CustomImageField',):
+            # add CustomImageField
+            args['null'] = False
+            args.setdefault('blank', True)
+            args.setdefault('default', "")
+
         attrs.update({field_name: getattr(models, field.f_type)(**args)})
     if meta_model.get_model_name() != divider:
         if meta_model.get_model_name() == "User":
