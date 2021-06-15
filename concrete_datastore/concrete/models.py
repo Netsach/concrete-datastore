@@ -655,7 +655,11 @@ class CustomImageField(models.ImageField):
     #     ]
     # )
 
-    objects = models.Manager()
+    # objects = models.Manager()
+    def get_value_for_object(self, obj):
+        return CustomImageFieldValue.objects.get_or_create(
+            field=self, object_id=obj.id
+        )[0]
 
     def __str__(self):
         return self.name
@@ -669,6 +673,43 @@ class CustomImageField(models.ImageField):
 
     class Meta:
         unique_together = ("name", "content_type")
+
+
+class CustomImageFieldValue(models.Model):
+    """
+    A field instance -- contains the actual data.  There are many of these, for
+    each value that corresponds to a CustomImageField for a given model.
+    """
+
+    field = models.ForeignKey(
+        CustomImageField, related_name="instance", on_delete=models.CASCADE
+    )
+    value = models.CharField(max_length=5000, blank=True, null=True)
+    object_id = models.PositiveIntegerField()
+    content_type = models.ForeignKey(
+        ContentType, blank=True, null=True, on_delete=models.CASCADE
+    )
+    content_object = fields.GenericForeignKey("content_type", "object_id")
+
+    def __str__(self):
+        return str(self.value)
+
+    def save(self, *args, **kwargs):
+        super(CustomImageFieldValue, self).save(*args, **kwargs)
+        if not self.content_type:
+            self.content_type = self.field.content_type
+            self.save()
+
+    def clean(self):
+        form_field = self.get_form_field()
+        form_field.clean(self.value)
+        return super(CustomImageFieldValue, self).clean()
+
+    def get_form_field(self):
+        return self.field.get_form_field()
+
+    class Meta:
+        unique_together = ("field", "object_id")
 
 
 def get_common_fields(public_default_value=False):

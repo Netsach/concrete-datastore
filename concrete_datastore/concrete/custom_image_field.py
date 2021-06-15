@@ -5,7 +5,10 @@ from django.contrib.admin import ModelAdmin
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.contenttypes import admin
 
-from .models import CustomImageField
+from concrete_datastore.concrete.models import (
+    CustomImageField,
+    CustomImageFieldValue,
+)
 
 
 class Callable:
@@ -19,13 +22,13 @@ class CustomImageFieldModel(object):
     """
 
     @property
-    def get_custom_image_fields(self):
+    def get_custom_fields(self):
         """ Return a list of custom fields for this model """
         return CustomImageField.objects.filter(
             content_type=ContentType.objects.get_for_model(self)
         )
 
-    def get_model_custom_image_fields(self):
+    def get_model_custom_fields(self):
         """Return a list of custom fields for this model, directly callable
         without an instance. Use like Foo.get_model_custom_fields(Foo)
         """
@@ -33,9 +36,9 @@ class CustomImageFieldModel(object):
             content_type=ContentType.objects.get_for_model(self)
         )
 
-    get_model_custom_image_fields = Callable(get_model_custom_image_fields)
+    get_model_custom_fields = Callable(get_model_custom_fields)
 
-    def get_custom_image_field(self, field_name):
+    def get_custom_field(self, field_name):
         """Get a custom field object for this model
         field_name - Name of the custom field you want.
         """
@@ -43,3 +46,24 @@ class CustomImageFieldModel(object):
         return CustomImageField.objects.get(
             content_type=content_type, name=field_name
         )
+
+    def get_custom_value(self, field_name):
+        """Get a value for a specified custom field
+        field_name - Name of the custom field you want.
+        """
+        custom_field = self.get_custom_field(field_name)
+        return CustomImageFieldValue.objects.get_or_create(
+            field=custom_field, object_id=self.id
+        )[0].value
+
+    def set_custom_value(self, field_name, value):
+        """Set a value for a specified custom field
+        field_name - Name of the custom field you want.
+        value - Value to set it to
+        """
+        custom_field = self.get_custom_field(field_name)
+        custom_value = CustomImageFieldValue.objects.get_or_create(
+            field=custom_field, object_id=self.id
+        )[0]
+        custom_value.value = value
+        custom_value.save()
