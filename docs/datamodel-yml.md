@@ -6,87 +6,75 @@ manifest:
     roles: []
     models:
       - fields:
-          - attributes: {}
-            datatype: char
-            name: email
-            allow_empty: null
-          - attributes: {}
-            datatype: char
-            name: first_name
-            allow_empty: null
-          - attributes: {}
-            datatype: char
-            name: last_name
-            allow_empty: null
-        name: User
-        uid: 8dde7da5-3a0a-42a7-b579-390cd686b3fd
-        description: null
-        representation_field: email
-        is_default_public: false
-      - fields:
-          - attributes: {}
-            datatype: char
-            name: name
-            allow_empty: null
           - attributes:
               to:
-                uid: 8dde7da5-3a0a-42a7-b579-390cd686b3fd
+                uid: 968d2a24-e160-440f-ac47-34fe29b95518
                 name: User
               reverse: concrete_groups
             datatype: m2m
             name: members
-            allow_empty: null
+          - attributes: {}
+            datatype: char
+            name: name
         name: Group
-        uid: 87a72328-6efc-49d6-9941-d46042c080fd
+        uid: beaefd15-2dce-4e7f-932e-6f0871c81def
         description: null
         representation_field: name
         is_default_public: false
       - fields:
-          - attributes: {}
-            datatype: char
-            name: name
           - attributes:
               allow_empty: true
             datatype: char
             name: code
           - attributes: {}
-            datatype: date
-            name: start_date
-          - attributes: {}
             datatype: txt
             name: description
           - attributes:
-              reverse: owned_projects
               to:
-                uid: 8dde7da5-3a0a-42a7-b579-390cd686b3fd
-                name: User
-            datatype: fk
-            name: manager
-          - attributes:
-              reverse: projects
-              to:
-                uid: 87a72328-6efc-49d6-9941-d46042c080fd
+                uid: beaefd15-2dce-4e7f-932e-6f0871c81def
                 name: Group
+              reverse: projects
               allow_empty: true
             datatype: m2m
             name: groups
+          - attributes:
+              to:
+                uid: 968d2a24-e160-440f-ac47-34fe29b95518
+                name: User
+              reverse: projects
+            datatype: fk
+            name: manager
+          - attributes: {}
+            datatype: char
+            name: name
+          - attributes: {}
+            datatype: date
+            name: start_date
         name: Project
-        uid: 9a820c34-d618-48cb-b08d-0dc37a3ca26a
-        description: null
+        uid: 3c025f8d-2ad2-45fe-a873-22accf3dff1e
         representation_field: name
+        is_default_public: false
+      - fields:
+          - attributes: {}
+            datatype: char
+            name: email
+          - attributes:
+              allow_empty: true
+            datatype: char
+            name: first_name
+          - attributes:
+              allow_empty: true
+            datatype: char
+            name: last_name
+        name: User
+        uid: 968d2a24-e160-440f-ac47-34fe29b95518
+        description: null
+        representation_field: email
         is_default_public: false
     version: 1.0.0
     attributes: []
     permissions:
-      - model_uid: 8dde7da5-3a0a-42a7-b579-390cd686b3fd
-        model_name: User
-        lookups: []
-        minimum_levels:
-          create: manager
-          delete: manager
-          update: authenticated
-          retrieve: authenticated
-      - model_uid: 87a72328-6efc-49d6-9941-d46042c080fd
+      - model_uid: beaefd15-2dce-4e7f-932e-6f0871c81def
         model_name: Group
         lookups: []
         minimum_levels:
@@ -94,17 +82,43 @@ manifest:
           delete: admin
           update: manager
           retrieve: authenticated
-      - model_uid: 9a820c34-d618-48cb-b08d-0dc37a3ca26a
+      - model_uid: 3c025f8d-2ad2-45fe-a873-22accf3dff1e
         model_name: Project
         lookups: []
         minimum_levels:
-          create: autheticated
-          retrieve: autheticated
-          update: autheticated
-          delete: autheticated
+          create: manager
+          retrieve: authenticated
+          update: admin
+          delete: superuser
+      - model_uid: 968d2a24-e160-440f-ac47-34fe29b95518
+        model_name: User
+        lookups: []
+        minimum_levels:
+          create: manager
+          delete: manager
+          update: authenticated
+          retrieve: authenticated
     application_id: ""
     resource_queries:
-      - model_uid: 8dde7da5-3a0a-42a7-b579-390cd686b3fd
+      - model_uid: beaefd15-2dce-4e7f-932e-6f0871c81def
+        model_name: Group
+        search_fields:
+          - name
+        filter_fields:
+          - name
+        display_fields:
+          - name
+        ordering_fields:
+          - name
+        export_fields: []
+      - model_uid: 3c025f8d-2ad2-45fe-a873-22accf3dff1e
+        model_name: Project
+        search_fields: []
+        filter_fields: []
+        display_fields: []
+        ordering_fields: []
+        export_fields: []
+      - model_uid: 968d2a24-e160-440f-ac47-34fe29b95518
         model_name: User
         search_fields:
           - email
@@ -114,52 +128,34 @@ manifest:
           - email
           - first_name
           - last_name
+        ordering_fields:
+          - email
+          - first_name
+          - last_name
         export_fields: []
-      - model_uid: 87a72328-6efc-49d6-9941-d46042c080fd
-        model_name: Group
-        search_fields:
-          - name
-        filter_fields:
-          - name
-        display_fields:
-          - name
-        export_fields: []
-      - model_uid: 9a820c34-d618-48cb-b08d-0dc37a3ca26a
-        model_name: Project
-        search_fields: []
-        filter_fields: []
-        display_fields: []
-        export_fields: []
-    one_to_one_relations: []
     one_to_many_relations:
       - source_field: manager
         source_model:
-          uid: 9a820c34-d618-48cb-b08d-0dc37a3ca26a
+          uid: 3c025f8d-2ad2-45fe-a873-22accf3dff1e
           name: Project
         target_model:
-          uid: 8dde7da5-3a0a-42a7-b579-390cd686b3fd
-          name: User
-      - source_field: manager
-        source_model:
-          uid: 9a820c34-d618-48cb-b08d-0dc37a3ca26a
-          name: Project
-        target_model:
-          uid: 8dde7da5-3a0a-42a7-b579-390cd686b3fd
+          uid: 968d2a24-e160-440f-ac47-34fe29b95518
           name: User
     many_to_many_relations:
       - source_field: members
         source_model:
-          uid: 87a72328-6efc-49d6-9941-d46042c080fd
+          uid: beaefd15-2dce-4e7f-932e-6f0871c81def
           name: Group
         target_model:
-          uid: 8dde7da5-3a0a-42a7-b579-390cd686b3fd
+          uid: 968d2a24-e160-440f-ac47-34fe29b95518
           name: User
       - source_field: groups
         source_model:
-          uid: 9a820c34-d618-48cb-b08d-0dc37a3ca26a
+          uid: 3c025f8d-2ad2-45fe-a873-22accf3dff1e
           name: Project
         target_model:
-          uid: 87a72328-6efc-49d6-9941-d46042c080fd
+          uid: beaefd15-2dce-4e7f-932e-6f0871c81def
           name: Group
+
 ```
 You can download the datamodel file [here](assets/sample-datamodel.yml)
