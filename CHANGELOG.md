@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Fix psycopg version under 2.9 because of UTC error: https://github.com/psycopg/psycopg2/issues/1293
 
 ### Removed
 
