@@ -6,8 +6,6 @@ from django.conf import settings
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 
-# from concrete_mailer.preparers import prepare_email
-
 from concrete_datastore.concrete.models import Email  # pylint:disable=E0611
 from concrete_datastore.concrete.automation.tasks import (
     send_async_mails,
