@@ -1,5 +1,5 @@
 # coding: utf-8
-from mock import MagicMock, patch
+from mock import MagicMock
 from django.test import TestCase
 from concrete_datastore.api.v1.signals import (
     send_email_pre_save,
@@ -22,4 +22,3 @@ class SignalTests(TestCase):
         instance.body = 'body'
         instance.created_by = 'sender'
         send_email_pre_save(sender='', instance=instance)
-        patch.stopall()
