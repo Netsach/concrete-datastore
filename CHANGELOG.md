@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Allow sending emails asynchronously with celery
 
 ### Changed
 
