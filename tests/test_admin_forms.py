@@ -61,3 +61,32 @@ class MyCreationUserFormTest(TestCase):
             instance=self.user,
         )
         test_creation_form.save()
+
+    @override_settings(
+        PASSWORD_MIN_SPECIAL=1,
+    )
+    def test_creation_user(self):
+        test_creation_form = MyCreationUserForm(
+            {
+                "email": "bbb@netsach.org",
+                "password1": "test@",
+                "password2": "test@",
+            },
+            instance=self.user,
+        )
+        self.assertTrue(test_creation_form.is_valid())
+
+    @override_settings(
+        PASSWORD_MIN_SPECIAL=1, SPECIAL_CHARACTERS="!@#$%%^&*()_+-=[]{}|'\""
+    )
+    def test_creation_user(self):
+        test_creation_form = MyCreationUserForm(
+            {
+                "email": "bbb@netsach.org",
+                "password1": "test",
+                "password2": "test",
+            },
+            instance=self.user,
+        )
+        self.assertFalse(test_creation_form.is_valid())
+        self.assertNotEqual(str(test_creation_form.errors), '')

@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Changed validation error format, avoid single `%` in `format` args (Correct error 500 while creating user in Admin)
 
 ### Removed
 
