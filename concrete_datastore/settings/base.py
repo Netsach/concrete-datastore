@@ -354,6 +354,8 @@ PLUGINS_TASKS_FUNC = {
 EMAIL_CSS = ''
 EMAIL_SENDER_NAME = '<Concrete Datastore>'
 EMAIL_HOST = ''
+EMAIL_REPLY_TO = ''
+
 # Limit of different values before deactivating filter
 LIMIT_DEACTIVATE_FILTER_IN_ADMIN = 50
 
