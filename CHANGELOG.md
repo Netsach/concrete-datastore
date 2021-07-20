@@ -4,7 +4,7 @@
 
 ### Added
 
-- Added settings `EMAIL_REPLY_TO`
+- nothing added
 
 ### Changed
 
@@ -13,6 +13,12 @@
 ### Removed
 
 - nothing removed
+
+## [1.31.0] - 2021-07-20
+
+### Added
+
+- Added settings `EMAIL_REPLY_TO`
 
 ## [1.30.1] - 2021-06-18
 
