@@ -35,6 +35,7 @@ def send_email(sender, instance, **kwargs):
                 html=instance.body,
                 title=instance.subject,
                 sender=settings.SERVER_EMAIL,
+                reply_to=settings.EMAIL_REPLY_TO,
                 recipients=[instance.receiver.email],
                 use_tls=use_tls,
                 email_host=settings.EMAIL_HOST,
