@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Added settings `EMAIL_REPLY_TO`
 
 ### Changed
 
