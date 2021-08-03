@@ -263,6 +263,7 @@ def make_modelisation_cls(modelisation_spec, version, base=Model):
                     'int',
                     'fk',
                     'ip',
+                    'json',
                 ]
                 #: we should consider only simple types
             ]

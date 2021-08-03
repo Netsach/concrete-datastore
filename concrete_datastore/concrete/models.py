@@ -619,102 +619,6 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-# custom imageField that allows .svg files in parameters
-# (regular ImageField does not)
-class CustomImageField(models.ImageField):
-    """
-    A custom image field.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
-        return name, path, args, kwargs
-
-    objects = models.Manager()
-
-    name = models.CharField(max_length=150)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    default_value = models.CharField(
-        blank=True,
-    )
-    is_required = models.BooleanField(default=False)
-    upload = models.FileField(upload_to='')
-    instance = models.CharField(max_length=255)
-    model_name = models.CharField(max_length=255, default='')
-    modification_date = models.DateTimeField(auto_now=True)
-    creation_date = models.DateTimeField(auto_now_add=True)
-
-    # ??
-    filename = models.CharField(max_length=255)
-    # Actual svg file parsing
-
-    # filename = models.FileField(
-    #     validators=[
-    #         FileExtensionValidator(['pdf', 'doc', 'svg', 'png', 'jpg'])
-    #     ]
-    # )
-
-    def get_value_for_object(self, obj):
-        return CustomImageFieldValue.objects.get_or_create(
-            field=self, object_id=obj.id
-        )[0]
-
-    def __str__(self):
-        return self.name
-
-    def get_form_field(self):
-        universal_kwargs = {
-            "initial": self.default_value,
-            "required": self.is_required,
-        }
-        return forms.CharField(**universal_kwargs)
-
-    class Meta:
-        abstract = True
-        unique_together = ("name", "content_type")
-
-
-class CustomImageFieldValue(models.Model):
-    """
-    A field instance -- contains the actual data.  There are many of these, for
-    each value that corresponds to a CustomImageField for a given model.
-    """
-
-    field = models.ForeignKey(
-        CustomImageField, related_name="instance", on_delete=models.CASCADE
-    )
-    value = models.CharField(max_length=5000, blank=True, null=True)
-    object_id = models.PositiveIntegerField()
-    content_type = models.ForeignKey(
-        ContentType, blank=True, null=True, on_delete=models.CASCADE
-    )
-    content_object = fields.GenericForeignKey("content_type", "object_id")
-
-    def __str__(self):
-        return str(self.value)
-
-    def save(self, *args, **kwargs):
-        super(CustomImageFieldValue, self).save(*args, **kwargs)
-        if not self.content_type:
-            self.content_type = self.field.content_type
-            self.save()
-
-    def clean(self):
-        form_field = self.get_form_field()
-        form_field.clean(self.value)
-        return super(CustomImageFieldValue, self).clean()
-
-    def get_form_field(self):
-        return self.field.get_form_field()
-
-    class Meta:
-        abstract = True
-        unique_together = ("field", "object_id")
-
-
 def get_common_fields(public_default_value=False):
     if public_default_value not in (True, False):
         raise ValueError(
@@ -979,12 +883,6 @@ def make_django_model(meta_model, divider):
             # Copy args to not alter the real field.f_args
             args = args.copy()
             args.pop('null', None)
-
-        elif field.f_type in ('CustomImageField',):
-            # add CustomImageField
-            args['null'] = False
-            args.setdefault('blank', True)
-            args.setdefault('default', "")
 
         attrs.update({field_name: getattr(models, field.f_type)(**args)})
     if meta_model.get_model_name() != divider:

@@ -15,10 +15,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
-from concrete_datastore.concrete.models import (
-    CustomImageField,
-    CustomImageFieldValue,
-)
 
 
 @override_settings(DEBUG=True)
@@ -109,51 +105,3 @@ class DeviderFieldTest(TestCase):
         meta_model.get_fields = MagicMock(return_value=((key, value),))
         meta_model.version = None
         make_django_model(meta_model=meta_model, divider=divider)
-
-
-@override_settings(DEBUG=True)
-class CustomFieldTest(TestCase):
-    def setUp(self):
-
-        # custom_image_field_ct = ContentType.objects.get(
-        #     app_label="custom_field", model="customfield"
-        # )
-        self.custom_image_field_jpg = CustomImageField.objects.create(
-            name="jpg image",
-            # content_type=custom_image_field_ct,
-            filename="image.jpg",
-        )
-        self.custom_image_field_svg = CustomImageField.objects.create(
-            name="svg image",
-            # content_type=custom_image_field_ct,
-            filename="image.svg",
-        )
-        self.custom_image_field_txt = CustomImageField.objects.create(
-            name="txt image",
-            # content_type=custom_image_field_ct,
-            filename="image.txt",
-        )
-        user = User.objects.create_user("test", "test@netsach.com")
-        user.set_password("test")
-        user.is_superuser = True
-        user.save()
-        self.client.login(username="test", password="test")
-
-    # def test_validation(self):
-    #     custom_value = CustomFieldValue.objects.create(
-    #         field=self.custom_field,
-    #         value="5",
-    #         object_id=self.custom_field.id,
-    #     )
-    #     custom_value.clean()
-    #     custom_value.save()
-    #     self.assertEquals(custom_value.value, "5")
-    #     custom_value.value = "fdsf"
-    #     try:
-    #         custom_value.clean()
-    #         self.fail("Was able to save string as custom integer field!")
-    #     except ValidationError:
-    #         pass
-
-    def test_validation(self):
-        self.assertEqual(self.custom_image_field_jpg, 'image.jpg')
