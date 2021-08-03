@@ -240,7 +240,7 @@ class FilterSupportingOrBackend(
             }
             for field_name in getattr(view, 'filterset_fields', ())
             if get_filter_field_type(view.model_class, field_name)
-            != ('ManyToManyField')
+            != 'ManyToManyField'
         ]
         return self.return_if_not_details(view=view, value=params)
 
