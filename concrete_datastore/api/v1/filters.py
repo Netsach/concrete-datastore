@@ -240,7 +240,7 @@ class FilterSupportingOrBackend(
             }
             for field_name in getattr(view, 'filterset_fields', ())
             if get_filter_field_type(view.model_class, field_name)
-            not in ('ManyToManyField')
+            != ('ManyToManyField')
         ]
         return self.return_if_not_details(view=view, value=params)
 
@@ -834,20 +834,9 @@ class FilterJSONBackend(BaseFilterBackend, CustomShemaOperationParameters):
 
             #: Parse data of the json and apply custom filter
 
-            print(param)
-            print(param_field)
-            print(query_params)
-            print(query_params.get(param))
-            print(request_param)
-            print('============================')
-
             values = query_params.get(param).split(',')
 
             custom_filter = {'{}'.format(param): values}
-
-            print(values)
-            print(custom_filter)
-            print('============================')
 
             if q_object is None:
                 q_object = Q(**custom_filter)

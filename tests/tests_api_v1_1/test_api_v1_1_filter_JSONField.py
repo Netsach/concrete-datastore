@@ -145,7 +145,7 @@ class TestFilterJSONField(APITestCase):
     def test_filter_JSONField_equals(self):
 
         get_url = (
-            '/api/v1.1/json-field/?json_field__global__data__name=App_2s'
+            '/api/v1.1/json-field/?json_field__global__data__name=App_2'
         )
 
         resp = self.client.get(
