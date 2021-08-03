@@ -746,20 +746,6 @@ def get_json_field_filter(model_class, param):
         return (first_param, other_params)
 
 
-def retreive_json_informations(json_data_field, json_field):
-    key_to_filter = get_json_field_filter(json_data_field)
-    first_arg = key_to_filter[0]
-    other_args = key_to_filter[1]
-
-    retreived_data = json_field[first_arg]
-
-    while len(other_args) != 0:
-        retreived_data = retreived_data[other_args[0]]
-    other_args.pop(0)
-
-    return retreived_data
-
-
 # Custom filter
 
 
@@ -829,8 +815,8 @@ class FilterJSONBackend(BaseFilterBackend, CustomShemaOperationParameters):
             ):
                 continue
 
-            json_field = param_field[0]
-            request_param = param_field[1:]
+            # json_field = param_field[0]
+            # request_param = param_field[1:]
 
             #: Parse data of the json and apply custom filter
 
