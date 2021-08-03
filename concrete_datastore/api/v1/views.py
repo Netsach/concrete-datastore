@@ -83,6 +83,7 @@ from concrete_datastore.api.v1.filters import (
     FilterSupportingForeignKey,
     FilterSupportingManyToMany,
     FilterDistanceBackend,
+    FilterJSONBackend,
 )
 
 from concrete_datastore.api.v1.authentication import (
@@ -1222,6 +1223,7 @@ class PaginatedViewSet(object):
     pagination_class = ExtendedPagination
     filter_backends = (
         FilterDistanceBackend,
+        FilterJSONBackend,
         SearchFilter,
         OrderingFilter,
         FilterSupportingOrBackend,

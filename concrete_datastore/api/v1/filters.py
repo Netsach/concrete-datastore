@@ -10,6 +10,7 @@ from rest_framework.filters import BaseFilterBackend
 from concrete_datastore.api.v1.datetime import format_datetime, ensure_pendulum
 from django.contrib.gis.geos import Point
 
+
 # target_field type is date or datetime or int or float
 RANGEABLE_TYPES = (
     'DateTimeField',
@@ -171,6 +172,7 @@ class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
             custom_filter = {
                 '{}__distance_lte'.format(param_field): (point, D(m=distance))
             }
+
             if q_object is None:
                 q_object = Q(**custom_filter)
             else:
@@ -238,7 +240,7 @@ class FilterSupportingOrBackend(
             }
             for field_name in getattr(view, 'filterset_fields', ())
             if get_filter_field_type(view.model_class, field_name)
-            != 'ManyToManyField'
+            not in ('ManyToManyField')
         ]
         return self.return_if_not_details(view=view, value=params)
 
@@ -700,3 +702,160 @@ class FilterSupportingManyToMany(
             return queryset
 
         return queryset.filter(q_object).distinct()
+
+
+### JSON Field
+
+
+def get_json_field_filter(model_class, param):
+    """
+    If the target field is a JSONField, return the list of JSONFields
+    that we want to filter
+    """
+    splitted_param = param.split('__')
+
+    if len(splitted_param) == 1:
+        if (
+            model_class._meta.get_field(splitted_param[0]).get_internal_type()
+            != 'JSONField'
+        ):
+            raise ValidationError(
+                {
+                    "message": (
+                        f"{param}: Multi level filters"
+                        " available only for JSON (or ForeignKey)"
+                    )
+                }
+            )
+        else:
+            return splitted_param[0]
+    else:
+        first_param, *other_params = splitted_param
+        if (
+            model_class._meta.get_field(first_param).get_internal_type()
+            != 'JSONField'
+        ):
+            raise ValidationError(
+                {
+                    "message": (
+                        f"{param}: Multi level filters"
+                        " available only for JSON (or ForeignKey)"
+                    )
+                }
+            )
+        return (first_param, other_params)
+
+
+def retreive_json_informations(json_data_field, json_field):
+    key_to_filter = get_json_field_filter(json_data_field)
+    first_arg = key_to_filter[0]
+    other_args = key_to_filter[1]
+
+    retreived_data = json_field[first_arg]
+
+    while len(other_args) != 0:
+        retreived_data = retreived_data[other_args[0]]
+    other_args.pop(0)
+
+    return retreived_data
+
+
+# Custom filter
+
+
+class FilterJSONBackend(BaseFilterBackend, CustomShemaOperationParameters):
+    def remove_from_queryset(self, view):
+        #: Remove PointField field from filterset_fields because
+        #: they cannot be filtered with the other filter backends
+        filterset_fields = getattr(view, 'filterset_fields', ())
+        new_filterset_fields = tuple(
+            filter_field
+            for filter_field in filterset_fields
+            if (
+                get_filter_field_type(view.model_class, filter_field)
+                != 'JSONField'
+            )
+        )
+        setattr(view, 'filterset_fields', new_filterset_fields)
+
+    def get_schema_operation_parameters(self, view):
+
+        param_field = getattr(view, 'filterset_fields', ())
+
+        first_param, other_params = get_json_field_filter(
+            view.model_class, param_field
+        )
+        # type_of_param_filtered = str(
+        #     model_class._meta.get_field(first_param).get_internal_type()
+        # )
+        params = [
+            {
+                'name': f'{field_name}',
+                'required': False,
+                'in': 'query',
+                'description': 'json_field',
+                'schema': {'type': 'string'},
+            }
+            for field_name in getattr(view, 'filterset_fields', ())
+            if get_filter_field_type(view.model_class, first_param)
+            in 'JSONField'
+        ]
+        self.remove_from_queryset(view=view)
+
+        return self.return_if_not_details(view=view, value=params)
+
+    def filter_queryset(self, request, queryset, view):
+        # Only applicable on JSONField objects
+        #: The filter is json__field__example=XXX
+        q_object = None
+        query_params = request.query_params
+        filterset_fields = getattr(view, 'filterset_fields', ())
+
+        for param in query_params:
+
+            if not param.endswith('__in'):
+                continue
+            # else:
+            #     param = param.replace('__in', '')
+
+            param_field = param.split('__')
+
+            # check that model starts with 'json_field' and is a JSONField
+            if param_field[0] not in filterset_fields:
+                continue
+            if (
+                get_filter_field_type(queryset.model, param_field[0])
+                != 'JSONField'
+            ):
+                continue
+
+            json_field = param_field[0]
+            request_param = param_field[1:]
+
+            #: Parse data of the json and apply custom filter
+
+            print(param)
+            print(param_field)
+            print(query_params)
+            print(query_params.get(param))
+            print(request_param)
+            print('============================')
+
+            values = query_params.get(param).split(',')
+
+            custom_filter = {'{}'.format(param): values}
+
+            print(values)
+            print(custom_filter)
+            print('============================')
+
+            if q_object is None:
+                q_object = Q(**custom_filter)
+            else:
+                q_object &= Q(**custom_filter)
+
+        self.remove_from_queryset(view=view)
+        if q_object is None:
+            return queryset
+
+        return queryset.filter(q_object)

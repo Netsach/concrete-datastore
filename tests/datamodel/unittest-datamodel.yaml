@@ -701,6 +701,7 @@ manifest:
           - name
         filter_fields:
           - name
+          - json_field
         display_fields:
           - name
         export_fields: []
