@@ -214,65 +214,6 @@ class FilterSupportingRangeBackendTestClass(APITestCase):
         )
         self.assertEqual(res, queryset)
 
-    # @patch('concrete_datastore.concrete.datetime.pendulum')
-    def test_filter_queryset_with_non_null_query_params(self, *args):
-        request = MagicMock()
-        view = MagicMock()
-        view.filterset_fields = (
-            'field1',
-            'field2',
-            'field3',
-            'field4',
-            'field5',
-            'field6',
-            'field7',
-            'field8',
-            'field9',
-            'field10',
-            'field11',
-        )
-        queryset = MagicMock()
-        queryset.model._meta.get_field = MagicMock()
-        queryset.model._meta.get_field().get_internal_type = MagicMock(
-            side_effect=[
-                'OtherRandowField',
-                'DateField',
-                'DateTimeField',
-                'DateField',
-                'DateField',
-                'DecimalField',
-                'FloatField',
-                'IntegerField',
-                'IntegerField',
-                'IntegerField',
-                'IntegerField',
-            ]
-        )
-        request.query_params = OrderedDict(
-            [
-                ('field12', 'value12'),
-                ('field13__range', 'value13'),
-                ('field6__range', 'value6'),
-                ('field5__range', '5'),
-                ('field1__range', '2017-11-28,2017-10-28'),
-                ('field7__range', '2017-11-28,2017-10-28'),
-                ('field8__range', '2017/11/28,2017/10/28'),
-                ('field2__range', '21,22'),
-                ('field3__range', '3.0,2.5'),
-                ('field4__range', '4,6'),
-                ('field9__range', ','),
-                ('field10__range', '1,'),
-                ('field11__range', ',1'),
-            ]
-        )
-        try:
-            res = FilterSupportingRangeBackend().filter_queryset(
-                request=request, queryset=queryset, view=view
-            )
-            self.assertNotEqual(res, queryset)
-        except ValidationError:
-            pass
-
 
 @override_settings(DEBUG=True)
 class FilterWithInvalidFields(APITestCase):
