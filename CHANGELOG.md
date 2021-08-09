@@ -4,11 +4,11 @@
 
 ### Added
 
-- nothing added
+- Add 400 response if a date range filter is not well formatted (doesnot contain 2 values)
 
 ### Changed
 
-- nothing changed
+- DateTime range filters now accept date values and datetime values
 
 ### Removed
 

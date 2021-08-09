@@ -1594,34 +1594,45 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
 
     def list(self, request):
         def check_date_format(date_type, param_values):
-            if date_type == "DateField":
-                regex = r'^\d{4}-\d{2}-\d{2}$'
-                date_format = 'yyyy-mm-dd'
-            else:
-                regex = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$'
-                date_format = 'yyyy-mm-ddThh:mm:ssZ'
+            date_format = 'yyyy-mm-dd'
+            date_regex = r'^\d{4}-\d{2}-\d{2}$'
+            date_time_format = 'yyyy-mm-ddThh:mm:ssZ'
+            date_time_regex = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$'
 
-            wrong_format = any(
-                map(
-                    lambda x: re.match(regex, x) is None,
-                    filter(lambda x: x != '', param_values),
-                )
-            )
-            if wrong_format:
-                return (
-                    False,
-                    Response(
-                        data={
-                            'message': "Wrong date format, should be '{}'".format(
-                                date_format
+            for param in param_values:
+                if param == '':
+                    continue
+                if date_type == "DateField":
+                    if re.match(date_regex, param) is None:
+                        return (
+                            False,
+                            Response(
+                                data={
+                                    'message': "Wrong date format, should be '{}'".format(
+                                        date_format
+                                    ),
+                                    '_errors': ['INVALID_QUERY'],
+                                },
+                                status=HTTP_400_BAD_REQUEST,
                             ),
-                            '_errors': ['INVALID_QUERY'],
-                        },
-                        status=HTTP_400_BAD_REQUEST,
-                    ),
-                )
-            else:
-                return True, None
+                        )
+                elif (
+                    re.match(date_regex, param) is None
+                    and re.match(date_time_regex, param) is None
+                ):
+                    return (
+                        False,
+                        Response(
+                            data={
+                                'message': "Wrong date format, should be '{}' or '{}'".format(
+                                    date_format, date_time_format
+                                ),
+                                '_errors': ['INVALID_QUERY'],
+                            },
+                            status=HTTP_400_BAD_REQUEST,
+                        ),
+                    )
+            return True, None
 
         for query_param in request.GET:
             param_values_list = request.GET[query_param].split(',')

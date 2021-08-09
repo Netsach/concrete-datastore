@@ -7,6 +7,7 @@ from django.test import override_settings
 
 from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework.exceptions import ValidationError
 
 from concrete_datastore.api.v1.filters import (
     FilterSupportingOrBackend,
@@ -264,10 +265,13 @@ class FilterSupportingRangeBackendTestClass(APITestCase):
                 ('field11__range', ',1'),
             ]
         )
-        res = FilterSupportingRangeBackend().filter_queryset(
-            request=request, queryset=queryset, view=view
-        )
-        self.assertNotEqual(res, queryset)
+        try:
+            res = FilterSupportingRangeBackend().filter_queryset(
+                request=request, queryset=queryset, view=view
+            )
+            self.assertNotEqual(res, queryset)
+        except ValidationError:
+            pass
 
 
 @override_settings(DEBUG=True)
@@ -311,7 +315,7 @@ class FilterWithInvalidFields(APITestCase):
                 'message': 'filter against {} is not allowed'.format(
                     requested_filter
                 ),
-                '_errors': ["INVALID_QUERY"]
+                '_errors': ["INVALID_QUERY"],
             },
         )
 
@@ -328,7 +332,7 @@ class FilterWithInvalidFields(APITestCase):
                 'message': 'filter against {} is not allowed'.format(
                     requested_filter
                 ),
-                '_errors': ["INVALID_QUERY"]
+                '_errors': ["INVALID_QUERY"],
             },
         )
 
@@ -343,7 +347,7 @@ class FilterWithInvalidFields(APITestCase):
                 'message': 'filter against {} is not allowed'.format(
                     requested_filter
                 ),
-                '_errors': ["INVALID_QUERY"]
+                '_errors': ["INVALID_QUERY"],
             },
         )
 
