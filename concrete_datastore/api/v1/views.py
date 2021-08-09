@@ -1602,6 +1602,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
             for param in param_values:
                 if param == '':
                     continue
+                #: If the field is a DateField, only a date value is accepted
                 if date_type == "DateField":
                     if re.match(date_regex, param) is None:
                         return (
@@ -1616,6 +1617,8 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
                                 status=HTTP_400_BAD_REQUEST,
                             ),
                         )
+                #: If the field is a DateTimeField, both date and datetime
+                #: values are accepted
                 elif (
                     re.match(date_regex, param) is None
                     and re.match(date_time_regex, param) is None
