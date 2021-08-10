@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Added index on DeletedModel to improve dramatically performances
 
 ### Removed
 
