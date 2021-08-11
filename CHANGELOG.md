@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Setting to remove the swagger access
 
 ### Changed
 
