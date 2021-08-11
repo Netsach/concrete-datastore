@@ -4,11 +4,14 @@
 
 ### Added
 
-- nothing added
+- Add 400 response if a date range filter is not well formatted (doesnot contain 2 values)
 
 ### Changed
 
 - Added index on DeletedModel to improve dramatically performances
+- DateTime range filters now accept date values and datetime values
+- Setting to remove the swagger access
+- Changed validation error format, avoid single `%` in `format` args (Correct error 500 while creating user in Admin)
 
 ### Removed
 
