@@ -16,21 +16,33 @@ api_v1_urls = re_path(
     r'^api/v1/', include('concrete_datastore.api.v1.urls', namespace='api_v1')
 )
 
-swagger_urls = [
-    re_path(
-        r'openapi-schema\.(?P<spec_format>json|yaml)$',
-        OpenApiView.as_view(patterns=[api_v1_1_urls]),
-        name='openapi-schema',
-    ),
-    re_path(
-        r'^swagger-ui/',
-        TemplateView.as_view(
-            template_name='mainApp/swagger-ui.html',
-            extra_context={'schema_url': 'openapi-schema'},
+#:  Swagger and OpenAPI should be available on if
+#:    - DEBUG is True
+#:    - DEBUG is False and ENABLE_SWAGGER_UI is True
+#:
+#:  | DEBUG | ENABLE_SWAGGER_UI | result |
+#:  | ----- | ----------------- | ------ |
+#:  |  0    |        0          |   0    |
+#:  |  0    |        1          |   1    |
+#:  |  1    |        0          |   1    |
+#:  |  1    |        1          |   1    |
+swagger_urls = []
+if settings.DEBUG or settings.ENABLE_SWAGGER_UI:
+    swagger_urls = [
+        re_path(
+            r'openapi-schema\.(?P<spec_format>json|yaml)$',
+            OpenApiView.as_view(patterns=[api_v1_1_urls]),
+            name='openapi-schema',
         ),
-        name='swagger-ui',
-    ),
-]
+        re_path(
+            r'^swagger-ui/',
+            TemplateView.as_view(
+                template_name='mainApp/swagger-ui.html',
+                extra_context={'schema_url': 'openapi-schema'},
+            ),
+            name='swagger-ui',
+        ),
+    ]
 
 urlpatterns = [
     re_path(r'^oauth/', include('social_django.urls', namespace='social')),

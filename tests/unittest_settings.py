@@ -83,3 +83,4 @@ META_MODEL_DEFINITIONS = load_datamodel(
 
 DISABLED_MODELS = ("EntityDividerModel",)
 EMAIL_HOST = ''
+API_REGISTER_EMAIL_FILTER = '.*'
