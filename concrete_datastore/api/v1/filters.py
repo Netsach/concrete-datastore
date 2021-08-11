@@ -424,10 +424,26 @@ class FilterSupportingRangeBackend(
                 continue
 
             values = query_params.get(param).split(',')
-            correct_range_values = len(values) == 2
 
-            if not correct_range_values:
-                continue
+            if len(values) < 2:
+                raise ValidationError(
+                    {
+                        "message": (
+                            "A comma is expected in the value of the filter. "
+                            "Expected values are '<date1>,<date2>', '<date1>,'"
+                            " or ',<date2>'"
+                        )
+                    }
+                )
+            if len(values) > 2:
+                raise ValidationError(
+                    {
+                        "message": (
+                            'Only two comma-separated values are expected, '
+                            f'got {len(values)}: {values}'
+                        )
+                    }
+                )
 
             range_start, range_end = values
 
