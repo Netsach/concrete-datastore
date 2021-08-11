@@ -127,3 +127,6 @@ concrete_datastore/settings/media/
 concrete_datastore/settings/static/
 development/media/
 development/static/
+
+.package_settings.json
+
