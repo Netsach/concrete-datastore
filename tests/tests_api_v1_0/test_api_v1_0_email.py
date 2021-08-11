@@ -59,7 +59,7 @@ class EmailTest(APITestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED, resp.data)
         self.assertIn('resource_status', resp.data)
-        self.assertEqual(resp.data['resource_status'], 'sent')
+        self.assertEqual(resp.data['resource_status'], 'sent', resp.data)
 
         self.assertIn('uid', resp.data)
         instance_mail = Email.objects.get(uid=resp.data['uid'])
