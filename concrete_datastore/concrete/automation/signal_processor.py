@@ -44,9 +44,9 @@ def on_pre_delete(sender, instance, **kwargs):
                 file_path = field_value.path
             except Exception as e:
                 logger.exception(
-                    f'Cannot retrieve the file value for field {field_name} '
-                    f'of instance <{model_name}:{instance.uid}>. '
-                    f'The error is {e}'
+                    f'Cannot retrieve the file path for {field_value} '
+                    f'(field {field_name} of instance '
+                    f'<{model_name}:{instance.uid}>). The error is {e}'
                 )
                 continue
             if os.path.exists(file_path) is False:
