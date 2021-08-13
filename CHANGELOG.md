@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Add a try accept when retrieving the file path on deleting instance
 
 ### Changed
 
