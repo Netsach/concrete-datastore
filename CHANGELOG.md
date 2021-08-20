@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Correction of API filters for range over datetimefield when closing period was not applied
 
 ### Removed
 

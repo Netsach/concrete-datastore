@@ -83,9 +83,9 @@ def convert_type(string, field_type, close_period=True):
             # Expected format YYYY-MM-DD HH:MM[:ss[.uuuuuu]][TZ]
             dt = ensure_pendulum(string)
             if close_period:
-                dt.end_of('day')
+                dt = dt.end_of('day')
             else:
-                dt.start_of('day')
+                dt = dt.start_of('day')
             return format_datetime(dt)
         if field_type == 'DateField':
             # Expected YYYY-MM-DD
