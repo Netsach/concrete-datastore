@@ -8,11 +8,17 @@
 
 ### Changed
 
-- Correction of API filters for range over datetimefield when closing period was not applied
+- nothing changed
 
 ### Removed
 
 - nothing removed
+
+## [1.33.0] - 2021-08-20
+
+### Changed
+
+- Correction of API filters for range over datetimefield when closing period was not applied
 
 ## [1.32.0] - 2021-08-11
 
