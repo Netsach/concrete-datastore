@@ -741,7 +741,7 @@ class FilterInsensitiveContainsBackend(APITestCase):
     def test_success_one_result_with_icontain_filter(self):
         resp = self.client.get(
             '/api/v1.1/project/',
-            data={'name__icontains': 'DesCrIption1'},
+            data={'name__icontains': 'pRoJeCt1'},
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
