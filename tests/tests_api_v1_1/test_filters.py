@@ -716,6 +716,43 @@ class FilterContainsBackend(APITestCase):
 
 
 @override_settings(DEBUG=True)
+class FilterInsensitiveContainsBackend(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('user@netsach.org')
+        self.user.set_password('plop')
+        self.user.set_level('superuser')
+        self.user.save()
+        confirmation = UserConfirmation.objects.create(user=self.user)
+        confirmation.confirmed = True
+        confirmation.save()
+        url = '/api/v1.1/auth/login/'
+        resp = self.client.post(
+            url, {"email": "user@netsach.org", "password": "plop"}
+        )
+        self.token = resp.data['token']
+
+        self.project1 = Project.objects.create(
+            name='Project1', description='text of description1'
+        )
+        self.project1 = Project.objects.create(
+            name='Project2', description='text of description2'
+        )
+
+    def test_success_one_result_with_icontain_filter(self):
+        resp = self.client.get(
+            '/api/v1.1/project/',
+            data={'name__icontains': 'DesCrIption1'},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('results', resp.data)
+        self.assertIn('total_objects_count', resp.data)
+        self.assertEqual(resp.data['total_objects_count'], 1)
+        names = {project['name'] for project in resp.data['results']}
+        self.assertEqual(names, {'Project1'})
+
+
+@override_settings(DEBUG=True)
 class FilterObjectByUid(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user('user@netsach.org')
