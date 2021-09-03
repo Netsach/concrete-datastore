@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Case insensitive contains filter
 
 ### Changed
 
