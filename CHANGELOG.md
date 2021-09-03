@@ -4,6 +4,7 @@
 
 ### Added
 
+- Add a try accept when retrieving the file path on deleting instance
 - added support for user email value within register email
 - Case insensitive contains filter
 
