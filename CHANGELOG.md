@@ -5,6 +5,7 @@
 ### Added
 
 - Add a try accept when retrieving the file path on deleting instance
+- Case insensitive contains filter
 
 ### Changed
 
@@ -13,6 +14,12 @@
 ### Removed
 
 - nothing removed
+
+## [1.33.0] - 2021-08-20
+
+### Changed
+
+- Correction of API filters for range over datetimefield when closing period was not applied
 
 ## [1.32.0] - 2021-08-11
 
