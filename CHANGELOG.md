@@ -4,9 +4,7 @@
 
 ### Added
 
-- Add a try accept when retrieving the file path on deleting instance
-- added support for user email value within register email
-- Case insensitive contains filter
+- nothing added
 
 ### Changed
 
@@ -15,6 +13,14 @@
 ### Removed
 
 - nothing removed
+
+## [1.34.0] - 2021-09-03
+
+### Added
+
+- Add a try accept when retrieving the file path on deleting instance
+- added support for user email value within register email
+- Case insensitive contains filter
 
 ## [1.33.0] - 2021-08-20
 
