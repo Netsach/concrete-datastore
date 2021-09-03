@@ -5,6 +5,7 @@
 ### Added
 
 - added support for user email value within register email
+- Case insensitive contains filter
 
 ### Changed
 
