@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- added support for user email value within register email
 
 ### Changed
 

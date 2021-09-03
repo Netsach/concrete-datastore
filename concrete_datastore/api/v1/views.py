@@ -1009,7 +1009,9 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
 
             link = urljoin(referer, uri)
 
-            email_body = email_format.replace('{link}', link)
+            email_body = email_format.replace('{link}', link).replace(
+                '{email}', user.email
+            )
 
             if settings.AUTH_CONFIRM_EMAIL_ENABLE is True:
                 confirmation = user.get_or_create_confirmation(
