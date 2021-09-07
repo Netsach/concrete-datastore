@@ -83,9 +83,9 @@ def convert_type(string, field_type, close_period=True):
             # Expected format YYYY-MM-DD HH:MM[:ss[.uuuuuu]][TZ]
             dt = ensure_pendulum(string)
             if close_period:
-                dt.end_of('day')
+                dt = dt.end_of('day')
             else:
-                dt.start_of('day')
+                dt = dt.start_of('day')
             return format_datetime(dt)
         if field_type == 'DateField':
             # Expected YYYY-MM-DD
@@ -334,6 +334,51 @@ class FilterSupportingContainsBackend(
         return queryset.filter(q_object)
 
 
+class FilterSupportingInsensitiveContainsBackend(
+    BaseFilterBackend, CustomShemaOperationParameters
+):
+    def get_schema_operation_parameters(self, view):
+        params = [
+            {
+                'name': f'{field_name}__icontains',
+                'required': False,
+                'in': 'query',
+                'schema': {'type': 'string'},
+            }
+            for field_name in getattr(view, 'filterset_fields', ())
+            if get_filter_field_type(view.model_class, field_name)
+            in ('CharField', 'TextField')
+        ]
+        return self.return_if_not_details(view=view, value=params)
+
+    def filter_queryset(self, request, queryset, view):
+        query_params = request.query_params
+        filterset_fields = getattr(view, 'filterset_fields', ())
+
+        q_object = None
+        for param in query_params:
+            if not param.endswith('__icontains'):
+                continue
+            param_field = param.replace('__icontains', '')
+            if param_field not in filterset_fields:
+                continue
+            if not get_filter_field_type(queryset.model, param_field) in (
+                'CharField',
+                'TextField',
+            ):
+                continue
+
+            custom_filter = {param: query_params.get(param)}
+            if q_object is None:
+                q_object = Q(**custom_filter)
+            else:
+                q_object &= Q(**custom_filter)
+        if q_object is None:
+            return queryset
+
+        return queryset.filter(q_object)
+
+
 class FilterSupportingEmptyBackend(
     BaseFilterBackend, CustomShemaOperationParameters
 ):
@@ -424,10 +469,26 @@ class FilterSupportingRangeBackend(
                 continue
 
             values = query_params.get(param).split(',')
-            correct_range_values = len(values) == 2
 
-            if not correct_range_values:
-                continue
+            if len(values) < 2:
+                raise ValidationError(
+                    {
+                        "message": (
+                            "A comma is expected in the value of the filter. "
+                            "Expected values are '<date1>,<date2>', '<date1>,'"
+                            " or ',<date2>'"
+                        )
+                    }
+                )
+            if len(values) > 2:
+                raise ValidationError(
+                    {
+                        "message": (
+                            'Only two comma-separated values are expected, '
+                            f'got {len(values)}: {values}'
+                        )
+                    }
+                )
 
             range_start, range_end = values
 

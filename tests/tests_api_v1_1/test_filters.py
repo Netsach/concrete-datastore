@@ -4,6 +4,7 @@ import uuid
 from rest_framework.test import APITestCase
 from collections import OrderedDict
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 import pendulum
 
 from concrete_datastore.api.v1.filters import (
@@ -160,9 +161,6 @@ class FilterSupportingOrBackendTestClass(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
 
-from django.test import override_settings
-
-
 @override_settings(DEBUG=True)
 class FilterSupportingRangeBackendTestClass(APITestCase):
     def setUp(self):
@@ -197,65 +195,6 @@ class FilterSupportingRangeBackendTestClass(APITestCase):
             request=request, queryset=queryset, view=view
         )
         self.assertEqual(res, queryset)
-
-    # @patch('concrete_datastore.concrete.datetime.pendulum')
-    def test_filter_queryset_with_non_null_query_params(self, *args):
-        request = MagicMock()
-        view = MagicMock()
-        view.filterset_fields = (
-            'field1',
-            'field2',
-            'field3',
-            'field4',
-            'field5',
-            'field6',
-            'field7',
-            'field8',
-            'field9',
-            'field10',
-            'field11',
-        )
-        queryset = MagicMock()
-        queryset.model._meta.get_field = MagicMock()
-        queryset.model._meta.get_field().get_internal_type = MagicMock(
-            side_effect=[
-                'OtherRandowField',
-                'DateField',
-                'DateTimeField',
-                'DateField',
-                'DateField',
-                'DecimalField',
-                'FloatField',
-                'IntegerField',
-                'IntegerField',
-                'IntegerField',
-                'IntegerField',
-            ]
-        )
-        request.query_params = OrderedDict(
-            [
-                ('field12', 'value12'),
-                ('field13__range', 'value13'),
-                ('field6__range', 'value6'),
-                ('field5__range', '5'),
-                ('field1__range', '2017-11-28,2017-10-28'),
-                ('field7__range', '2017-11-28,2017-10-28'),
-                ('field8__range', '2017/11/28,2017/10/28'),
-                ('field2__range', '21,22'),
-                ('field3__range', '3.0,2.5'),
-                ('field4__range', '4,6'),
-                ('field9__range', ','),
-                ('field10__range', '1,'),
-                ('field11__range', ',1'),
-            ]
-        )
-        res = FilterSupportingRangeBackend().filter_queryset(
-            request=request, queryset=queryset, view=view
-        )
-        self.assertNotEqual(res, queryset)
-
-
-from django.test import override_settings
 
 
 @override_settings(DEBUG=True)
@@ -336,9 +275,6 @@ class FilterWithInvalidFields(APITestCase):
         )
 
 
-from django.test import override_settings
-
-
 @override_settings(DEBUG=True)
 class FilterDatesTestClass(APITestCase):
     def setUp(self):
@@ -375,8 +311,102 @@ class FilterDatesTestClass(APITestCase):
                 HTTP_AUTHORIZATION="Token {}".format(self.token),
             )
 
-    def tearDown(self):
-        pass
+    def test_datetime_two_formats_supported(self):
+        start_date = self.date.add(days=-1).to_date_string()
+        start_datetime = format_datetime(self.date.add(days=-1))
+        end_date = self.date.add(days=3).to_date_string()
+        end_datetime = format_datetime(self.date.add(days=3))
+
+        #: URL with datetime filters
+        url_date_time = (
+            '/api/v1.1/date-utc/?datetime__range='
+            f'{start_datetime},{end_datetime}'
+        )
+
+        resp = self.client.get(
+            url_date_time, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        #: URL with date filters
+        url_date = (
+            f'/api/v1.1/date-utc/?datetime__range={start_date},{end_date}'
+        )
+
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_wrong_date_range_values(self):
+        #: URL with wrong date values
+        url_date_time = (
+            '/api/v1.1/date-utc/?date__range=WRONG_FORMAT1,WRONG_FORMAT2'
+        )
+
+        resp = self.client.get(
+            url_date_time, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            resp.json(),
+            {
+                'message': "Wrong date format, should be 'yyyy-mm-dd'",
+                '_errors': ['INVALID_QUERY'],
+            },
+        )
+
+        #: URL with wrong datetime values
+        url_date_time = (
+            '/api/v1.1/date-utc/?datetime__range=WRONG_FORMAT1,WRONG_FORMAT2'
+        )
+
+        resp = self.client.get(
+            url_date_time, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            resp.json(),
+            {
+                'message': "Wrong date format, should be 'yyyy-mm-dd' or 'yyyy-mm-ddThh:mm:ssZ'",
+                '_errors': ['INVALID_QUERY'],
+            },
+        )
+
+    def test_bad_formatted_range_values(self):
+        start_date = self.date.add(days=-1).to_date_string()
+        start_datetime = format_datetime(self.date.add(days=-1))
+        end_date = self.date.add(days=3).to_date_string()
+
+        #: URL with only one value
+        url_date_time = f'/api/v1.1/date-utc/?datetime__range={start_datetime}'
+
+        resp = self.client.get(
+            url_date_time, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            resp.json(),
+            {
+                "message": "A comma is expected in the value of the filter. Expected values are '<date1>,<date2>', '<date1>,' or ',<date2>'"
+            },
+        )
+
+        #: URL with 3 values (2 commas)
+        url_date = (
+            f'/api/v1.1/date-utc/?datetime__range={start_date},{end_date},'
+        )
+
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            resp.json(),
+            {
+                "message": f'Only two comma-separated values are expected, got 3: [\'{start_date}\', \'{end_date}\', \'\']'
+            },
+        )
 
     def test_filter_range_date_and_datetime_fields(self):
         start_date = self.date.add(days=-1).to_date_string()
@@ -414,9 +444,6 @@ class FilterDatesTestClass(APITestCase):
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-
-
-from django.test import override_settings
 
 
 @override_settings(DEBUG=True)
@@ -491,9 +518,6 @@ class FilterDividedModelByDivider(APITestCase):
             url_projects, HTTP_AUTHORIZATION='Token {}'.format(self.token_a)
         )
         self.assertEqual(len(resp.json()['results']), 2)
-
-
-from django.test import override_settings
 
 
 @override_settings(DEBUG=True)
@@ -591,9 +615,6 @@ class FilterUsersByDivider(APITestCase):
         self.assertEqual(resp.data["total_objects_count"], 0)
 
 
-from django.test import override_settings
-
-
 @override_settings(DEBUG=True)
 class FilterWithForeignKeyNone(APITestCase):
     def setUp(self):
@@ -644,9 +665,6 @@ class FilterWithForeignKeyNone(APITestCase):
         self.assertEqual(resp.data["total_objects_count"], 2)
 
 
-from django.test import override_settings
-
-
 @override_settings(DEBUG=True)
 class FilterContainsBackend(APITestCase):
     def setUp(self):
@@ -695,6 +713,43 @@ class FilterContainsBackend(APITestCase):
         self.assertEqual(resp.data['total_objects_count'], 2)
         names = {project['name'] for project in resp.data['results']}
         self.assertEqual(names, {'Project1', 'Project2'})
+
+
+@override_settings(DEBUG=True)
+class FilterInsensitiveContainsBackend(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('user@netsach.org')
+        self.user.set_password('plop')
+        self.user.set_level('superuser')
+        self.user.save()
+        confirmation = UserConfirmation.objects.create(user=self.user)
+        confirmation.confirmed = True
+        confirmation.save()
+        url = '/api/v1.1/auth/login/'
+        resp = self.client.post(
+            url, {"email": "user@netsach.org", "password": "plop"}
+        )
+        self.token = resp.data['token']
+
+        self.project1 = Project.objects.create(
+            name='Project1', description='text of description1'
+        )
+        self.project1 = Project.objects.create(
+            name='Project2', description='text of description2'
+        )
+
+    def test_success_one_result_with_icontain_filter(self):
+        resp = self.client.get(
+            '/api/v1.1/project/',
+            data={'name__icontains': 'pRoJeCt1'},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('results', resp.data)
+        self.assertIn('total_objects_count', resp.data)
+        self.assertEqual(resp.data['total_objects_count'], 1)
+        names = {project['name'] for project in resp.data['results']}
+        self.assertEqual(names, {'Project1'})
 
 
 @override_settings(DEBUG=True)

@@ -574,7 +574,7 @@ class DefaultDivider(models.Model):
 class DeletedModel(models.Model):
     uid = models.UUIDField()
 
-    model_name = models.CharField(max_length=255, default='')
+    model_name = models.CharField(max_length=255, default='', db_index=True)
 
     modification_date = models.DateTimeField(auto_now=True)
 
