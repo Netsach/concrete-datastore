@@ -4,7 +4,7 @@
 
 ### Added
 
-- When parsing the datamodel, raise an exception if a minimum creation level on any instance is set to Anonymous.
+- When parsing the datamodel, raise an error if a minimum creation level on any instance is set to Anonymous.
 
 ### Changed
 

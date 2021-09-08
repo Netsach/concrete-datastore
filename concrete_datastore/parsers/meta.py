@@ -20,7 +20,7 @@ from concrete_datastore.parsers.exceptions import (
     ProtectedModelNameError,
     ProtectedFieldNameError,
     UnknownIPProtocol,
-    AnonymousNotAllowedToCreate,
+    AnonymousNotAllowedToCreateError,
 )
 from concrete_datastore.parsers.validators import validate_specifier
 from concrete_datastore.parsers.constants import (
@@ -137,8 +137,8 @@ def make_modelisation_cls(modelisation_spec, version, base=Model):
         minimum_levels = {}
         for perm, level in permission_dict['minimum_levels'].items():
             if perm == 'create' and level == "anonymous":
-                #: Raise exception if minimum create level is anonymous
-                raise AnonymousNotAllowedToCreate()
+                #: Raise error if minimum create level is anonymous
+                raise AnonymousNotAllowedToCreateError()
             key = 'creation' if perm == 'create' else perm
             minimum_levels.update({f'm_{key}_minimum_level': level})
         return minimum_levels
