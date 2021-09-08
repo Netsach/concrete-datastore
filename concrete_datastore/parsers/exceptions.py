@@ -158,3 +158,11 @@ class DuplicatedModelError(Exception):
     """
 
     pass
+
+
+class AnonymousNotAllowedToCreate(ModelManagerGenericException):
+    code = "ANONYMOUS_NOT_ALLOWED_TO_CREATE"
+    message = (
+        "Create should be at least authenticated. "
+        "For security issues, Anonymous users cannot create instances."
+    )
