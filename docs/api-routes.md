@@ -14,7 +14,7 @@ For each model, Concrete Datastore exposes two routes accepting different method
 
 #### List all instances of model MyModel
 
-A `GET` on the root url of the model MyModel will retrieve all instances of this model. This endpoint accepts filtering (see [API Authentication](authentication.md) for more information)
+A `GET` on the root url of the model MyModel will retrieve all instances of this model. This endpoint accepts filtering (see [filters section](filters.md) for more information)
 
 - **Method**: `GET`
 
@@ -189,7 +189,9 @@ This operation could fail. If the instance is related to a protected instance, i
 
 #### Get stats on model MyModel
 
-A `GET` on the endpoint `https://<webapp>/api/v1.1/my-model/stats/` allows to get stats on the given model.
+A `GET` on the endpoint `https://<webapp>/api/v1.1/my-model/stats/` allows to get stats on the given model. This endpoint accepts filtering (see [filters section](filters.md) for more information)
+
+*N.B* Some query parameters in the [filters section](filters.md) are not needed for this endpoint (hence ignored) such as `c_resp_page_size`, `page` and `c_resp_nested`. As for the `timestamp_start` and `timestamp_end`, they are used differently for this endpoint. (Please refer to the [option parameters section](#OptionalParameters) to see more information about the `timestamp_start` and `timestamp_end`, as well as the itroduction of two other query parameters)
 
 - **Method**: `GET`
 
@@ -228,7 +230,7 @@ Example of a response:
 }
 ```
 
-##### Optional parameters for the stats endpoint
+<a name="OptionalParameters"></a>##### Optional parameters for the stats endpoint
 
 - **Path parameters:** The stats endpoint accepts two path parameters: `timestamp_start` and `timestamp_end` to get stats between two timestamps. You can either specify only a `timestamp_start` (the end will be the current timestamp) or both start and end:
 
