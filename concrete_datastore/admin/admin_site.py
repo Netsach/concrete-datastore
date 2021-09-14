@@ -152,12 +152,22 @@ def get_admin_site():
             return custom_app_groups_list
 
         def index(self, request, extra_context=None, *args, **kwargs):
-            if settings.USE_CORE_AUTOMATION:
-                extra_context = {
-                    'use_core_automation': True,
-                    'target_admin_view': reverse('coreAdmin:index'),
-                    'target_admin_view_name': 'Core Admin',
+            if extra_context is None:
+                extra_context = {}
+            extra_context.update(
+                {
+                    'enable_db_dump': settings.ENABLE_DATABASE_DUMP,
+                    'enable_db_load': settings.ENABLE_DATABASE_LOAD,
                 }
+            )
+            if settings.USE_CORE_AUTOMATION:
+                extra_context.update(
+                    {
+                        'use_core_automation': True,
+                        'target_admin_view': reverse('coreAdmin:index'),
+                        'target_admin_view_name': 'Core Admin',
+                    }
+                )
             return super().index(request, extra_context, *args, **kwargs)
 
     CustomAdminSite.login_template = login_template
