@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Remove nested foreign keys from open api schema for methods POST PUT and PATCH
 
 ### Removed
 

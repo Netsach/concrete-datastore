@@ -393,10 +393,8 @@ class AutoSchema(AutoSchemaSuper):
             parameters = deepcopy(DEFAULT_LIST_VIEW_PARAMETERS)
         if hasattr(self.view, 'model_class'):
             for field in getattr(self.view, 'filterset_fields', []):
-                field_type = (
-                    concrete_datastore.api.v1.filters.get_filter_field_type(
-                        self.view.model_class, field
-                    )
+                field_type = concrete_datastore.api.v1.filters.get_filter_field_type(
+                    self.view.model_class, field
                 )
                 if field_type in ('ForeignKey', 'ManyToManyField'):
                     continue
@@ -479,6 +477,19 @@ class AutoSchema(AutoSchemaSuper):
 
     def custom_map_field(self, field):
 
+        # Related fields.
+        if isinstance(field, serializers.ManyRelatedField):
+            return {
+                'type': 'array',
+                'items': {'type': 'string', 'format': 'uid'},
+            }
+
+        if isinstance(field, serializers.PrimaryKeyRelatedField):
+            model = getattr(field.queryset, 'model', None)
+            if model is not None:
+                model_field = model._meta.pk
+                if isinstance(model_field, models.AutoField):
+                    return {'type': 'string', 'format': 'uid'}
         if isinstance(field, serializers.ListSerializer):
             comp_name = self.get_component_name(path=None, serializer=field)
             if comp_name not in self.components.keys():
@@ -497,26 +508,21 @@ class AutoSchema(AutoSchemaSuper):
                 )
             return {'$ref': f'#/components/schemas/{comp_name}'}
 
-        # Related fields.
-        if isinstance(field, serializers.ManyRelatedField):
-            return {
-                'type': 'array',
-                'items': {'type': 'string', 'format': 'uid'},
-            }
-
-        if isinstance(field, serializers.PrimaryKeyRelatedField):
-            model = getattr(field.queryset, 'model', None)
-            if model is not None:
-                model_field = model._meta.pk
-                if isinstance(model_field, models.AutoField):
-                    return {'type': 'string', 'format': 'uid'}
         return super()._map_field(field)
 
-    def custom_map_serializer(self, serializer):
+    def custom_map_serializer(self, serializer, nested=True):
         required = []
         properties = {}
 
         for field in serializer.fields.values():
+
+            if (
+                isinstance(field, serializers.PrimaryKeyRelatedField)
+                and nested is False
+                and field.field_name.endswith('_uid') is False
+            ):
+                continue
+
             if isinstance(field, serializers.HiddenField):
                 continue
 
@@ -604,7 +610,10 @@ class AutoSchema(AutoSchemaSuper):
         if not isinstance(serializer, serializers.Serializer):
             return {}
 
-        content = self.custom_map_serializer(serializer)
+        nested = True
+        if method in ('POST', 'PATCH', 'PUT'):
+            nested = False
+        content = self.custom_map_serializer(serializer, nested)
         # No required fields for PATCH
         if method == 'PATCH':
             del content['required']
@@ -706,7 +715,9 @@ class AutoSchema(AutoSchemaSuper):
         return resp_dict
 
     def get_component_name(self, path, serializer, method=None):
-        if method == 'GET' and '{uid}' not in path:
+        if method in ('POST', 'PATCH', 'PUT'):
+            suffix = 'Unsafe'
+        elif method == 'GET' and '{uid}' not in path:
             suffix = 'List'
         else:
             suffix = 'Detail'
