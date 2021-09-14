@@ -485,3 +485,6 @@ IGNORED_MODELS_ON_DELETE = [
 ADMIN_URL_ENABLED = True
 ADMIN_ROOT_URI = "concrete-datastore-admin"
 ENABLE_SWAGGER_UI = True
+
+SWAGGER_SPEC_PATH = 'openapi-schema'
+SWAGGER_UI_PATH = 'swagger-ui'

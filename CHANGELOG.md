@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Add settings to configure the path for OpenAPI schema and the Swagger interface
 
 ### Changed
 
