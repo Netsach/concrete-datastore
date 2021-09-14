@@ -14,7 +14,7 @@ For each model, Concrete Datastore exposes two routes accepting different method
 
 #### List all instances of model MyModel
 
-A `GET` on the root url of the model MyModel will retrieve all instances of this model.
+A `GET` on the root url of the model MyModel will retrieve all instances of this model. This endpoint accepts filtering (see [API Authentication](authentication.md) for more information)
 
 - **Method**: `GET`
 
@@ -120,7 +120,7 @@ curl \
 
 #### Update a specific instance of model MyModel by its UID
 
-#### Update some of the fields with `PATCH`
+##### Update some of the fields with `PATCH`
 
 A `PATCH` on the url of a given instance of model MyModel will update the fields of this given instance.
 
@@ -142,7 +142,7 @@ curl \
 
 **Response**: with status code HTTP `200 (OK)`, the response body is a JSON containing all the fields of the given instance, updated.
 
-#### Update all the fields with `PUT`
+##### Update all the fields with `PUT`
 
 A `PUT` on the url of a given instance of model MyModel will update the fields of this given instance.
 
@@ -187,6 +187,158 @@ curl \
 
 This operation could fail. If the instance is related to a protected instance, it cannot be deleted. In this case, the HTTP status code is `412 (PRECONDITION FAILED)` with the error code `"PROTECTED_RELATION"` in the response.
 
+#### Get stats on model MyModel
+
+A `GET` on the endpoint `https://<webapp>/api/v1.1/my-model/stats/` allows to get stats on the given model.
+
+- **Method**: `GET`
+
+- **ENDPOINT**: `https://<webapp>/api/v1.1/my-model/stats/`
+
+- **Example**: 
+
+**Request**
+```shell
+curl \
+  -H "Authorization: Token <auth_token>" \
+  "https://<webapp>/api/v1.1/my-model/stats/"
+```
+
+**Response**:with status code HTTP `200 (OK)`, the response body is a JSON containing stats on the instances of the model such as:
+
+- `objects_count`: the number of instances of this model.
+
+- `num_total_pages`: the number of total pages.
+ 
+- `page_urls`: An object containing all the pages.
+
+Example of a response:
+
+```json
+{
+  "objects_count": 125,
+  "num_total_pages": 2,
+  "max_allowed_objects_per_page": 100,
+  "timestamp_start": 0.0,
+  "timestamp_end": 701184650.0,
+  "page_urls": {
+    "page1": "https://<webapp>/api/v1.1/my-model/",
+    "page2": "https://<webapp>/api/v1.1/my-model/?page=2"
+  }
+}
+```
+
+##### Optional parameters for the stats endpoint
+
+- **Path parameters:** The stats endpoint accepts two path parameters: `timestamp_start` and `timestamp_end` to get stats between two timestamps. You can either specify only a `timestamp_start` (the end will be the current timestamp) or both start and end:
+
+```shell
+curl \
+  -H "Authorization: Token <auth_token>" \
+  "https://<webapp>/api/v1.1/my-model/stats/timestamp_start=123456789.123"
+```
+
+```shell
+curl \
+  -H "Authorization: Token <auth_token>" \
+  "https://<webapp>/api/v1.1/my-model/stats/timestamp_start=123456789.0-timestamp_end:123456832.0"
+```
+
+- **Query parameters:** Two additional query parameters are accepted for this endpoint: `group_by` and `combine`:
+
+  + `group_by`: Accepts one or more comma separated field names. If the value of this param contains an invalid field name, the API responds with a `400 BAD REQUEST` Used to group the stats by the field values. The results will appear as an object within a `results` field. Example:
+
+**Request:**
+```shell
+curl \
+  -H "Authorization: Token <auth_token>" \
+  "https://<webapp>/api/v1.1/my-model/stats/?group_by=status"
+```
+
+**Response:**
+```json
+{
+  "objects_count": 125,
+  "num_total_pages": 2,
+  "max_allowed_objects_per_page": 100,
+  "timestamp_start": 0.0,
+  "timestamp_end": 701184650.0,
+  "page_urls": {
+    "page1": "https://<webapp>/api/v1.1/my-model/",
+    "page2": "https://<webapp>/api/v1.1/my-model/?page=2"
+  },
+  "results":{
+    "status":{
+      "COMPLETED": 113,
+      "FAILED": 12
+    }
+  }
+}
+```
+
+  + `combine`: Accepts `true` or `false` (default to `false`). if any other value is given, the API responds with a `400 BAD REQUEST`. This param is used when more than one field name is given in the `group_by` parameter, otherwise it is ignored. If `combine` is `true`, the results will be a combination of the possible values of the two fields. Otherwise the results will be given separately for each field
+
+**Request with combine to false:**
+```shell
+curl \
+  -H "Authorization: Token <auth_token>" \
+  "https://<webapp>/api/v1.1/my-model/stats/?group_by=status,archived"
+```
+
+**Response:**
+```json
+{
+  "objects_count": 125,
+  "num_total_pages": 2,
+  "max_allowed_objects_per_page": 100,
+  "timestamp_start": 0.0,
+  "timestamp_end": 701184650.0,
+  "page_urls": {
+    "page1": "https://<webapp>/api/v1.1/my-model/",
+    "page2": "https://<webapp>/api/v1.1/my-model/?page=2"
+  },
+  "results":{
+    "status":{
+      "COMPLETED": 113,
+      "FAILED": 12
+    },
+    "archived":{
+      "true": 53,
+      "false": 72
+    }
+  }
+}
+```
+
+**Request with combine to true:**
+```shell
+curl \
+  -H "Authorization: Token <auth_token>" \
+  "https://<webapp>/api/v1.1/my-model/stats/?group_by=status,archived&combine=true"
+```
+
+**Response:**
+```json
+{
+  "objects_count": 125,
+  "num_total_pages": 2,
+  "max_allowed_objects_per_page": 100,
+  "timestamp_start": 0.0,
+  "timestamp_end": 701184650.0,
+  "page_urls": {
+    "page1": "https://<webapp>/api/v1.1/my-model/",
+    "page2": "https://<webapp>/api/v1.1/my-model/?page=2"
+  },
+  "results":{
+    "status,archived":{
+      "COMPLETED,true": 45,
+      "COMPLETED,false": 68,
+      "FAILED,true": 8
+      "FAILED,false": 4
+    }
+  }
+}
+```
 
 ### Specific API endpoints
 

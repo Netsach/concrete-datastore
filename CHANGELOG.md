@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Add possibily to group stat results by field names
 
 ### Changed
 
