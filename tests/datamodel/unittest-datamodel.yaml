@@ -658,11 +658,17 @@ manifest:
         search_fields:
           - first_name
           - last_name
-        filter_fields: []
-        display_fields:
+        filter_fields:
           - first_name
           - last_name
-        export_fields: []
+        display_fields:
+          - email
+          - first_name
+          - last_name
+        export_fields:
+          - email
+          - first_name
+          - last_name
       - model_uid: 7158d6af-8c79-4613-82cb-c1b0b20400ab
         model_name: Project
         search_fields:
