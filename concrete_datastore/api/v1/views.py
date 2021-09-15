@@ -1529,6 +1529,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         TokenExpiryAuthentication,
         URLTokenExpiryAuthentication,
     )
+
     def dispatch(self, request, *args, **kwargs):
         # Retrieve response first then log
         rsp = super(ApiModelViewSet, self).dispatch(request, *args, **kwargs)
