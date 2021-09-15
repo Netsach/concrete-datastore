@@ -1529,9 +1529,6 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         TokenExpiryAuthentication,
         URLTokenExpiryAuthentication,
     )
-
-    # throttle_classes = (CustomUserRateThrottle, CustomAnonymousRateThrottle)
-
     def dispatch(self, request, *args, **kwargs):
         # Retrieve response first then log
         rsp = super(ApiModelViewSet, self).dispatch(request, *args, **kwargs)
