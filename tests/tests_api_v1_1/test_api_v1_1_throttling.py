@@ -6,18 +6,6 @@ from rest_framework import status
 from concrete_datastore.concrete.models import User, UserConfirmation, Project
 from django.test import override_settings
 
-COPIED_REST_FRAMEOWRK_SETTINGS = deepcopy(settings.REST_FRAMEWORK)
-COPIED_REST_FRAMEOWRK_SETTINGS.update(
-    {
-        'DEFAULT_THROTTLE_CLASSES': (
-            'rest_framework.throttling.AnonRateThrottle',
-            'rest_framework.throttling.UserRateThrottle',
-        ),
-        'DEFAULT_THROTTLE_RATES': {'anon': '2/minute', 'user': '2/minute'},
-    }
-)
-
-
 @override_settings(DEBUG=True)
 class CRUDTestCase(APITestCase):
     def setUp(self):
