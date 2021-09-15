@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Allow anonymous creation on Concrete instances with throttling conditions
 
 ### Changed
 

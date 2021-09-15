@@ -220,7 +220,26 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
+    'DEFAULT_THROTTLE_CLASSES': (
+        'concrete_datastore.api.v1.throttling.CustomAnonymousRateThrottle',
+        'concrete_datastore.api.v1.throttling.CustomUserRateThrottle',
+    ),
 }
+
+ENABLE_THROTTLING = True
+
+#: Throttling rate should be (requests / duration)
+#: Accepted durations are all the strings that start with
+#: - "s" (seconds) example: s, sec, second, seconds, ...
+#: - "m" (mintes) example: m, min, minute, minutes, ...
+#: - "h" (hours) example: h, hou, hour, hours, ...
+#: - "d" (days) example: d, day, days, ...
+#: Please refer to the implementation of the method for more info
+#: https://github.com/encode/django-rest-framework/blob/3.10.2/rest_framework/throttling.py#L106
+ENABLE_AUTHENTICATED_USER_THROTTLING = True
+USER_THROTTLING_RATE = '500/m'
+ENABLE_ANONYMOUS_USER_THROTTLING = True
+ANONYMOUS_THROTTLING_RATE = '500/m'
 
 AUTH_USER_MODEL = 'concrete.User'
 

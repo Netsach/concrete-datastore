@@ -7,6 +7,7 @@ from concrete_datastore.concrete.models import (
     User,
     UserConfirmation,
     Project,
+    AnonymousModel,
 )
 from django.test import override_settings
 
@@ -14,11 +15,7 @@ from django.test import override_settings
 @override_settings(DEBUG=True)
 class CRUDTestCase(APITestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            'johndoe@netsach.org'
-            # 'John',
-            # 'Doe',
-        )
+        self.user = User.objects.create_user('johndoe@netsach.org')
         self.user.set_password('plop')
         self.user.save()
         self.confirmation = UserConfirmation.objects.create(user=self.user)
@@ -26,9 +23,18 @@ class CRUDTestCase(APITestCase):
         self.confirmation.save()
         url = '/api/v1.1/auth/login/'
         resp = self.client.post(
-            url, {"email": "johndoe@netsach.org", "password": "plop",},
+            url, {"email": "johndoe@netsach.org", "password": "plop"}
         )
         self.token = resp.data['token']
+
+    def test_anonymous_create(self):
+        self.assertEqual(AnonymousModel.objects.count(), 0)
+        url_projects = '/api/v1.1/anonymous-model/'
+        resp = self.client.post(url_projects, {'name': 'Anonymous instance'})
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(AnonymousModel.objects.count(), 1)
+        instance = AnonymousModel.objects.first()
+        self.assertIsNone(instance.created_by)
 
     def test_list_project_all(self):
         for i in range(100):

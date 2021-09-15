@@ -22,6 +22,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher',)
 
+ENABLE_THROTTLING = False
 UNITTEST_ENABLED = True
 DEBUG = True
 TEMPLATE_DEBUG = False
