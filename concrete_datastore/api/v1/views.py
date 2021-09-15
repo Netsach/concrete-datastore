@@ -1530,10 +1530,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         URLTokenExpiryAuthentication,
     )
 
-    def get_throttles(self):
-        if settings.ENABLE_THROTTLING is False:
-            return []
-        return (CustomUserRateThrottle(), CustomAnonymousRateThrottle())
+    # throttle_classes = (CustomUserRateThrottle, CustomAnonymousRateThrottle)
 
     def dispatch(self, request, *args, **kwargs):
         # Retrieve response first then log

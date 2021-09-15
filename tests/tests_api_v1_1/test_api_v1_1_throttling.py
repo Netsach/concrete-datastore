@@ -32,7 +32,8 @@ class CRUDTestCase(APITestCase):
         self.confirmation.confirmed = True
         self.confirmation.save()
 
-    @override_settings(ENABLE_THROTTLING=True)
+    @override_settings(ENABLE_AUTHENTICATED_USER_THROTTLING=True)
+    @override_settings(ENABLE_ANONYMOUS_USER_THROTTLING=True)
     @override_settings(ANONYMOUS_THROTTLING_RATE='2/s')
     @override_settings(USER_THROTTLING_RATE='1/s')
     def test_throttling_all_users(self):
@@ -70,8 +71,8 @@ class CRUDTestCase(APITestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
 
-    @override_settings(ENABLE_THROTTLING=True)
     @override_settings(ENABLE_AUTHENTICATED_USER_THROTTLING=False)
+    @override_settings(ENABLE_ANONYMOUS_USER_THROTTLING=True)
     @override_settings(ANONYMOUS_THROTTLING_RATE='2/s')
     @override_settings(USER_THROTTLING_RATE='1/s')
     def test_throttling_anonymous_users(self):
@@ -109,7 +110,7 @@ class CRUDTestCase(APITestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-    @override_settings(ENABLE_THROTTLING=True)
+    @override_settings(ENABLE_AUTHENTICATED_USER_THROTTLING=True)
     @override_settings(ENABLE_ANONYMOUS_USER_THROTTLING=False)
     @override_settings(ANONYMOUS_THROTTLING_RATE='2/s')
     @override_settings(USER_THROTTLING_RATE='1/s')

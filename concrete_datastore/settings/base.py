@@ -226,8 +226,6 @@ REST_FRAMEWORK = {
     ),
 }
 
-ENABLE_THROTTLING = True
-
 #: Throttling rate should be (requests / duration)
 #: Accepted durations are all the strings that start with
 #: - "s" (seconds) example: s, sec, second, seconds, ...
