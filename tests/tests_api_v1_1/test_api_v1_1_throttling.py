@@ -120,7 +120,7 @@ class CRUDTestCase(APITestCase):
         resp = self.client.get(url_projects)
         self.assertEqual(resp.status_code, status.HTTP_200_OK, msg=resp.data)
 
-        #: Thrid anonymous request -> 200 (throttling is disabled for authenticated users)
+        #: Third anonymous request -> 200 (throttling is disabled for authenticated users)
         resp = self.client.get(url_projects)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
