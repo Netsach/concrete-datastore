@@ -852,7 +852,8 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         #:  If user is anonymous, 400 with no info
         if request.user.is_anonymous:
             log_request = base_message + (
-                f"Change password attempt to anonymous user"
+                "Change password attempt to anonymous user "
+                "without password_change_token"
             )
             return Response(status=HTTP_400_BAD_REQUEST)
         user = request.user
