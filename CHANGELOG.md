@@ -4,7 +4,8 @@
 
 ### Added
 
-- nothing added
+- Logs for auth views (Register/Change Password/Secure Login)
+- last_login update for auth views
 
 ### Changed
 
