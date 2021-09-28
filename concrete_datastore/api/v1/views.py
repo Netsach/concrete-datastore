@@ -1058,6 +1058,11 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             #:  email_format have the right format
             url_format = serializer.validated_data["url_format"]
             if '{token}' not in url_format or '{email}' not in url_format:
+                log_request = base_message + (
+                    f"Register attempt by {request_user.email}, "
+                    "but the url_format is invalid"
+                )
+                logger_api_auth.info(log_request)
                 return Response(
                     data={
                         'errors': 'url_format is not a valid format_string',
@@ -1067,6 +1072,11 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
                 )
 
             if email_format is not None and '{link}' not in email_format:
+                log_request = base_message + (
+                    f"Register attempt by {request_user.email}, "
+                    "but the email_format is invalid"
+                )
+                logger_api_auth.info(log_request)
                 return Response(
                     data={
                         'errors': 'email_format is not a valid format_string',
