@@ -1059,7 +1059,7 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             url_format = serializer.validated_data["url_format"]
             if '{token}' not in url_format or '{email}' not in url_format:
                 log_request = base_message + (
-                    f"Register attempt by {request_user.email}, "
+                    f"Register attempt by {request_user}, "
                     "but the url_format is invalid"
                 )
                 logger_api_auth.info(log_request)
@@ -1073,7 +1073,7 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
 
             if email_format is not None and '{link}' not in email_format:
                 log_request = base_message + (
-                    f"Register attempt by {request_user.email}, "
+                    f"Register attempt by {request_user}, "
                     "but the email_format is invalid"
                 )
                 logger_api_auth.info(log_request)
