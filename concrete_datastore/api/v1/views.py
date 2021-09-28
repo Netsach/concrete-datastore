@@ -1112,6 +1112,11 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
                 validator = ConcretePasswordValidator()
                 validator(password)
             except PasswordInsecureValidationError as e:
+                log_request = base_message + (
+                    f"Register attempt by {request_user}, "
+                    "but the password is insecure"
+                )
+                logger_api_auth.info(log_request)
                 return Response(
                     data={'message': e.message, "_errors": [e.code]},
                     status=HTTP_400_BAD_REQUEST,
