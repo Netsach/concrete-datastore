@@ -124,3 +124,26 @@ class PointFieldTestCase(APITestCase):
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
         )
         self.assertEqual(resp.json()['objects_count'], 0, msg=resp.content)
+
+        #: Using distance filter with more that 3 values returns 400
+        resp = self.client.get(
+            f'{url_projects}?gps_address__distance=1,2,3,4',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+        #: Using distance filter with less that 3 values returns 400
+        resp = self.client.get(
+            f'{url_projects}?gps_address__distance=1,2',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+        #: Using `__distance` on a field that is not PointField will ignore
+        #: the filter and returns all results
+        resp = self.client.get(
+            f'{url_projects}?name__distance=fakeName',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK, msg=resp.data)
+        self.assertEqual(resp.json()['objects_count'], 1, msg=resp.data)
