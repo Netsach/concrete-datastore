@@ -257,7 +257,13 @@ class FilterSupportingOrBackend(
             filter_field_type = get_filter_field_type(
                 queryset.model, param.replace('__in', '')
             )
-            if filter_field_type in ('UUIDField', 'ForeignKey'):
+            print('=====================$$$$$$$$$$$$$$$$$$$$$$$')
+            print(filter_field_type)
+            if filter_field_type in (
+                'UUIDField',
+                'ForeignKey',
+                'ManyToManyField',
+            ):
                 for value in values:
                     if not ensure_uuid_valid(value):
                         raise ValidationError(

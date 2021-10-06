@@ -84,7 +84,7 @@ logger_api_auth = logging.getLogger('api_auth_log')
 
 def get_client_ip(request):
     if 'HTTP_X_FORWARDED_FOR' in request.META:
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        x_forwarded_for = request.headers.get('X-Forwarded-For')
         ip = x_forwarded_for.split(',')[0]
     else:
         ip = request.META.get('REMOTE_ADDR')

@@ -141,8 +141,8 @@ CORS_ALLOW_HEADERS = default_headers + (
     'Content-Type',
     'Cache-Control',
 )
-CORS_ORIGIN_WHITELIST = "*"
 
+CORS_ALLOWED_ORIGINS = []
 
 MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
