@@ -372,7 +372,7 @@ class AutoSchema(AutoSchemaSuper):
 
         parameters = []
         parameters += self.get_custom_path_parameters(path, method)
-        parameters += self._get_pagination_parameters(path, method)
+        parameters += self.get_pagination_parameters(path, method)
         parameters += self.get_custom_filter_parameters(path, method)
         operation['parameters'] = parameters
 
