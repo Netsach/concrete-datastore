@@ -24,19 +24,32 @@ def service_status_view(request):
             task_split = path_task.rsplit('.')
             module = import_module(task_split[0])
             plugins[module.__name__] = module.__version__
+    data = {
+        'version': concrete_datastore.__version__,
+        'datamodel_version': settings.DATAMODEL_VERSION,
+        'api': concrete_datastore.api.v1_1.__version__,
+        'plugins': plugins,
+        'healthy': True,
+        'message': '',
+        'name': 'concrete-datastore',
+        'license': 'All rights reserved. Netsach 2021.',
+    }
+    if settings.USE_CORE_AUTOMATION:
+        try:
+            # ImportError if the import fails
+            from ns_core.coreApp.models import (  # pylint: disable = import-error
+                Parameter,
+            )
+        except ImportError:
+            pass
 
-    return JsonResponse(
-        {
-            'version': concrete_datastore.__version__,
-            'datamodel_version': settings.DATAMODEL_VERSION,
-            'api': concrete_datastore.api.v1_1.__version__,
-            'plugins': plugins,
-            'healthy': True,
-            'message': '',
-            'name': 'concrete-datastore',
-            'license': 'All rights reserved. Netsach 2019.',
-        }
-    )
+        parameter, created = Parameter.objects.get_or_create(
+            name='MAINTENANCE_MODE', defaults={'data': {'value': False}}
+        )
+        maintenance_mode = parameter.data.get('value', False)
+        data['maintenance_mode'] = maintenance_mode
+
+    return JsonResponse(data)
 
 
 class OpenApiView(APIView):
