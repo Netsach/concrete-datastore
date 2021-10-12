@@ -726,6 +726,7 @@ manifest:
           - name
         filter_fields:
           - name
+          - category
         display_fields:
           - name
         export_fields: []

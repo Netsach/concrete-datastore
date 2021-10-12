@@ -105,6 +105,13 @@ class PointFieldTestCase(APITestCase):
             ).count(),
             0,
         )
+
+        self.assertEqual(
+            Project.objects.exclude(
+                gps_address__distance_lte=(pnt, D(km=1882))
+            ).count(),
+            1,
+        )
         self.assertEqual(
             Project.objects.filter(
                 gps_address__distance_lte=(pnt, D(km=1882.6554))
@@ -124,3 +131,9 @@ class PointFieldTestCase(APITestCase):
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
         )
         self.assertEqual(resp.json()['objects_count'], 0, msg=resp.content)
+
+        resp = self.client.get(
+            f'{url_projects}?gps_address__distance!=1882000,2.32,32.0',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.json()['objects_count'], 1, msg=resp.content)
