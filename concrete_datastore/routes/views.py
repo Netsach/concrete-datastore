@@ -37,12 +37,12 @@ def service_status_view(request):
             )
         except ImportError:
             pass
-
-        parameter, created = Parameter.objects.get_or_create(
-            name='MAINTENANCE_MODE', defaults={'data': {'value': False}}
-        )
-        maintenance_mode = parameter.data.get('value', False)
-        data['maintenance_mode'] = maintenance_mode
+        else:
+            parameter, created = Parameter.objects.get_or_create(
+                name='MAINTENANCE_MODE', defaults={'data': {'value': False}}
+            )
+            maintenance_mode = parameter.data.get('value', False)
+            data['maintenance_mode'] = maintenance_mode
 
     return JsonResponse(data)
 
