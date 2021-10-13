@@ -335,7 +335,7 @@ curl \
     "status,archived":{
       "COMPLETED,true": 45,
       "COMPLETED,false": 68,
-      "FAILED,true": 8
+      "FAILED,true": 8,
       "FAILED,false": 4
     }
   }
