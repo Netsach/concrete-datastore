@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Add entrypoint to serve datamodel (json and yaml)
 
 ### Changed
 

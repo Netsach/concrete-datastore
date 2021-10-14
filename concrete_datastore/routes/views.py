@@ -1,13 +1,22 @@
 # coding: utf-8
 from importlib import import_module
-
+import yaml
+import json
 from django.conf import settings
-from django.http import JsonResponse, HttpResponse
+from django.http import (
+    HttpResponse,
+    JsonResponse,
+    HttpResponseForbidden,
+    StreamingHttpResponse,
+)
+
+from django.views.generic import TemplateView
 
 from rest_framework.views import APIView
 from rest_framework.renderers import OpenAPIRenderer
 
 import concrete_datastore
+from concrete_datastore.interfaces.yaml_renderer import DatamodelYamlToHtml
 from concrete_datastore.interfaces.openapi_schema_generator import (
     SchemaGenerator,
 )
@@ -37,6 +46,52 @@ def service_status_view(request):
             'license': 'All rights reserved. Netsach 2019.',
         }
     )
+
+
+class DatamodelServer(TemplateView):
+    template_name = "mainApp/datamodel.html"
+
+    def _get_datamodel_format(self, data_format='yaml'):
+        datamodel_content_json = settings.META_MODEL_DEFINITIONS
+        if data_format == 'json':
+            return json.dumps(datamodel_content_json, indent=4)
+        return yaml.dump(datamodel_content_json, allow_unicode=True)
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        if user.is_anonymous or user.is_at_least_admin is False:
+            return HttpResponseForbidden()
+        action = kwargs.get('action')
+        data_format = request.GET.get('data-format', 'yaml').lower()
+        if action is None:
+            if data_format == 'json':
+                return JsonResponse(settings.META_MODEL_DEFINITIONS)
+            return HttpResponse(self._get_datamodel_format())
+        if action == 'download':
+            filename = f'datamodel.{data_format}'
+            response = StreamingHttpResponse(
+                self._get_datamodel_format(data_format=data_format),
+                content_type=data_format,
+            )
+            response[
+                'Content-Disposition'
+            ] = 'attachment; filename="{}"'.format(filename)
+            return response
+        if action == 'viewer':
+            return super().get(request, *args, **kwargs)
+        return JsonResponse(
+            data={'error': f'unknown action {action}'}, status=400
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        datamodel_content_json = settings.META_MODEL_DEFINITIONS
+        context['json_content'] = json.dumps(datamodel_content_json, indent=2)
+        datamodel_content_yml = self._get_datamodel_format()
+        content = DatamodelYamlToHtml(datamodel_content_json, indent=2)
+        context['yaml_displayed_content'] = content.render_yaml()
+        context['yaml_content'] = datamodel_content_yml
+        return context
 
 
 class OpenApiView(APIView):
