@@ -13,7 +13,7 @@ example: `?name__contains=pro` returns all objects that the field name contains 
 - **Filter Supporting Empty values:** (Applied on the CharFields and TextFields) By adding `__isempty=true` or `is__empty=false`:
 example: `?name__isempty=true` returns all objects that do not have a `name` and `?name__isempty=false` returns all objects have a non empty `name`
 - **Filter Supporting Null Relation:** (Applied on the ForeignKeys and ManyToManyField) By adding `__isnull=true`:
-example: `?project__isempty=true` returns all objects that do not have a `project`
+example: `?project__isnull=true` returns all objects that do not have a `project`
 - **Filter Supporting Comparison operations:** (Applied on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the suffixes `__gte`, `__gt`, `__lte` and `__lt`.
 example:
     - `?price__gte=10` (price >= 10)
