@@ -124,9 +124,7 @@ class CustomShemaOperationParameters:
 
     def get_custom_filtered_queryset(self, qs, q_filter, q_exclude):
         if q_filter is not None:
-            print(qs)
             qs = qs.filter(q_filter)
-            print(qs)
         if q_exclude is not None:
             qs = qs.exclude(q_exclude)
         return qs
@@ -551,30 +549,14 @@ class FilterSupportingEmptyBackend(
                 'TextField',
             ):
                 custom_filter = {'{}__exact'.format(param): ''}
-            elif get_filter_field_type(queryset.model, param) in (
-                'ForeignKey',
-                'ManyToManyField',
-            ):
-                custom_filter = {param: None}
             else:
                 continue
-            print(custom_filter)
             q_object_filter, q_object_exclude = self.get_filter_exclude_q_objects(
                 q_filter=q_object_filter,
                 q_exclude=q_object_exclude,
                 custom_filter=custom_filter,
                 exclude=exclude,
             )
-        print(f'initial qs: {queryset}')
-        print(q_object_filter)
-        print(q_object_exclude)
-        print(
-            self.get_custom_filtered_queryset(
-                qs=queryset,
-                q_filter=q_object_filter,
-                q_exclude=q_object_exclude,
-            )
-        )
         return self.get_custom_filtered_queryset(
             qs=queryset, q_filter=q_object_filter, q_exclude=q_object_exclude
         )
