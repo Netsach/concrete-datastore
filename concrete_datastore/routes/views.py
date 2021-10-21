@@ -13,8 +13,12 @@ from django.http import (
 from django.views.generic import TemplateView
 
 from rest_framework.views import APIView
+from rest_framework import authentication
 from rest_framework.renderers import OpenAPIRenderer
-
+from concrete_datastore.api.v1.authentication import (
+    TokenExpiryAuthentication,
+    URLTokenExpiryAuthentication,
+)
 import concrete_datastore
 from concrete_datastore.interfaces.yaml_renderer import DatamodelYamlToHtml
 from concrete_datastore.interfaces.openapi_schema_generator import (
@@ -48,8 +52,14 @@ def service_status_view(request):
     )
 
 
-class DatamodelServer(TemplateView):
+class DatamodelServer(APIView, TemplateView):
     template_name = "mainApp/datamodel.html"
+    authentication_classes = (
+        authentication.BasicAuthentication,
+        authentication.SessionAuthentication,
+        TokenExpiryAuthentication,
+        URLTokenExpiryAuthentication,
+    )
 
     def _get_datamodel_format(self, data_format='yaml'):
         datamodel_content_json = settings.META_MODEL_DEFINITIONS
