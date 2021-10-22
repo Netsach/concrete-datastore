@@ -4,8 +4,7 @@
 
 ### Added
 
-- Logs for auth views (Register/Change Password/Secure Login)
-- last_login update for auth views
+- nothing added
 
 ### Changed
 
@@ -14,6 +13,13 @@
 ### Removed
 
 - nothing removed
+
+## [1.35.0] - 2021-10-22
+
+### Added
+
+- Logs for auth views (Register/Change Password/Secure Login)
+- last_login update for auth views
 
 ## [1.34.0] - 2021-09-03
 
