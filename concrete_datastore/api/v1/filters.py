@@ -74,11 +74,8 @@ def ensure_uuid_valid(value, version=None):
 
 def convert_type(string, field_type, close_period=True):
     if string == '':
-        raise ValidationError(
-            {
-                "message": "Attempting to convert an empty string to a date format"
-            }
-        )
+        message = "Attempting to convert an empty string to a date format"
+        raise ValidationError({"message": message})
     if field_type in ('DateTimeField', 'DateField'):
         if field_type == 'DateTimeField':
             # Expected format YYYY-MM-DD HH:MM[:ss[.uuuuuu]][TZ]
@@ -107,9 +104,7 @@ class CustomShemaOperationParameters:
             return value
         return []
 
-    def get_filter_exclude_q_objects(
-        self, q_filter, q_exclude, custom_filter, exclude
-    ):
+    def get_q_objects(self, q_filter, q_exclude, custom_filter, exclude):
         if exclude is False:
             if q_filter is None:
                 q_filter = Q(**custom_filter)
@@ -194,7 +189,10 @@ class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
                 'name': f'{field_name}__distance{neg}',
                 'required': False,
                 'in': 'query',
-                'description': f'DISTANCE,LONGITUDE,LATITUDE{" (to exclude)" if neg=="!" else ""}',
+                'description': (
+                    'DISTANCE,LONGITUDE,LATITUDE'
+                    f'{" (to exclude)"if neg=="!" else ""}'
+                ),
                 'schema': {'type': 'string'},
             }
             for field_name in getattr(view, 'filterset_fields', ())
@@ -244,7 +242,7 @@ class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
             custom_filter = {
                 '{}__distance_lte'.format(param_field): (point, D(m=distance))
             }
-            q_object_filter, q_object_exclude = self.get_filter_exclude_q_objects(
+            q_object_filter, q_object_exclude = self.get_q_objects(
                 q_filter=q_object_filter,
                 q_exclude=q_object_exclude,
                 custom_filter=custom_filter,
@@ -327,7 +325,10 @@ class FilterSupportingOrBackend(
                 'name': f'{field_name}__in{neg}',
                 'required': False,
                 'in': 'query',
-                'description': f'List of values separated by comma{" (to exclude)" if neg=="!" else ""}',
+                'description': (
+                    'List of values separated by comma'
+                    f'{" (to exclude)" if neg=="!" else ""}'
+                ),
                 'schema': {'type': 'string'},
             }
             for field_name in getattr(view, 'filterset_fields', ())
@@ -362,27 +363,21 @@ class FilterSupportingOrBackend(
             if filter_field_type in ('UUIDField', 'ForeignKey'):
                 for value in values:
                     if not ensure_uuid_valid(value):
+                        message = f"'{value}' is not a valid UUID"
                         raise ValidationError(
-                            {
-                                "message": (
-                                    f"{bare_param}: '{value}' is not a valid UUID"
-                                )
-                            }
+                            {"message": (f"{bare_param}: {message}")}
                         )
 
             if filter_field_type == 'BooleanField':
                 if set(values).difference(['True', 'False', 'None']):
-                    raise ValidationError(
-                        {
-                            "message": (
-                                f"{bare_param}: {values} must contain olny 'True', "
-                                "'False' and/or 'None' (case sensitive)"
-                            )
-                        }
+                    message = (
+                        f"{bare_param}: {values} must contain olny 'True', "
+                        "'False' and/or 'None' (case sensitive)"
                     )
+                    raise ValidationError({"message": message})
             custom_filter = {bare_param: values}
 
-            q_object_filter, q_object_exclude = self.get_filter_exclude_q_objects(
+            q_object_filter, q_object_exclude = self.get_q_objects(
                 q_filter=q_object_filter,
                 q_exclude=q_object_exclude,
                 custom_filter=custom_filter,
@@ -438,7 +433,7 @@ class FilterSupportingContainsBackend(
                 continue
 
             custom_filter = {bare_param: query_params.get(param)}
-            q_object_filter, q_object_exclude = self.get_filter_exclude_q_objects(
+            q_object_filter, q_object_exclude = self.get_q_objects(
                 q_filter=q_object_filter,
                 q_exclude=q_object_exclude,
                 custom_filter=custom_filter,
@@ -495,7 +490,7 @@ class FilterSupportingInsensitiveContainsBackend(
 
             custom_filter = {bare_param: query_params.get(param)}
 
-            q_object_filter, q_object_exclude = self.get_filter_exclude_q_objects(
+            q_object_filter, q_object_exclude = self.get_q_objects(
                 q_filter=q_object_filter,
                 q_exclude=q_object_exclude,
                 custom_filter=custom_filter,
@@ -551,7 +546,7 @@ class FilterSupportingEmptyBackend(
                 custom_filter = {'{}__exact'.format(param): ''}
             else:
                 continue
-            q_object_filter, q_object_exclude = self.get_filter_exclude_q_objects(
+            q_object_filter, q_object_exclude = self.get_q_objects(
                 q_filter=q_object_filter,
                 q_exclude=q_object_exclude,
                 custom_filter=custom_filter,
@@ -571,7 +566,10 @@ class FilterSupportingRangeBackend(
                 'name': f'{field_name}__range{neg}',
                 'required': False,
                 'in': 'query',
-                'description': f'A range of values separated by comma{" (to exclude)" if neg=="!" else ""}',
+                'description': (
+                    'A range of values separated by comma'
+                    f'{" (to exclude)" if neg=="!" else ""}'
+                ),
                 'schema': {'type': 'string'},
             }
             for field_name in getattr(view, 'filterset_fields', ())
@@ -660,7 +658,7 @@ class FilterSupportingRangeBackend(
                 )
 
             custom_filter = {param: values}
-            q_object_filter, q_object_exclude = self.get_filter_exclude_q_objects(
+            q_object_filter, q_object_exclude = self.get_q_objects(
                 q_filter=q_object_filter,
                 q_exclude=q_object_exclude,
                 custom_filter=custom_filter,
@@ -690,7 +688,10 @@ class FilterSupportingComparaisonBackend(
                         'name': f'{field_name}__{key}{neg}',
                         'required': False,
                         'in': 'query',
-                        'description': f'{description}{" (to exclude)" if neg=="!" else ""}',
+                        'description': (
+                            f'{description}'
+                            f'{" (to exclude)" if neg=="!" else ""}'
+                        ),
                         'schema': {'type': 'string'},
                     }
                     for field_name in getattr(view, 'filterset_fields', ())
@@ -773,7 +774,9 @@ class FilterSupportingForeignKey(
                 'name': f'{field_name}_uid{neg}',
                 'required': False,
                 'in': 'query',
-                'description': f'UID of the FK{" (to exclude)" if neg=="!" else ""}',
+                'description': (
+                    f'UID of the FK{" (to exclude)" if neg=="!" else ""}'
+                ),
                 'schema': {'type': 'string'},
             }
             for field_name in getattr(view, 'filterset_fields', ())
@@ -810,12 +813,9 @@ class FilterSupportingForeignKey(
             #:  "value" must be a valid UUID4, otherwise raise ValidationError
             #:  raises ValueError if not UUID4
             if not ensure_uuid_valid(value, version=4):
-                raise ValidationError(
-                    {
-                        "message": f'{bare_param}: « {value} » is not a valid UUID'
-                    }
-                )
-            q_object_filter, q_object_exclude = self.get_filter_exclude_q_objects(
+                message = f'{bare_param}: « {value} » is not a valid UUID'
+                raise ValidationError({"message": message})
+            q_object_filter, q_object_exclude = self.get_q_objects(
                 q_filter=q_object_filter,
                 q_exclude=q_object_exclude,
                 custom_filter=custom_filter,
@@ -923,14 +923,11 @@ class FilterSupportingManyToMany(
             for value in values:
                 if not ensure_uuid_valid(value, version=4):
                     #:  raises ValueError if not UUID4
-                    raise ValidationError(
-                        {
-                            "message": f'{bare_param}: « {value} » is not a valid UUID'
-                        }
-                    )
+                    message = f'{bare_param}: « {value} » is not a valid UUID'
+                    raise ValidationError({"message": message})
 
             custom_filter = {bare_param: values}
-            q_object_filter, q_object_exclude = self.get_filter_exclude_q_objects(
+            q_object_filter, q_object_exclude = self.get_q_objects(
                 q_filter=q_object_filter,
                 q_exclude=q_object_exclude,
                 custom_filter=custom_filter,

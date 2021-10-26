@@ -393,7 +393,8 @@ class AutoSchema(AutoSchemaSuper):
             parameters = deepcopy(DEFAULT_LIST_VIEW_PARAMETERS)
         if hasattr(self.view, 'model_class'):
             for field in getattr(self.view, 'filterset_fields', []):
-                field_type = concrete_datastore.api.v1.filters.get_filter_field_type(
+                filters_module = concrete_datastore.api.v1.filters
+                field_type = filters_module.get_filter_field_type(
                     self.view.model_class, field
                 )
                 if field_type in ('ForeignKey', 'ManyToManyField'):
@@ -411,7 +412,9 @@ class AutoSchema(AutoSchemaSuper):
                         {
                             'name': f'{field}!',
                             'required': False,
-                            'description': 'Exact value of the field (to exclude)',
+                            'description': (
+                                'Exact value of the field (to exclude)'
+                            ),
                             'in': 'query',
                             'schema': {'type': swagger_filed_type},
                         },
@@ -702,7 +705,9 @@ class AutoSchema(AutoSchemaSuper):
                     'content': {
                         ct: {
                             'schema': {
-                                '$ref': f'#/components/schemas/{component_name}'
+                                '$ref': (
+                                    f'#/components/schemas/{component_name}'
+                                )
                             }
                         }
                         for ct in self.content_types
