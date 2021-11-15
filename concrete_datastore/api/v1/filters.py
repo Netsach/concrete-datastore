@@ -25,7 +25,11 @@ def get_filter_field_type(model_class, param) -> str:
     Return the type (as String) of the target field that we want to filter
     """
     splitted_param = param.split('__')
-
+    if (
+        model_class._meta.get_field(splitted_param[0]).get_internal_type()
+        == 'JSONField'
+    ):
+        return 'JSONField'
     if len(splitted_param) == 1:
         return model_class._meta.get_field(
             splitted_param[0]
@@ -279,6 +283,70 @@ class FilterSupportingOrBackend(
                         }
                     )
             custom_filter = {param: values}
+            if q_object is None:
+                q_object = Q(**custom_filter)
+            else:
+                q_object &= Q(**custom_filter)
+        if q_object is None:
+            return queryset
+
+        return queryset.filter(q_object)
+
+
+class FilterJSONFieldsBackend(
+    BaseFilterBackend, CustomShemaOperationParameters
+):
+    def remove_from_queryset(self, view):
+        #: Remove JSONField field from filterset_fields because
+        #: they cannot be filtered with the other filter backends
+        filterset_fields = getattr(view, 'filterset_fields', ())
+        new_filterset_fields = tuple(
+            filter_field
+            for filter_field in filterset_fields
+            if (
+                get_filter_field_type(view.model_class, filter_field)
+                != 'JSONField'
+            )
+        )
+        setattr(view, 'filterset_fields', new_filterset_fields)
+
+    # def get_schema_operation_parameters(self, view):
+
+    #     params = [
+    #         {
+    #             'name': f'{field_name}',
+    #             'required': False,
+    #             'in': 'query',
+    #             'description': 'List of values separated by comma',
+    #             'schema': {'type': 'string'},
+    #         }
+    #         for field_name in getattr(view, 'filterset_fields', ())
+    #         if get_filter_field_type(view.model_class, field_name)
+    #         == 'JSONField'
+    #     ]
+    #     self.remove_from_queryset(view=view)
+    #     return self.return_if_not_details(view=view, value=params)
+
+    def filter_queryset(self, request, queryset, view):
+        query_params = request.query_params
+        filterset_fields = getattr(view, 'filterset_fields', ())
+
+        q_object = None
+        self.remove_from_queryset(view=view)
+        for param in query_params:
+            splitted_query_params = param.split('__')
+            if len(splitted_query_params) == 1:
+                continue
+            param_field_name = splitted_query_params[0]
+            if (
+                get_filter_field_type(queryset.model, param_field_name)
+                != 'JSONField'
+            ):
+                continue
+            if param_field_name not in filterset_fields:
+                continue
+
+            custom_filter = {param: query_params.get(param)}
             if q_object is None:
                 q_object = Q(**custom_filter)
             else:

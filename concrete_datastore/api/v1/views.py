@@ -74,6 +74,7 @@ from concrete_datastore.api.v1.serializers import (
 )
 from concrete_datastore.api.v1.filters import (
     FilterSupportingOrBackend,
+    FilterJSONFieldsBackend,
     FilterSupportingEmptyBackend,
     FilterSupportingContainsBackend,
     FilterSupportingInsensitiveContainsBackend,
@@ -1428,6 +1429,7 @@ class AccountMeApiView(
 class PaginatedViewSet(object):
     pagination_class = ExtendedPagination
     filter_backends = (
+        FilterJSONFieldsBackend,
         FilterDistanceBackend,
         SearchFilter,
         OrderingFilter,
