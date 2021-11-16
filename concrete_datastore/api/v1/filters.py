@@ -5,7 +5,6 @@ import re
 from django.db.models import Q
 from django.contrib.gis.measure import D
 from django.contrib.auth import get_user_model
-from django.conf import settings
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import BaseFilterBackend
 from concrete_datastore.api.v1.datetime import format_datetime, ensure_pendulum

@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Add possibility to filter against keys of JSON fields
 
 ### Changed
 
