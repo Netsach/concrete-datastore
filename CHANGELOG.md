@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Maintenance mode flag in the status view if there is a core app
 
 ### Changed
 
