@@ -15,7 +15,6 @@ class JsonFieldTest(APITestCase):
         # User A
         self.userA = User.objects.create_user('user@netsach.org')
         self.userA.set_password('userA')
-        self.userA.set_level('superuser')
         self.userA.save()
         confirmation = UserConfirmation.objects.create(
             user=self.userA, confirmed=True
@@ -49,85 +48,241 @@ class JsonFieldTest(APITestCase):
         )
         self.assertEqual(type(resp.data['json_field']), dict)
 
-    def test_jsonfield_filter(self):
-        url_json = '/api/v1.1/json-field/'
-        json1 = JsonField.objects.create(
+
+@override_settings(DEBUG=True)
+class JsonFieldFiltersTest(APITestCase):
+    def setUp(self):
+        # User A
+        self.user = User.objects.create_user('user@netsach.org')
+        self.user.set_password('user')
+        self.user.set_level('superuser')
+        self.user.save()
+        confirmation = UserConfirmation.objects.create(
+            user=self.user, confirmed=True
+        )
+        confirmation.save()
+        url = '/api/v1.1/auth/login/'
+        resp = self.client.post(
+            url, {"email": "user@netsach.org", "password": "user"}
+        )
+        self.token_user = resp.data['token']
+        self.json1 = JsonField.objects.create(
             json_field={
-                "archived": False,
                 "name": "test1",
-                "item": {"name": "toto", "size": 0},
+                "item": {
+                    "name": "toto",
+                    "available": False,
+                    "price": 3.99e3,
+                    "size": 0,
+                },
+                "items_list": [1, 2, 3],
+                "reference": None,
             }
         )
-        json2 = JsonField.objects.create(
+        self.json2 = JsonField.objects.create(
             json_field={
-                "archived": False,
                 "name": "tEsT2",
-                "item": {"name": "tata", "size": 2},
+                "item": {
+                    "name": "tata",
+                    "available": False,
+                    "price": 0.4,
+                    "size": 2,
+                },
                 "custom_field": "tata",
+                "items_list": [4, 2, 5],
+                "reference": "12345",
             }
         )
-        json3 = JsonField.objects.create(
+        self.json3 = JsonField.objects.create(
             json_field={
-                "archived": True,
                 "name": "name",
-                "item": {"name": "TOTO", "size": 3},
+                "item": {
+                    "name": "TOTO",
+                    "available": True,
+                    "price": 25,
+                    "size": 3,
+                },
                 "custom_field": "toto",
+                "items_list": ['1', '2', '3'],
+                "reference": None,
             }
         )
+        self.url_json = '/api/v1.1/json-field/'
+
+    def test_jsonfield_filter_string(self):
+        #: String values
         resp = self.client.get(
-            f'{url_json}?json_field__name__icontains=test',
+            f'{self.url_json}?json_field__name__icontains=%22test%22',
             HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
         )
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data['objects_count'], 2)
         resp_uids = set(result['uid'] for result in resp.data['results'])
-        self.assertSetEqual(resp_uids, {str(json1.uid), str(json2.uid)})
+        self.assertSetEqual(
+            resp_uids, {str(self.json1.uid), str(self.json2.uid)}
+        )
 
         resp = self.client.get(
-            f'{url_json}?json_field__item__name=toto',
+            f'{self.url_json}?json_field__item__name=%22toto%22',
             HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
         )
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data['objects_count'], 1)
-        self.assertEqual(resp.data['results'][0]['uid'], str(json1.uid))
+        self.assertEqual(resp.data['results'][0]['uid'], str(self.json1.uid))
 
         resp = self.client.get(
-            f'{url_json}?json_field__item__name__icontains=to',
+            f'{self.url_json}?json_field__item__name__icontains=%22to%22',
             HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
         )
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data['objects_count'], 2)
         resp_uids = set(result['uid'] for result in resp.data['results'])
-        self.assertSetEqual(resp_uids, {str(json1.uid), str(json3.uid)})
-
-        print('--------------------')
-        resp = self.client.get(
-            f'{url_json}?json_field__archived=False',
-            HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
+        self.assertSetEqual(
+            resp_uids, {str(self.json1.uid), str(self.json3.uid)}
         )
-        print(JsonField.objects.filter(json_field__archived="True").count())
-        print(JsonField.objects.filter(json_field__archived=True).count())
-        print('--------------------')
-
-        # self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        # self.assertEqual(resp.data['objects_count'], 2)
-        # resp_uids = set(result['uid'] for result in resp.data['results'])
-        # self.assertSetEqual(resp_uids, {str(json2.uid), str(json1.uid)})
 
         resp = self.client.get(
-            f'{url_json}?json_field__custom_field=toto',
+            f'{self.url_json}?json_field__custom_field=%22toto%22',
             HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
         )
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data['objects_count'], 1)
-        self.assertEqual(resp.data['results'][0]['uid'], str(json3.uid))
+        self.assertEqual(resp.data['results'][0]['uid'], str(self.json3.uid))
 
         resp = self.client.get(
-            f'{url_json}?json_field__wrong_field=test',
+            f'{self.url_json}?json_field__items_list__1=%222%22',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 1)
+        self.assertEqual(resp.data['results'][0]['uid'], str(self.json3.uid))
+
+        # Raise value error if the value is a string but is not between " "
+        resp = self.client.get(
+            f'{self.url_json}?json_field__name=test',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_jsonfield_filter_boolean(self):
+        #: Boolean values with case sensitive
+        resp = self.client.get(
+            f'{self.url_json}?json_field__item__available=False',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 2)
+        resp_uids = set(result['uid'] for result in resp.data['results'])
+        self.assertSetEqual(
+            resp_uids, {str(self.json2.uid), str(self.json1.uid)}
+        )
+
+        resp = self.client.get(
+            f'{self.url_json}?json_field__item__available=faLSe',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 2)
+        resp_uids = set(result['uid'] for result in resp.data['results'])
+        self.assertSetEqual(
+            resp_uids, {str(self.json2.uid), str(self.json1.uid)}
+        )
+
+    def test_jsonfield_filter_none(self):
+        #: None/Null values
+        resp = self.client.get(
+            f'{self.url_json}?json_field__reference=null',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 2)
+        resp_uids = set(result['uid'] for result in resp.data['results'])
+        self.assertSetEqual(
+            resp_uids, {str(self.json1.uid), str(self.json3.uid)}
+        )
+
+        # same result with none
+        resp = self.client.get(
+            f'{self.url_json}?json_field__reference=none',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 2)
+        resp_uids = set(result['uid'] for result in resp.data['results'])
+        self.assertSetEqual(
+            resp_uids, {str(self.json1.uid), str(self.json3.uid)}
+        )
+
+    def test_jsonfield_filter_int(self):
+        #: Int values
+        resp = self.client.get(
+            f'{self.url_json}?json_field__item__size__gt=0',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 2)
+        resp_uids = set(result['uid'] for result in resp.data['results'])
+        self.assertSetEqual(
+            resp_uids, {str(self.json2.uid), str(self.json3.uid)}
+        )
+
+        resp = self.client.get(
+            f'{self.url_json}?json_field__items_list__1=2',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 2)
+        resp_uids = set(result['uid'] for result in resp.data['results'])
+        self.assertSetEqual(
+            resp_uids, {str(self.json2.uid), str(self.json1.uid)}
+        )
+
+    def test_jsonfield_filter_float(self):
+        #: Float values
+        resp = self.client.get(
+            f'{self.url_json}?json_field__item__price__lt=300.0',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 2)
+        resp_uids = set(result['uid'] for result in resp.data['results'])
+        self.assertSetEqual(
+            resp_uids, {str(self.json2.uid), str(self.json3.uid)}
+        )
+
+    def test_jsonfield_filter_wrong_field(self):
+        #: If the field does not exist, no results will be given
+        resp = self.client.get(
+            f'{self.url_json}?json_field__wrong_field=%22test%22',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 0)
+
+        resp = self.client.get(
+            f'{self.url_json}?json_field__items_list__10=1',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 0)
+
+        resp = self.client.get(
+            f'{self.url_json}?json_field__a__b__3__c=%22test%22',
             HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
         )
 

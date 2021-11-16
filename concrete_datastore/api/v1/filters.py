@@ -1,10 +1,11 @@
 # coding: utf-8
 import uuid
 import functools
-
+import re
 from django.db.models import Q
 from django.contrib.gis.measure import D
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import BaseFilterBackend
 from concrete_datastore.api.v1.datetime import format_datetime, ensure_pendulum
@@ -18,6 +19,27 @@ RANGEABLE_TYPES = (
     'IntegerField',
     'FloatField',
 )
+
+TYPES_VALUES_MAP = {
+    "str": lambda x: x,
+    "int": lambda x: int(x),
+    "float": lambda x: float(x),
+    "bool": lambda x: True if x.lower() == 'true' else False,
+    "null": lambda x: None,
+}
+
+JSON_FILTER_PATTERN = r'^\"(?P<str>.*)\"$|(?P<int>^\d+([Ee][+-]?\d+)?$)|(?P<float>^\d*\.\d+([Ee][+-]?\d+)?$)|(?P<bool>^true$|^false$)|(?P<null>^null$|^none$)'
+
+
+def cast_value_to_right_type(query_value):
+    match = re.search(JSON_FILTER_PATTERN, query_value, flags=re.IGNORECASE)
+    if match is None:
+        raise ValueError(f'{query_value} is not a valid value')
+    match_group = match.groupdict()
+    q_type, q_value = next(
+        (x, y) for x, y in match_group.items() if y is not None
+    )
+    return TYPES_VALUES_MAP[q_type](q_value)
 
 
 def get_filter_field_type(model_class, param) -> str:
@@ -310,22 +332,14 @@ class FilterJSONFieldsBackend(
         )
         setattr(view, 'filterset_fields', new_filterset_fields)
 
-    # def get_schema_operation_parameters(self, view):
+    def get_schema_operation_parameters(self, view):
+        #: The json filter is generic and has no rules. So it is removed
+        #: from the openAPI schema.
+        #: In this method we will juste remove the JSON fields from the
+        #: filterset_fields of the view and return an empty list
 
-    #     params = [
-    #         {
-    #             'name': f'{field_name}',
-    #             'required': False,
-    #             'in': 'query',
-    #             'description': 'List of values separated by comma',
-    #             'schema': {'type': 'string'},
-    #         }
-    #         for field_name in getattr(view, 'filterset_fields', ())
-    #         if get_filter_field_type(view.model_class, field_name)
-    #         == 'JSONField'
-    #     ]
-    #     self.remove_from_queryset(view=view)
-    #     return self.return_if_not_details(view=view, value=params)
+        self.remove_from_queryset(view=view)
+        return []
 
     def filter_queryset(self, request, queryset, view):
         query_params = request.query_params
@@ -338,15 +352,20 @@ class FilterJSONFieldsBackend(
             if len(splitted_query_params) == 1:
                 continue
             param_field_name = splitted_query_params[0]
+
+            if param_field_name not in filterset_fields:
+                continue
             if (
                 get_filter_field_type(queryset.model, param_field_name)
                 != 'JSONField'
             ):
                 continue
-            if param_field_name not in filterset_fields:
-                continue
 
-            custom_filter = {param: query_params.get(param)}
+            value = query_params.get(param)
+            try:
+                custom_filter = {param: cast_value_to_right_type(value)}
+            except ValueError as e:
+                raise ValidationError({'message': f'"{param}": {e}'})
             if q_object is None:
                 q_object = Q(**custom_filter)
             else:
@@ -732,7 +751,7 @@ class FilterForeignKeyIsNullBackend(
     def get_schema_operation_parameters(self, view):
         params = [
             {
-                'name': f'{field_name}__isull',
+                'name': f'{field_name}__isnull',
                 'required': False,
                 'in': 'query',
                 'schema': {'type': 'boolean'},
