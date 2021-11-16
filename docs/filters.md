@@ -5,7 +5,7 @@ API requests support different types of filters on the fields of the `filter_fie
 
 #### Filter against model fields
 
-- **Filter exact value:** (Applied on all fields within the `filter_fields`) by using a scrict equality (`field_name=field_value`) and returns all instances that have `field_value` as a value for `field_name`
+- **Filter exact value:** (Applied on all fields within the `filter_fields`) by using a strict equality (`field_name=field_value`) and returns all instances that have `field_value` as a value for `field_name`
 - **Filter Supporting Or operation:** (Applied on all fields within the `filter_fields`) By adding the `__in` suffix:
 example: `?name__in=project1,project2,project3` returns all objects that the field name has a value of "project1" **OR** "project2" **OR** "project3"
 - **Filter Supporting Contains key:** (Applied on CharFields and TextFields) By adding the `__contains` suffix:
