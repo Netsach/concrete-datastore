@@ -28,7 +28,7 @@ TYPES_VALUES_MAP = {
     "null": lambda x: None,
 }
 
-JSON_FILTER_PATTERN = r'^\"(?P<str>.*)\"$|(?P<int>^\d+([Ee][+-]?\d+)?$)|(?P<float>^\d*\.\d+([Ee][+-]?\d+)?$)|(?P<bool>^true$|^false$)|(?P<null>^null$|^none$)'
+JSON_FILTER_PATTERN = r'^\"(?P<str>.*)\"$|(?P<int>^\d+([Ee][+-]?\d+)?$)|(?P<float>^\d+\.\d+([Ee][+-]?\d+)?$)|(?P<bool>^true$|^false$)|(?P<null>^null$|^none$)'
 
 
 def cast_value_to_right_type(query_value):
