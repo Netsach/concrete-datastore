@@ -750,6 +750,53 @@ class FilterContainsBackend(APITestCase):
         names = {project['name'] for project in resp.data['results']}
         self.assertEqual(names, {'Project1'})
 
+    def test_success_combination_filter_and_exclude(self):
+        Project.objects.create(name='Project A')
+        Project.objects.create(name='Test A')
+        Project.objects.create(name='Project ABC')
+        Project.objects.create(name='Project B')
+        Project.objects.create(name='Test B')
+        #: Exclude projects that the name contains "B"
+        resp = self.client.get(
+            '/api/v1.1/project/',
+            data={'name__contains!': 'B'},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('results', resp.data)
+        self.assertIn('total_objects_count', resp.data)
+        self.assertEqual(resp.data['total_objects_count'], 4)
+        names = {project['name'] for project in resp.data['results']}
+        self.assertSetEqual(
+            names, {'Project1', 'Project2', 'Project A', 'Test A'}
+        )
+
+        #: Filter projects that the name contains "Test"
+        resp = self.client.get(
+            '/api/v1.1/project/',
+            data={'name__contains': 'Test'},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('results', resp.data)
+        self.assertIn('total_objects_count', resp.data)
+        self.assertEqual(resp.data['total_objects_count'], 2)
+        names = {project['name'] for project in resp.data['results']}
+        self.assertSetEqual(names, {'Test B', 'Test A'})
+
+        #: Combine the two querysets
+        resp = self.client.get(
+            '/api/v1.1/project/',
+            data={'name__contains': 'Test', 'name__contains!': 'B'},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('results', resp.data)
+        self.assertIn('total_objects_count', resp.data)
+        self.assertEqual(resp.data['total_objects_count'], 1)
+        names = {project['name'] for project in resp.data['results']}
+        self.assertSetEqual(names, {'Test A'})
+
     def test_success_one_result_with_contain_filter(self):
         resp = self.client.get(
             '/api/v1.1/project/',

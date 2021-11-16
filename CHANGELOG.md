@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Add exclude filters within the API
 
 ### Changed
 
