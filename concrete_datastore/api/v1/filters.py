@@ -5,6 +5,7 @@ import re
 from django.db.models import Q
 from django.contrib.gis.measure import D
 from django.contrib.auth import get_user_model
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import BaseFilterBackend
 from concrete_datastore.api.v1.datetime import format_datetime, ensure_pendulum
@@ -98,11 +99,8 @@ def ensure_uuid_valid(value, version=None):
 
 def convert_type(string, field_type, close_period=True):
     if string == '':
-        raise ValidationError(
-            {
-                "message": "Attempting to convert an empty string to a date format"
-            }
-        )
+        message = "Attempting to convert an empty string to a date format"
+        raise ValidationError({"message": message})
     if field_type in ('DateTimeField', 'DateField'):
         if field_type == 'DateTimeField':
             # Expected format YYYY-MM-DD HH:MM[:ss[.uuuuuu]][TZ]
@@ -131,6 +129,69 @@ class CustomShemaOperationParameters:
             return value
         return []
 
+    def get_q_objects(self, q_filter, q_exclude, custom_filter, exclude):
+        if exclude is False:
+            if q_filter is None:
+                q_filter = Q(**custom_filter)
+            else:
+                q_filter &= Q(**custom_filter)
+        else:
+            if q_exclude is None:
+                q_exclude = Q(**custom_filter)
+            else:
+                q_exclude &= Q(**custom_filter)
+        return q_filter, q_exclude
+
+    def get_custom_filtered_queryset(self, qs, q_filter, q_exclude):
+        if q_filter is not None:
+            qs = qs.filter(q_filter)
+        if q_exclude is not None:
+            qs = qs.exclude(q_exclude)
+        return qs
+
+
+class ExcludeFilterBackend(DjangoFilterBackend):
+    """
+    This class inherits form DjangoFilterBackend and uses only negated
+    query_parms (only ending with '!')
+    The filter method will exclude the result of super().filter_queryset
+    The exclusion must be performed on each queryparam
+    """
+
+    def get_negated_query_params(self, request, view):
+        filterset_fields = getattr(view, 'filterset_fields', ())
+        query_params = request.query_params
+        return [
+            {param[:-1]: value}
+            for param, value in query_params.items()
+            if param.endswith('!') is True
+            and '__' not in param  #: this is handeled by another class
+            and '_uid' not in param  #: this is handeled by another class
+            and param[:-1] in filterset_fields
+        ]
+
+    def filter_queryset(self, request, queryset, view):
+        def _get_unitary_filterset_backed(query_param):
+            class UnitaryFilterBacked(DjangoFilterBackend):
+                def get_filterset_kwargs(self, request, queryset, view):
+                    return {
+                        'data': query_param,
+                        'queryset': queryset,
+                        'request': request,
+                    }
+
+            return UnitaryFilterBacked().filter_queryset(
+                request, queryset, view
+            )
+
+        for query_param in self.get_negated_query_params(request, view):
+            filtered_qs = _get_unitary_filterset_backed(
+                query_param=query_param
+            )
+            filtered_qs_pks = filtered_qs.values_list('pk', flat=True)
+            queryset = queryset.exclude(pk__in=filtered_qs_pks)
+        return queryset
+
 
 class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
     def remove_from_queryset(self, view):
@@ -150,15 +211,19 @@ class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
     def get_schema_operation_parameters(self, view):
         params = [
             {
-                'name': f'{field_name}__distance',
+                'name': f'{field_name}__distance{neg}',
                 'required': False,
                 'in': 'query',
-                'description': 'DISTANCE,LONGITUDE,LATITUDE',
+                'description': (
+                    'DISTANCE,LONGITUDE,LATITUDE'
+                    f'{" (to exclude)"if neg=="!" else ""}'
+                ),
                 'schema': {'type': 'string'},
             }
             for field_name in getattr(view, 'filterset_fields', ())
             if get_filter_field_type(view.model_class, field_name)
             == 'PointField'
+            for neg in ('', '!')
         ]
         self.remove_from_queryset(view=view)
 
@@ -167,13 +232,19 @@ class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
     def filter_queryset(self, request, queryset, view):
         # Only applicable on PointField objects
         #: The filter is __distance=XXX,LONGITUDE,LATITUDE
-        q_object = None
+        q_object_filter = None
+        q_object_exclude = None
         query_params = request.query_params
         filterset_fields = getattr(view, 'filterset_fields', ())
         for param in query_params:
-            if not param.endswith('__distance'):
+            exclude = False
+            bare_param = param
+            if param.endswith('!'):
+                bare_param = param[:-1]
+                exclude = True
+            if not bare_param.endswith('__distance'):
                 continue
-            param_field = param.replace('__distance', '')
+            param_field = bare_param.replace('__distance', '')
             if param_field not in filterset_fields:
                 continue
             if (
@@ -196,16 +267,17 @@ class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
             custom_filter = {
                 '{}__distance_lte'.format(param_field): (point, D(m=distance))
             }
-            if q_object is None:
-                q_object = Q(**custom_filter)
-            else:
-                q_object &= Q(**custom_filter)
+            q_object_filter, q_object_exclude = self.get_q_objects(
+                q_filter=q_object_filter,
+                q_exclude=q_object_exclude,
+                custom_filter=custom_filter,
+                exclude=exclude,
+            )
 
         self.remove_from_queryset(view=view)
-        if q_object is None:
-            return queryset
-
-        return queryset.filter(q_object)
+        return self.get_custom_filtered_queryset(
+            qs=queryset, q_filter=q_object_filter, q_exclude=q_object_exclude
+        )
 
 
 class FilterUserByLevel(BaseFilterBackend, CustomShemaOperationParameters):
@@ -218,7 +290,19 @@ class FilterUserByLevel(BaseFilterBackend, CustomShemaOperationParameters):
                 'schema': {'type': 'string'},
             },
             {
+                'name': 'level!',
+                'required': False,
+                'in': 'query',
+                'schema': {'type': 'string'},
+            },
+            {
                 'name': 'atleast',
+                'required': False,
+                'in': 'query',
+                'schema': {'type': 'string'},
+            },
+            {
+                'name': 'atleast!',
                 'required': False,
                 'in': 'query',
                 'schema': {'type': 'string'},
@@ -240,9 +324,17 @@ class FilterUserByLevel(BaseFilterBackend, CustomShemaOperationParameters):
             return queryset.model.filter_by_exact_level(
                 queryset=queryset, level=query_params.get('level')
             )
+        if 'level!' in query_params:
+            return queryset.model.exclude_by_exact_level(
+                queryset=queryset, level=query_params.get('level!')
+            )
         if 'atleast' in query_params:
             return queryset.model.filter_by_at_least_level(
                 queryset=queryset, level=query_params.get('atleast')
+            )
+        if 'atleast!' in query_params:
+            return queryset.model.exclude_by_at_least_level(
+                queryset=queryset, level=query_params.get('atleast!')
             )
 
         return queryset
@@ -255,15 +347,19 @@ class FilterSupportingOrBackend(
 
         params = [
             {
-                'name': f'{field_name}__in',
+                'name': f'{field_name}__in{neg}',
                 'required': False,
                 'in': 'query',
-                'description': 'List of values separated by comma',
+                'description': (
+                    'List of values separated by comma'
+                    f'{" (to exclude)" if neg=="!" else ""}'
+                ),
                 'schema': {'type': 'string'},
             }
             for field_name in getattr(view, 'filterset_fields', ())
             if get_filter_field_type(view.model_class, field_name)
             != 'ManyToManyField'
+            for neg in ('', '!')
         ]
         return self.return_if_not_details(view=view, value=params)
 
@@ -271,47 +367,51 @@ class FilterSupportingOrBackend(
         query_params = request.query_params
         filterset_fields = getattr(view, 'filterset_fields', ())
 
-        q_object = None
+        q_object_filter = None
+        q_object_exclude = None
         for param in query_params:
-            if not param.endswith('__in'):
+            exclude = False
+            bare_param = param
+            if param.endswith('!'):
+                bare_param = param[:-1]
+                exclude = True
+
+            if not bare_param.endswith('__in'):
                 continue
-            if param.replace('__in', '') not in filterset_fields:
+            if bare_param.replace('__in', '') not in filterset_fields:
                 continue
             values = query_params.get(param).split(',')
 
             filter_field_type = get_filter_field_type(
-                queryset.model, param.replace('__in', '')
+                queryset.model, bare_param.replace('__in', '')
             )
             if filter_field_type in ('UUIDField', 'ForeignKey'):
                 for value in values:
                     if not ensure_uuid_valid(value):
+                        message = f"'{value}' is not a valid UUID"
                         raise ValidationError(
-                            {
-                                "message": (
-                                    f"{param}: '{value}' is not a valid UUID"
-                                )
-                            }
+                            {"message": (f"{bare_param}: {message}")}
                         )
 
             if filter_field_type == 'BooleanField':
                 if set(values).difference(['True', 'False', 'None']):
-                    raise ValidationError(
-                        {
-                            "message": (
-                                f"{param}: {values} must contain olny 'True', "
-                                "'False' and/or 'None' (case sensitive)"
-                            )
-                        }
+                    message = (
+                        f"{bare_param}: {values} must contain olny 'True', "
+                        "'False' and/or 'None' (case sensitive)"
                     )
-            custom_filter = {param: values}
-            if q_object is None:
-                q_object = Q(**custom_filter)
-            else:
-                q_object &= Q(**custom_filter)
-        if q_object is None:
-            return queryset
+                    raise ValidationError({"message": message})
+            custom_filter = {bare_param: values}
 
-        return queryset.filter(q_object)
+            q_object_filter, q_object_exclude = self.get_q_objects(
+                q_filter=q_object_filter,
+                q_exclude=q_object_exclude,
+                custom_filter=custom_filter,
+                exclude=exclude,
+            )
+
+        return self.get_custom_filtered_queryset(
+            qs=queryset, q_filter=q_object_filter, q_exclude=q_object_exclude
+        )
 
 
 class FilterJSONFieldsBackend(
@@ -346,8 +446,16 @@ class FilterJSONFieldsBackend(
 
         q_object = None
         self.remove_from_queryset(view=view)
+        q_object_filter = None
+        q_object_exclude = None
         for param in query_params:
-            splitted_query_params = param.split('__')
+            exclude = False
+            bare_param = param
+            if param.endswith('!'):
+                bare_param = param[:-1]
+                exclude = True
+
+            splitted_query_params = bare_param.split('__')
             if len(splitted_query_params) == 1:
                 continue
             param_field_name = splitted_query_params[0]
@@ -362,17 +470,23 @@ class FilterJSONFieldsBackend(
 
             value = query_params.get(param)
             try:
-                custom_filter = {param: cast_value_to_right_type(value)}
+                custom_filter = {bare_param: cast_value_to_right_type(value)}
             except ValueError as e:
                 raise ValidationError({'message': f'"{param}": {e}'})
+            q_object_filter, q_object_exclude = self.get_q_objects(
+                q_filter=q_object_filter,
+                q_exclude=q_object_exclude,
+                custom_filter=custom_filter,
+                exclude=exclude,
+            )
             if q_object is None:
                 q_object = Q(**custom_filter)
             else:
                 q_object &= Q(**custom_filter)
-        if q_object is None:
-            return queryset
 
-        return queryset.filter(q_object)
+        return self.get_custom_filtered_queryset(
+            qs=queryset, q_filter=q_object_filter, q_exclude=q_object_exclude
+        )
 
 
 class FilterSupportingContainsBackend(
@@ -381,14 +495,16 @@ class FilterSupportingContainsBackend(
     def get_schema_operation_parameters(self, view):
         params = [
             {
-                'name': f'{field_name}__contains',
+                'name': f'{field_name}__contains{neg}',
                 'required': False,
+                'description': f'String{" (to exclude)" if neg=="!" else ""}',
                 'in': 'query',
                 'schema': {'type': 'string'},
             }
             for field_name in getattr(view, 'filterset_fields', ())
             if get_filter_field_type(view.model_class, field_name)
             in ('CharField', 'TextField')
+            for neg in ('', '!')
         ]
         return self.return_if_not_details(view=view, value=params)
 
@@ -396,11 +512,18 @@ class FilterSupportingContainsBackend(
         query_params = request.query_params
         filterset_fields = getattr(view, 'filterset_fields', ())
 
-        q_object = None
+        q_object_filter = None
+        q_object_exclude = None
         for param in query_params:
-            if not param.endswith('__contains'):
+            exclude = False
+            bare_param = param
+            if param.endswith('!'):
+                bare_param = param[:-1]
+                exclude = True
+
+            if not bare_param.endswith('__contains'):
                 continue
-            param_field = param.replace('__contains', '')
+            param_field = bare_param.replace('__contains', '')
             if param_field not in filterset_fields:
                 continue
             if not get_filter_field_type(queryset.model, param_field) in (
@@ -409,15 +532,17 @@ class FilterSupportingContainsBackend(
             ):
                 continue
 
-            custom_filter = {param: query_params.get(param)}
-            if q_object is None:
-                q_object = Q(**custom_filter)
-            else:
-                q_object &= Q(**custom_filter)
-        if q_object is None:
-            return queryset
+            custom_filter = {bare_param: query_params.get(param)}
+            q_object_filter, q_object_exclude = self.get_q_objects(
+                q_filter=q_object_filter,
+                q_exclude=q_object_exclude,
+                custom_filter=custom_filter,
+                exclude=exclude,
+            )
 
-        return queryset.filter(q_object)
+        return self.get_custom_filtered_queryset(
+            qs=queryset, q_filter=q_object_filter, q_exclude=q_object_exclude
+        )
 
 
 class FilterSupportingInsensitiveContainsBackend(
@@ -426,14 +551,16 @@ class FilterSupportingInsensitiveContainsBackend(
     def get_schema_operation_parameters(self, view):
         params = [
             {
-                'name': f'{field_name}__icontains',
+                'name': f'{field_name}__icontains{neg}',
                 'required': False,
+                'description': f'String{" (to exclude)" if neg=="!" else ""}',
                 'in': 'query',
                 'schema': {'type': 'string'},
             }
             for field_name in getattr(view, 'filterset_fields', ())
             if get_filter_field_type(view.model_class, field_name)
             in ('CharField', 'TextField')
+            for neg in ('', '!')
         ]
         return self.return_if_not_details(view=view, value=params)
 
@@ -441,11 +568,18 @@ class FilterSupportingInsensitiveContainsBackend(
         query_params = request.query_params
         filterset_fields = getattr(view, 'filterset_fields', ())
 
-        q_object = None
+        q_object_filter = None
+        q_object_exclude = None
         for param in query_params:
-            if not param.endswith('__icontains'):
+            exclude = False
+            bare_param = param
+            if param.endswith('!'):
+                bare_param = param[:-1]
+                exclude = True
+
+            if not bare_param.endswith('__icontains'):
                 continue
-            param_field = param.replace('__icontains', '')
+            param_field = bare_param.replace('__icontains', '')
             if param_field not in filterset_fields:
                 continue
             if not get_filter_field_type(queryset.model, param_field) in (
@@ -454,15 +588,18 @@ class FilterSupportingInsensitiveContainsBackend(
             ):
                 continue
 
-            custom_filter = {param: query_params.get(param)}
-            if q_object is None:
-                q_object = Q(**custom_filter)
-            else:
-                q_object &= Q(**custom_filter)
-        if q_object is None:
-            return queryset
+            custom_filter = {bare_param: query_params.get(param)}
 
-        return queryset.filter(q_object)
+            q_object_filter, q_object_exclude = self.get_q_objects(
+                q_filter=q_object_filter,
+                q_exclude=q_object_exclude,
+                custom_filter=custom_filter,
+                exclude=exclude,
+            )
+
+        return self.get_custom_filtered_queryset(
+            qs=queryset, q_filter=q_object_filter, q_exclude=q_object_exclude
+        )
 
 
 class FilterSupportingEmptyBackend(
@@ -479,7 +616,7 @@ class FilterSupportingEmptyBackend(
             }
             for field_name in getattr(view, 'filterset_fields', ())
             if get_filter_field_type(view.model_class, field_name)
-            in ('CharField', 'TextField')
+            in ('CharField', 'TextField', 'ForeignKey', 'ManyToManyField')
         ]
         return self.return_if_not_details(view=view, value=params)
 
@@ -487,11 +624,17 @@ class FilterSupportingEmptyBackend(
         query_params = request.query_params
         filterset_fields = getattr(view, 'filterset_fields', ())
 
-        q_object = None
+        q_object_filter = None
+        q_object_exclude = None
+
         for param in query_params:
+            exclude = False
+
             if not param.endswith('__isempty'):
                 continue
-            if query_params.get(param) != 'true':
+            if query_params.get(param).lower() == 'false':
+                exclude = True
+            elif query_params.get(param).lower() != 'true':
                 continue
             param = param.replace('__isempty', '')
             if param not in filterset_fields:
@@ -503,15 +646,15 @@ class FilterSupportingEmptyBackend(
                 custom_filter = {'{}__exact'.format(param): ''}
             else:
                 continue
-
-            if q_object is None:
-                q_object = Q(**custom_filter)
-            else:
-                q_object &= Q(**custom_filter)
-        if q_object is None:
-            return queryset
-
-        return queryset.filter(q_object)
+            q_object_filter, q_object_exclude = self.get_q_objects(
+                q_filter=q_object_filter,
+                q_exclude=q_object_exclude,
+                custom_filter=custom_filter,
+                exclude=exclude,
+            )
+        return self.get_custom_filtered_queryset(
+            qs=queryset, q_filter=q_object_filter, q_exclude=q_object_exclude
+        )
 
 
 class FilterSupportingRangeBackend(
@@ -520,16 +663,20 @@ class FilterSupportingRangeBackend(
     def get_schema_operation_parameters(self, view):
         params = [
             {
-                'name': f'{field_name}__range',
+                'name': f'{field_name}__range{neg}',
                 'required': False,
                 'in': 'query',
-                'description': 'A range of values separated by comma',
+                'description': (
+                    'A range of values separated by comma'
+                    f'{" (to exclude)" if neg=="!" else ""}'
+                ),
                 'schema': {'type': 'string'},
             }
             for field_name in getattr(view, 'filterset_fields', ())
             + ('creation_date', 'modification_date')
             if get_filter_field_type(view.model_class, field_name)
             in RANGEABLE_TYPES
+            for neg in ('', '!')
         ]
         return self.return_if_not_details(view=view, value=params)
 
@@ -540,11 +687,18 @@ class FilterSupportingRangeBackend(
             'modification_date',
         )
 
-        q_object = None
+        q_object_filter = None
+        q_object_exclude = None
+
         for param in query_params:
+            exclude = False
+            bare_param = param
+            if param.endswith('!'):
+                bare_param = param[:-1]
+                exclude = True
             if not param.endswith('__range'):
                 continue
-            target_field = param.replace('__range', '')
+            target_field = bare_param.replace('__range', '')
             if target_field not in filterset_fields:
                 continue
 
@@ -582,13 +736,13 @@ class FilterSupportingRangeBackend(
                 continue
 
             elif range_start != '' and range_end == '':
-                param = param.replace('__range', '__gte')
+                param = bare_param.replace('__range', '__gte')
                 values = convert_type(
                     range_start, target_field_type, close_period=False
                 )
 
             elif range_start == '' and range_end != '':
-                param = param.replace('__range', '__lte')
+                param = bare_param.replace('__range', '__lte')
                 values = convert_type(
                     range_end, target_field_type, close_period=True
                 )
@@ -604,15 +758,16 @@ class FilterSupportingRangeBackend(
                 )
 
             custom_filter = {param: values}
-            if q_object is None:
-                q_object = Q(**custom_filter)
-            else:
-                q_object &= Q(**custom_filter)
+            q_object_filter, q_object_exclude = self.get_q_objects(
+                q_filter=q_object_filter,
+                q_exclude=q_object_exclude,
+                custom_filter=custom_filter,
+                exclude=exclude,
+            )
 
-        if q_object is None:
-            return queryset
-
-        return queryset.filter(q_object)
+        return self.get_custom_filtered_queryset(
+            qs=queryset, q_filter=q_object_filter, q_exclude=q_object_exclude
+        )
 
 
 class FilterSupportingComparaisonBackend(
@@ -630,16 +785,20 @@ class FilterSupportingComparaisonBackend(
             params.extend(
                 [
                     {
-                        'name': f'{field_name}__{key}',
+                        'name': f'{field_name}__{key}{neg}',
                         'required': False,
                         'in': 'query',
-                        'description': description,
+                        'description': (
+                            f'{description}'
+                            f'{" (to exclude)" if neg=="!" else ""}'
+                        ),
                         'schema': {'type': 'string'},
                     }
                     for field_name in getattr(view, 'filterset_fields', ())
                     + ('creation_date', 'modification_date')
                     if get_filter_field_type(view.model_class, field_name)
                     in RANGEABLE_TYPES
+                    for neg in ('', '!')
                 ]
             )
         return self.return_if_not_details(view=view, value=params)
@@ -653,6 +812,8 @@ class FilterSupportingComparaisonBackend(
 
         def get_param_from_query(param):
             target_field = param
+            if param.endswith('!'):
+                target_field = param[:-1]
             if target_field.endswith('__gte'):
                 return target_field.replace('__gte', '')
             if target_field.endswith('__lte'):
@@ -663,9 +824,13 @@ class FilterSupportingComparaisonBackend(
                 return target_field.replace('__lt', '')
             return None
 
-        q_object = None
+        q_object_filter = None
+        q_object_exclude = None
 
         def get_custom_filters(param):
+            bare_param = param
+            if param.endswith('!'):
+                bare_param = param[:-1]
             target_field = get_param_from_query(param)
             if target_field not in filterset_fields:
                 return None
@@ -678,18 +843,26 @@ class FilterSupportingComparaisonBackend(
             value = convert_type(query_params.get(param), target_field_type)
             if value is None:
                 return None
-            return {param: value}
+            return {bare_param: value}
 
-        filters = [
+        include_filters = [
             get_custom_filters(qp)
             for qp in query_params
-            if get_custom_filters(qp) is not None
+            if qp.endswith('!') is False and get_custom_filters(qp) is not None
         ]
-        if len(filters) == 0:
-            return queryset
-        q_object = functools.reduce(lambda a, b: a & Q(**b), filters, Q())
+        exclude_filters = [
+            get_custom_filters(qp)
+            for qp in query_params
+            if qp.endswith('!') is True and get_custom_filters(qp) is not None
+        ]
+        q_object_filter = functools.reduce(
+            lambda a, b: a & Q(**b), include_filters, Q()
+        )
+        q_object_exclude = functools.reduce(
+            lambda a, b: a & Q(**b), exclude_filters, Q()
+        )
 
-        return queryset.filter(q_object)
+        return queryset.filter(q_object_filter).exclude(q_object_exclude)
 
 
 class FilterSupportingForeignKey(
@@ -698,26 +871,36 @@ class FilterSupportingForeignKey(
     def get_schema_operation_parameters(self, view):
         params = [
             {
-                'name': f'{field_name}_uid',
+                'name': f'{field_name}_uid{neg}',
                 'required': False,
                 'in': 'query',
-                'description': 'UID of the FK',
+                'description': (
+                    f'UID of the FK{" (to exclude)" if neg=="!" else ""}'
+                ),
                 'schema': {'type': 'string'},
             }
             for field_name in getattr(view, 'filterset_fields', ())
             if get_filter_field_type(view.model_class, field_name)
             == 'ForeignKey'
+            for neg in ('', '!')
         ]
         return self.return_if_not_details(view=view, value=params)
 
     def filter_queryset(self, request, queryset, view):
         query_params = request.query_params
         filterset_fields = getattr(view, 'filterset_fields', ())
-        q_object = None
+        q_object_filter = None
+        q_object_exclude = None
+
         for param in query_params:
-            if not param.endswith('_uid'):
+            exclude = False
+            bare_param = param
+            if param.endswith('!'):
+                bare_param = param[:-1]
+                exclude = True
+            if not bare_param.endswith('_uid'):
                 continue
-            cleaned_param = param.replace('_uid', '')
+            cleaned_param = bare_param.replace('_uid', '')
             if cleaned_param not in filterset_fields:
                 continue
             cleaned_param_type = get_filter_field_type(
@@ -730,18 +913,18 @@ class FilterSupportingForeignKey(
             #:  "value" must be a valid UUID4, otherwise raise ValidationError
             #:  raises ValueError if not UUID4
             if not ensure_uuid_valid(value, version=4):
-                raise ValidationError(
-                    {"message": f'{param}: « {value} » is not a valid UUID'}
-                )
+                message = f'{bare_param}: « {value} » is not a valid UUID'
+                raise ValidationError({"message": message})
+            q_object_filter, q_object_exclude = self.get_q_objects(
+                q_filter=q_object_filter,
+                q_exclude=q_object_exclude,
+                custom_filter=custom_filter,
+                exclude=exclude,
+            )
 
-            if q_object is None:
-                q_object = Q(**custom_filter)
-            else:
-                q_object &= Q(**custom_filter)
-        if q_object is None:
-            return queryset
-
-        return queryset.filter(q_object)
+        return self.get_custom_filtered_queryset(
+            qs=queryset, q_filter=q_object_filter, q_exclude=q_object_exclude
+        )
 
 
 class FilterForeignKeyIsNullBackend(
@@ -799,7 +982,7 @@ class FilterSupportingManyToMany(
     def get_schema_operation_parameters(self, view):
         params = [
             {
-                'name': f'{field_name}__in',
+                'name': f'{field_name}__in{neg}',
                 'required': False,
                 'description': 'List of uids separated by comma',
                 'in': 'query',
@@ -808,17 +991,25 @@ class FilterSupportingManyToMany(
             for field_name in getattr(view, 'filterset_fields', ())
             if get_filter_field_type(view.model_class, field_name)
             == 'ManyToManyField'
+            for neg in ('', '!')
         ]
         return self.return_if_not_details(view=view, value=params)
 
     def filter_queryset(self, request, queryset, view):
         query_params = request.query_params
         filterset_fields = getattr(view, 'filterset_fields', ())
-        q_object = None
+        q_object_filter = None
+        q_object_exclude = None
+
         for param in query_params:
-            if not param.endswith('__in'):
+            exclude = False
+            bare_param = param
+            if param.endswith('!'):
+                bare_param = param[:-1]
+                exclude = True
+            if not bare_param.endswith('__in'):
                 continue
-            field_name = param.replace('__in', '')
+            field_name = bare_param.replace('__in', '')
             if field_name not in filterset_fields:
                 continue
             cleaned_param_type = get_filter_field_type(
@@ -832,18 +1023,17 @@ class FilterSupportingManyToMany(
             for value in values:
                 if not ensure_uuid_valid(value, version=4):
                     #:  raises ValueError if not UUID4
-                    raise ValidationError(
-                        {
-                            "message": f'{param}: « {value} » is not a valid UUID'
-                        }
-                    )
+                    message = f'{bare_param}: « {value} » is not a valid UUID'
+                    raise ValidationError({"message": message})
 
-            custom_filter = {param: values}
-            if q_object is None:
-                q_object = Q(**custom_filter)
-            else:
-                q_object &= Q(**custom_filter)
-        if q_object is None:
-            return queryset
+            custom_filter = {bare_param: values}
+            q_object_filter, q_object_exclude = self.get_q_objects(
+                q_filter=q_object_filter,
+                q_exclude=q_object_exclude,
+                custom_filter=custom_filter,
+                exclude=exclude,
+            )
 
-        return queryset.filter(q_object).distinct()
+        return self.get_custom_filtered_queryset(
+            qs=queryset, q_filter=q_object_filter, q_exclude=q_object_exclude
+        ).distinct()

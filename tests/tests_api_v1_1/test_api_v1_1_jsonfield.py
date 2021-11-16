@@ -288,3 +288,13 @@ class JsonFieldFiltersTest(APITestCase):
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data['objects_count'], 0)
+
+    def test_jsonfield_exclude(self):
+        resp = self.client.get(
+            f'{self.url_json}?json_field__name__icontains!=%22test%22',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 1)
+        self.assertEqual(resp.data['results'][0]['uid'], str(self.json3.uid))

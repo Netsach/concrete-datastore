@@ -1,16 +1,19 @@
 ## Filters and ordering
 
 ### Filters
-API requests support different types of filters on the fields of the `filter_fields` declared in the datamodel:
+API requests support different types of filters on the fields of the `filter_fields` declared in the datamodel, and other specific query parameters:
 
-- **Filter Supporting Or operation:** (Applied on all fields) By adding the `__in` suffix:
+#### Filter against model fields
+
+- **Filter exact value:** (Applied on all fields within the `filter_fields`) by using a strict equality (`field_name=field_value`) and returns all instances that have `field_value` as a value for `field_name`
+- **Filter Supporting Or operation:** (Applied on all fields within the `filter_fields`) By adding the `__in` suffix:
 example: `?name__in=project1,project2,project3` returns all objects that the field name has a value of "project1" **OR** "project2" **OR** "project3"
 - **Filter Supporting Contains key:** (Applied on CharFields and TextFields) By adding the `__contains` suffix:
 example: `?name__contains=pro` returns all objects that the field name contains the substring `"pro"`
-- **Filter Supporting Empty values:** (Applied on the CharFields and TextFields) By adding `__isempty=true`:
-example: `?project__isempty=true` returns all objects that do not have a `project`
+- **Filter Supporting Empty values:** (Applied on the CharFields and TextFields) By adding `__isempty=true` or `is__empty=false`:
+example: `?name__isempty=true` returns all objects that do not have a `name` and `?name__isempty=false` returns all objects have a non empty `name`
 - **Filter Supporting Null Relation:** (Applied on the ForeignKeys and ManyToManyField) By adding `__isnull=true`:
-example: `?project__isempty=true` returns all objects that do not have a `project`
+example: `?project__isnull=true` returns all objects that do not have a `project`
 - **Filter Supporting Comparison operations:** (Applied on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the suffixes `__gte`, `__gt`, `__lte` and `__lt`.
 example:
     - `?price__gte=10` (price >= 10)
@@ -101,6 +104,26 @@ Possible filters:
 ```
 
 
+- **Exclude filters:** (Applied on all fields within the `filter_fields`)By adding a negation mark (`!`) after the query parameter, and supports all the previous types of filtering (except for the `__empty` lookup, where the exclusion is within the filter). For example, `field_name__in!=value1,value2` will return all the instances where the value of `field_name` is different form `value1` and `value2`
+
+**Examples**:
+
+```
+https://<webapp>/api/v1.1/mymodel/?name=test
+https://<webapp>/api/v1.1/mymodel/?name!=test
+https://<webapp>/api/v1.1/mymodel/?name__isempty=true
+https://<webapp>/api/v1.1/mymodel/?name__isempty=false
+https://<webapp>/api/v1.1/mymodel/?name__in=project1,project2,project3
+https://<webapp>/api/v1.1/mymodel/?name__in!=project1,project2,project3
+https://<webapp>/api/v1.1/mymodel/?price__gte=price
+https://<webapp>/api/v1.1/mymodel/?price__gte!=price
+https://<webapp>/api/v1.1/mymodel/?creation_date__range=date1,date2
+https://<webapp>/api/v1.1/mymodel/?creation_date__range!=date1,date2
+```
+
+
+#### Filter using specific query parameters
+
 - `c_resp_page_size`: The API also features pagination by the use of the query parameter `c_resp_page_size` that takes an integer representing the number of results per page that sould be returned
 - `c_resp_nested`: If there are relation between objects, by default the API shows the relation completely, it is nested.
 Example:
@@ -141,18 +164,6 @@ If `timestamp_start` is specified and `> 0`, the api reponse will contain the fo
     - `"timestamp_start"`: the given timestamp start
     - `"timestamp_end"`: the timestamp end if given in the queryparams, otherwise the current timestamp
     - `"deleted_uids"`: a list of the objects' uids that are now longer in the response. Please refer to [the example on how to properly use timestamp_start and timestamp_end](#TimestampStartEnd)
-
-
-**Filter examples**:
-
-```
-https://<webapp>/api/v1.1/mymodel/?name=test
-https://<webapp>/api/v1.1/mymodel/?name__isempty=true
-https://<webapp>/api/v1.1/mymodel/?name__in=project1,project2,project3
-https://<webapp>/api/v1.1/mymodel/?price__gte=price
-https://<webapp>/api/v1.1/mymodel/?creation_date__range=date1,date2
-```
-
 
 <a name="TimestampStartEnd"></a>**Using timestamp_start and timestamp_end examples**:
 
