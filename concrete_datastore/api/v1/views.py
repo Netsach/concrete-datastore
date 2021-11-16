@@ -346,6 +346,11 @@ class SecureLoginApiView(generics.GenericAPIView):
         super().__init__(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        ip = get_client_ip(request)
+        now = pendulum.now('utc').format(settings.LOGGING['datefmt'])
+        user = self.request.user
+        base_message = f"[{now}|{ip}|{user}|AUTH] "
+
         serializer = SecureLoginSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(
@@ -359,6 +364,10 @@ class SecureLoginApiView(generics.GenericAPIView):
         try:
             secure_connect_token = SecureConnectToken.objects.get(value=token)
         except ObjectDoesNotExist:
+            log_request = base_message + (
+                f"Secure login attempt failed: invalid token"
+            )
+            logger_api_auth.info(log_request)
             return Response(
                 data={
                     'message': 'Invalid token',
@@ -369,6 +378,11 @@ class SecureLoginApiView(generics.GenericAPIView):
         user = secure_connect_token.user
 
         if expire_secure_token(secure_connect_token):
+            log_request = base_message + (
+                f"Secure login attempt for user {user.email}, "
+                "but the token has expired"
+            )
+            logger_api_auth.info(log_request)
             return Response(
                 data={
                     "message": "Token has expired",
@@ -380,6 +394,11 @@ class SecureLoginApiView(generics.GenericAPIView):
         serializer = UserSerializer(
             instance=user, api_namespace=self.api_namespace
         )
+        UserModel.objects.filter(pk=user.pk).update(last_login=timezone.now())
+        log_request = base_message + (
+            f"Secure login attempt for user {user.email} is successful"
+        )
+        logger_api_auth.info(log_request)
         return Response(data=serializer.data, status=HTTP_200_OK)
 
 
@@ -551,6 +570,16 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         super().__init__(*args, **kwargs)
 
     def set_password_and_return_resp(self, user, password):
+        ip = get_client_ip(self.request)
+        now = pendulum.now('utc').format(settings.LOGGING['datefmt'])
+        request_user = self.request.user
+        base_message = f"[{now}|{ip}|{request_user}|AUTH] "
+        log_request = base_message + (
+            f"Change password attempt by {request_user.email}"
+            f" to user {user.email} is successful"
+        )
+        logger_api_auth.info(log_request)
+
         user.set_password(password)
         user.password_modification_date = date.today()
         user.save()
@@ -563,7 +592,16 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
     def change_password_with_token(self, token, user, password):
         #:  Check that PasswordChangeToken exists
         request_token_qs = PasswordChangeToken.objects.filter(uid=token)
+        ip = get_client_ip(self.request)
+        now = pendulum.now('utc').format(settings.LOGGING['datefmt'])
+        base_message = f"[{now}|{ip}|{user}|AUTH] "
         if not request_token_qs.exists():
+            log_request = base_message + (
+                f"Change password attempt to user {user.email}, "
+                "but the token is invalid"
+            )
+            logger_api_auth.info(log_request)
+
             return Response(
                 data={
                     'message': 'invalid token',
@@ -575,6 +613,11 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         #:  Check that PasswordChangeToken belongs to the user
         request_token = request_token_qs.first()
         if user != request_token.user:
+            log_request = base_message + (
+                f"Change password attempt to user {user.email}, "
+                "but the token is invalid"
+            )
+            logger_api_auth.info(log_request)
             return Response(
                 data={
                     'message': 'invalid token',
@@ -588,6 +631,11 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         token_too_old = now >= request_token.expiry_date
         if token_too_old:
             request_token.delete()
+            log_request = base_message + (
+                f"Change password attempt to user {user.email}, "
+                "but the token is expired"
+            )
+            logger_api_auth.info(log_request)
             return Response(
                 data={
                     'message': 'invalid token',
@@ -603,6 +651,11 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         ):
             same_password = user.check_password(password)
             if same_password:
+                log_request = base_message + (
+                    f"Change password attempt to user {user.email}, "
+                    "but password is unchanged"
+                )
+                logger_api_auth.info(log_request)
                 return Response(
                     data={
                         'message': 'New password must be different',
@@ -613,23 +666,39 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
 
         user.set_password(password)
         user.password_modification_date = date.today()
+        user.last_login = timezone.now()
         user.save()
         request_token.delete()
 
         resp_serializer = UserSerializer(
             instance=user, api_namespace=self.api_namespace
         )
+        log_request = base_message + (
+            f"Change password attempt to user {user.email} is successful"
+        )
 
         return Response(data=resp_serializer.data, status=HTTP_200_OK)
 
     def change_another_user_password(self, target_user, password):
         #:  Check that new password is different from old one
+        ip = get_client_ip(self.request)
+        now = pendulum.now('utc').format(settings.LOGGING['datefmt'])
+        user = self.request.user
+        base_message = f"[{now}|{ip}|{user}|AUTH] "
         if (
             target_user.password_has_expired
             or not settings.ALLOW_REUSE_PASSWORD_ON_CHANGE
         ):
             same_password = target_user.check_password(password)
             if same_password:
+
+                log_request = base_message + (
+                    f"Change password attempt by {user.email}"
+                    f" to user {target_user.email}, "
+                    "but password is unchanged"
+                )
+                logger_api_auth.info(log_request)
+
                 return Response(
                     data={
                         'message': 'New password must be different',
@@ -638,13 +707,18 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
                     status=HTTP_400_BAD_REQUEST,
                 )
 
-        user = self.request.user
         if user.is_superuser is True:
             return self.set_password_and_return_resp(
                 user=target_user, password=password
             )
 
         if user.is_at_least_staff is False or user <= target_user:
+            log_request = base_message + (
+                f"Change password attempt by {user.email}"
+                f" to user {target_user.email}, "
+                f"but {user.email} does not have the permissions"
+            )
+            logger_api_auth.info(log_request)
             return Response(
                 data={'message': 'Does not have the permissions.'},
                 status=HTTP_403_FORBIDDEN,
@@ -671,6 +745,12 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         divider_uids = divider_related.values_list('uid', flat=True)
 
         if (divider_target_uids & divider_uids).exists() is False:
+            log_request = base_message + (
+                f"Change password attempt by {user.email}"
+                f" to user {target_user.email}, "
+                "but the user does not have the permissions"
+            )
+            logger_api_auth.info(log_request)
             return Response(
                 data={'message': 'Does not have the permissions.'},
                 status=HTTP_403_FORBIDDEN,
@@ -691,6 +771,11 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
           last_name, password and token)
         """
         serializer = ChangePasswordSerializer(data=request.data)
+        ip = get_client_ip(request)
+        now = pendulum.now('utc').format(settings.LOGGING['datefmt'])
+        user = self.request.user
+        base_message = f"[{now}|{ip}|{user}|AUTH] "
+
         if not serializer.is_valid():
             #:  Do not give any info on this endpoint
             return Response(
@@ -711,6 +796,11 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         #:  Check that target user exists
         target_user_qs = UserModel.objects.filter(email=email)
         if not target_user_qs.exists():
+            log_request = (
+                base_message
+                + f"Change password attempt to unknown user {email}"
+            )
+            logger_api_auth.info(log_request)
             return Response(
                 data={'message': 'Invalid data', "_errors": ["INVALID_DATA"]},
                 status=HTTP_400_BAD_REQUEST,
@@ -719,6 +809,11 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
 
         #:  Check that the two passwords are identical
         if password1 != password2:
+            log_request = base_message + (
+                f"Change password attempt to user {email}, "
+                "but passwords are not corresponding"
+            )
+            logger_api_auth.info(log_request)
             return Response(
                 data={
                     'message': 'Passwords not corresponding',
@@ -733,6 +828,12 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
             validator = ConcretePasswordValidator()
             validator(password)
         except PasswordInsecureValidationError as e:
+            log_request = base_message + (
+                f"Change password attempt to user {email}, "
+                "but password is insecure"
+            )
+            logger_api_auth.info(log_request)
+
             return Response(
                 data={'message': e.message, "_errors": [e.code]},
                 status=HTTP_400_BAD_REQUEST,
@@ -746,6 +847,10 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
             )
         #:  If user is anonymous, 400 with no info
         if request.user.is_anonymous:
+            log_request = base_message + (
+                "Change password attempt to anonymous user "
+                "without password_change_token"
+            )
             return Response(status=HTTP_400_BAD_REQUEST)
         user = request.user
 
@@ -757,6 +862,12 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
             ):
                 same_password = target_user.check_password(password)
                 if same_password:
+                    log_request = base_message + (
+                        f"Change password attempt to user {email}, "
+                        "but password is unchanged"
+                    )
+                    logger_api_auth.info(log_request)
+
                     return Response(
                         data={
                             'message': 'New password must be different',
@@ -766,10 +877,16 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
                     )
             user.set_password(password)
             user.password_modification_date = date.today()
+            user.last_login = timezone.now()
             user.save()
             resp_serializer = UserSerializer(
                 instance=user, api_namespace=self.api_namespace
             )
+            log_request = base_message + (
+                f"Change password attempt to user {email} is successful"
+            )
+            logger_api_auth.info(log_request)
+
             return Response(data=resp_serializer.data, status=HTTP_200_OK)
 
         return self.change_another_user_password(
@@ -842,6 +959,10 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             )
 
         request_user = self.get_request_user()
+        ip = get_client_ip(request)
+        now = pendulum.now('utc').format(settings.LOGGING['datefmt'])
+        base_message = f"[{now}|{ip}|{request_user}|AUTH] "
+
         at_least_staff = (
             False
             if request_user.is_anonymous
@@ -860,6 +981,11 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
         # If the user is manager and has not the divider, refuse
         # An admin or super user can do it
         if has_not_divider and request_user.level == 'manager':
+            log_request = base_message + (
+                f"Register attempt by {request_user.email}, "
+                "but the user does not have the permissions"
+            )
+            logger_api_auth.info(log_request)
             return Response(
                 data={
                     "message": (
@@ -876,6 +1002,10 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
     def create_user(self, request, serializer, divider=None):
         password1 = serializer.validated_data.get("password1", None)
         password2 = serializer.validated_data.get("password2", None)
+        request_user = self.get_request_user()
+        ip = get_client_ip(request)
+        now = pendulum.now('utc').format(settings.LOGGING['datefmt'])
+        base_message = f"[{now}|{ip}|{request_user}|AUTH] "
 
         #:  If the two passwords are not set, a password is generated in case
         #:  of ALLOW_SEND_EMAIL_ON_REGISTER is True.
@@ -898,6 +1028,18 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
                 or request_user.is_at_least_staff is False
             )
             if email_format is not None and user_not_allowed_to_email_format:
+                if isinstance(request_user, AnonymousUser):
+                    log_request = base_message + (
+                        f"Register attempt by anonymous with email format, "
+                        "but the user does not have the level required"
+                    )
+                else:
+                    log_request = base_message + (
+                        "Register attempt with email_format"
+                        f" by {request_user.email}, "
+                        "but the user does not have the level required"
+                    )
+                logger_api_auth.info(log_request)
                 return Response(
                     data={
                         'message': (
@@ -912,6 +1054,11 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             #:  email_format have the right format
             url_format = serializer.validated_data["url_format"]
             if '{token}' not in url_format or '{email}' not in url_format:
+                log_request = base_message + (
+                    f"Register attempt by {request_user}, "
+                    "but the url_format is invalid"
+                )
+                logger_api_auth.info(log_request)
                 return Response(
                     data={
                         'errors': 'url_format is not a valid format_string',
@@ -921,6 +1068,11 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
                 )
 
             if email_format is not None and '{link}' not in email_format:
+                log_request = base_message + (
+                    f"Register attempt by {request_user}, "
+                    "but the email_format is invalid"
+                )
+                logger_api_auth.info(log_request)
                 return Response(
                     data={
                         'errors': 'email_format is not a valid format_string',
@@ -932,6 +1084,18 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
         else:
             send_register_email = False
             if not password1 == password2:
+                if isinstance(request_user, AnonymousUser):
+                    log_request = base_message + (
+                        f"Register attempt by anonymous user, "
+                        "but the password confirmation is incorrect"
+                    )
+                    logger_api_auth.info(log_request)
+                else:
+                    log_request = base_message + (
+                        f"Register attempt by {request_user.email}, "
+                        "but the password confirmation is incorrect"
+                    )
+                    logger_api_auth.info(log_request)
                 return Response(
                     data={
                         'message': 'Password confimation incorrect',
@@ -944,6 +1108,11 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
                 validator = ConcretePasswordValidator()
                 validator(password)
             except PasswordInsecureValidationError as e:
+                log_request = base_message + (
+                    f"Register attempt by {request_user}, "
+                    "but the password is insecure"
+                )
+                logger_api_auth.info(log_request)
                 return Response(
                     data={'message': e.message, "_errors": [e.code]},
                     status=HTTP_400_BAD_REQUEST,
@@ -954,6 +1123,11 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
 
         #:  Check Email matches REGEX settings
         if re.match(settings.API_REGISTER_EMAIL_FILTER, email) is None:
+            log_request = base_message + (
+                f"Register attempt by anonymous user, "
+                f"but the email {email} is not allowed to register"
+            )
+            logger_api_auth.info(log_request)
             return Response(
                 data={
                     'message': 'This email is not allowed to register',
@@ -1038,13 +1212,22 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
         serializer = UserSerializer(
             instance=user, api_namespace=self.api_namespace
         )
+        UserModel.objects.filter(pk=user.pk).update(last_login=timezone.now())
         if divider:
             return self.update_user_with_scope(
                 request, serializer, divider, user, status=HTTP_201_CREATED
             )
+        log_request = base_message + (
+            f"Register attempt by {user.email} is successful"
+        )
+        logger_api_auth.info(log_request)
         return Response(data=serializer.data, status=HTTP_201_CREATED)
 
     def update_or_create_user_with_scope(self, request, serializer, divider):
+        ip = get_client_ip(request)
+        now = pendulum.now('utc').format(settings.LOGGING['datefmt'])
+        user = self.request.user
+        base_message = f"[{now}|{ip}|{user}|AUTH] "
         email = serializer.validated_data["email"].lower()
         try:
             instance_user = UserModel.objects.get(email=email)
@@ -1055,6 +1238,14 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             # if the user exists, update it if authorized
             request_user = self.get_request_user()
             if not self.can_access_user_obj(request_user, instance_user):
+                log_request = base_message + (
+                    f"Register attempt by {request_user.email}"
+                    f" to user {instance_user.email}, "
+                    f"but {request_user.email} is not allowed to"
+                    " update the user"
+                )
+                logger_api_auth.info(log_request)
+
                 return Response(
                     data={
                         "message": (
@@ -1073,6 +1264,11 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
     def update_user_with_scope(
         self, request, serializer, divider, instance_user, status=HTTP_200_OK
     ):
+        ip = get_client_ip(request)
+        now = pendulum.now('utc').format(settings.LOGGING['datefmt'])
+        request_user = self.get_request_user()
+        base_message = f"[{now}|{ip}|{request_user}|AUTH] "
+
         # Get user dividers field and add the request divider
         divider_model_name = "{}s".format(DIVIDER_MODEL.lower())
         user_dividers = getattr(instance_user, divider_model_name)
@@ -1081,7 +1277,15 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
         serializer = UserSerializer(
             instance=instance_user, api_namespace=self.api_namespace
         )
-
+        # The token is generated with the UserSerializer
+        UserModel.objects.filter(pk=instance_user.pk).update(
+            last_login=timezone.now()
+        )
+        log_request = base_message + (
+            f"Register attempt by {request_user.email}"
+            f" to user {instance_user.email} is successful"
+        )
+        logger_api_auth.info(log_request)
         return Response(data=serializer.data, status=status)
 
     def has_divider(self, user, divider):
