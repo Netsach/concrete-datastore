@@ -24,7 +24,7 @@ example:
 - **Filter Supporting Range:** (Applied on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the suffix `__range`:
 example: `?creation_date__range=2018-01-01,2018-12-31` returns all objects with creation date is between 1st Jan 2018 and 31st Dec 2018
 
-- **Filter against JSON fields:** (Applied only on JSON fields) This backend enables filtering agains a JSON field keys with `?field__key=value`. If the value is meant to be a string, it should be enclosed between double quotes: `"value"`, otherwise, the server responds with a `400 BAD REQUEST` (Please note that the encoded double quotes are `%22`, so `"value"` becomes `%22value%22`).
+- **Filter against JSON fields:** (Applied only on JSON fields) This backend enables filtering against a JSON field key with `?field__key=value`. If the value is meant to be a string, it should be enclosed between double quotes: `"value"`, otherwise, the server responds with a `400 BAD REQUEST` (Please note that the encoded double quotes are `%22`, so `"value"` becomes `%22value%22`).
 
 Example: given a model `MyModel` with a JSON field `data`, and 3 instances of this model with:
 
