@@ -216,7 +216,7 @@ class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
                 'in': 'query',
                 'description': (
                     'DISTANCE,LONGITUDE,LATITUDE'
-                    f'{" (to exclude)"if neg == "!" else ""}'
+                    f'{" (to exclude)" if neg == "!" else ""}'
                 ),
                 'schema': {'type': 'string'},
             }
