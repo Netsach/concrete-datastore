@@ -216,7 +216,7 @@ class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
                 'in': 'query',
                 'description': (
                     'DISTANCE,LONGITUDE,LATITUDE'
-                    f'{" (to exclude)"if neg=="!" else ""}'
+                    f'{" (to exclude)"if neg == "!" else ""}'
                 ),
                 'schema': {'type': 'string'},
             }
@@ -352,7 +352,7 @@ class FilterSupportingOrBackend(
                 'in': 'query',
                 'description': (
                     'List of values separated by comma'
-                    f'{" (to exclude)" if neg=="!" else ""}'
+                    f'{" (to exclude)" if neg == "!" else ""}'
                 ),
                 'schema': {'type': 'string'},
             }
@@ -497,7 +497,7 @@ class FilterSupportingContainsBackend(
             {
                 'name': f'{field_name}__contains{neg}',
                 'required': False,
-                'description': f'String{" (to exclude)" if neg=="!" else ""}',
+                'description': f'String{" (to exclude)" if neg == "!" else ""}',
                 'in': 'query',
                 'schema': {'type': 'string'},
             }
@@ -553,7 +553,7 @@ class FilterSupportingInsensitiveContainsBackend(
             {
                 'name': f'{field_name}__icontains{neg}',
                 'required': False,
-                'description': f'String{" (to exclude)" if neg=="!" else ""}',
+                'description': f'String{" (to exclude)" if neg == "!" else ""}',
                 'in': 'query',
                 'schema': {'type': 'string'},
             }
@@ -668,7 +668,7 @@ class FilterSupportingRangeBackend(
                 'in': 'query',
                 'description': (
                     'A range of values separated by comma'
-                    f'{" (to exclude)" if neg=="!" else ""}'
+                    f'{" (to exclude)" if neg == "!" else ""}'
                 ),
                 'schema': {'type': 'string'},
             }
@@ -790,7 +790,7 @@ class FilterSupportingComparaisonBackend(
                         'in': 'query',
                         'description': (
                             f'{description}'
-                            f'{" (to exclude)" if neg=="!" else ""}'
+                            f'{" (to exclude)" if neg == "!" else ""}'
                         ),
                         'schema': {'type': 'string'},
                     }
@@ -875,7 +875,7 @@ class FilterSupportingForeignKey(
                 'required': False,
                 'in': 'query',
                 'description': (
-                    f'UID of the FK{" (to exclude)" if neg=="!" else ""}'
+                    f'UID of the FK{" (to exclude)" if neg == "!" else ""}'
                 ),
                 'schema': {'type': 'string'},
             }
