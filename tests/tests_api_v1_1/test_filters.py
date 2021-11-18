@@ -18,6 +18,8 @@ from concrete_datastore.concrete.models import (
     DefaultDivider,
     DIVIDER_MODEL,
     Category,
+    ItemPack,
+    UniqueTogetherModel,
 )
 from django.test import override_settings
 from concrete_datastore.api.v1.datetime import format_datetime
@@ -83,6 +85,31 @@ class FilterSupportingComparisonBackendTestCase(APITestCase):
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
         )
         self.assertEqual(resp.data['objects_count'], 1)
+        #: Emty sting raises a ValidationError
+        resp = self.client.get(
+            '/api/v1/skill/?score__gt=',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            resp.data,
+            {
+                "message": "Attempting to convert an empty string to a date format"
+            },
+        )
+
+    def test_filter_deciaml_field(self):
+        item_1 = ItemPack.objects.create(cost=3.4)
+        item_2 = ItemPack.objects.create(cost=3.6)
+        resp = self.client.get(
+            '/api/v1.1/item-pack/?cost__gt=3.5',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK, msg=resp.data)
+        self.assertIn('objects_count', resp.data)
+        self.assertEqual(resp.data['objects_count'], 1)
+        self.assertEqual(len(resp.data['results']), 1)
+        self.assertEqual(resp.data['results'][0]['uid'], str(item_2.pk))
 
 
 @override_settings(DEBUG=True)
@@ -474,6 +501,13 @@ class FilterDatesTestClass(APITestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_filter_range_date_with_empty_values(self):
+        url_date = '/api/v1.1/date-utc/?date__range=,'
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
 
 @override_settings(DEBUG=True)
 class FilterDividedModelByDivider(APITestCase):
@@ -826,6 +860,12 @@ class FilterInsensitiveContainsBackend(APITestCase):
         self.project1 = Project.objects.create(
             name='Project2', description='text of description2'
         )
+        self.unique_together1 = UniqueTogetherModel.objects.create(
+            name='unique_together1', field1='field1'
+        )
+        self.unique_together2 = UniqueTogetherModel.objects.create(
+            name='unique_together2', field1='field1'
+        )
 
     def test_success_one_result_with_icontain_filter(self):
         resp = self.client.get(
@@ -852,6 +892,38 @@ class FilterInsensitiveContainsBackend(APITestCase):
         self.assertEqual(resp.data['total_objects_count'], 1)
         names = {project['name'] for project in resp.data['results']}
         self.assertEqual(names, {'Project2'})
+
+    def test_success_one_result_with_two_icontain_filters(self):
+        resp = self.client.get(
+            '/api/v1.1/unique-together-model/',
+            data={
+                'name__icontains': 'uniquE_toGethEr1',
+                'field1__icontains': 'fIe',
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK, msg=resp.data)
+        self.assertIn('results', resp.data)
+        self.assertIn('total_objects_count', resp.data)
+        self.assertEqual(resp.data['total_objects_count'], 1)
+        names = {instance['name'] for instance in resp.data['results']}
+        self.assertEqual(names, {'unique_together1'})
+
+    def test_success_one_result_with_two_contain_filters(self):
+        resp = self.client.get(
+            '/api/v1.1/unique-together-model/',
+            data={
+                'name__contains': 'unique_together1',
+                'field1__contains': 'fie',
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK, msg=resp.data)
+        self.assertIn('results', resp.data)
+        self.assertIn('total_objects_count', resp.data)
+        self.assertEqual(resp.data['total_objects_count'], 1)
+        names = {instance['name'] for instance in resp.data['results']}
+        self.assertEqual(names, {'unique_together1'})
 
 
 @override_settings(DEBUG=True)

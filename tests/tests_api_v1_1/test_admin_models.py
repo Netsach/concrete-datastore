@@ -1,20 +1,22 @@
 # coding: utf-8
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.contrib import admin
 from django.test import override_settings
+from django.http import StreamingHttpResponse
 
 from concrete_datastore.admin.admin_models import MetaAdmin, MetaUserAdmin
+from concrete_datastore.admin.admin import ConcreteRoleAdmin, admin_site
+from concrete_datastore.admin.admin_site import get_admin_site
 from concrete_datastore.admin.admin_form import MyChangeUserForm
-from concrete_datastore.concrete.models import User, Group
+from concrete_datastore.concrete.models import User, Group, ConcreteRole
 
 
 @override_settings(DEBUG=True)
 class ModelAdminTest(TestCase):
     def setUp(self):
-        self.user_a = User.objects.create_user(
-            email="aaa@netsach.org", password='test'
-        )
-        self.user_a.is_superuser = True
+        self.user_a = User.objects.create_user(email="aaa@netsach.org")
+        self.user_a.set_level('superuser')
+        self.user_a.set_password('test')
         self.user_a.save()
         self.site = admin.site
 
@@ -107,4 +109,75 @@ class ModelAdminTest(TestCase):
         user_change_model.save_model(
             request=self.request, obj=user_b, form=my_form, change=True
         )
+        user_b.refresh_from_db()
         self.assertIs(user_b.admin, True)
+        self.assertIs(user_b.level, 'admin')
+
+    def test_get_list_users(self):
+        client = Client()
+        client.login(username='aaa@netsach.org', password='test')
+        resp = client.get('/concrete-datastore-admin/user/')
+        self.assertEqual(resp.status_code, 200)
+        #: Create a new user from the admin form
+        resp = client.post(
+            '/concrete-datastore-admin/user/add/',
+            {
+                "email": 'aaa@netsach.org',
+                "password1": "test",
+                "password2": "test",
+            },
+        )
+
+        #: Post with the same email for the form error
+        resp = client.post(
+            '/concrete-datastore-admin/user/add/',
+            {
+                "email": 'aaa@netsach.org',
+                "password1": "test",
+                "password2": "test",
+            },
+        )
+
+    @override_settings(USE_TWO_FACTOR_AUTH=True)
+    def test_get_mfa_admin_site(self):
+        get_admin_site()
+
+    def test_get_normal_admin_site(self):
+        client = Client()
+        client.login(username='aaa@netsach.org', password='test')
+        resp = client.get('/concrete-datastore-admin/')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_export_csv_admin_site(self):
+        client = Client()
+        client.login(username='aaa@netsach.org', password='test')
+        resp = client.get('/concrete-datastore-admin/user/')
+        self.assertEqual(resp.status_code, 200)
+        data = {
+            'action': 'export_csv',
+            '_selected_action': list(
+                User.objects.values_list('pk', flat=True)
+            ),
+        }
+        resp = client.post('/concrete-datastore-admin/user/', data)
+        self.assertTrue(isinstance(resp, StreamingHttpResponse))
+
+    def test_save_mixin(self):
+        obj = ConcreteRole()
+        self.assertEqual(ConcreteRole.objects.count(), 0)
+        concrete_role_admin = ConcreteRoleAdmin(
+            model=ConcreteRole, admin_site=admin_site
+        )
+        concrete_role_admin.save_model(
+            obj=obj, request=self.request, form=None, change=False
+        )
+        self.assertEqual(ConcreteRole.objects.count(), 1)
+        concrete_role = ConcreteRole.objects.first()
+        self.assertEqual(ConcreteRole.objects.first().name, '')
+        concrete_role.name = 'test_role'
+        concrete_role_admin.save_model(
+            obj=concrete_role, request=self.request, form=None, change=True
+        )
+        self.assertEqual(ConcreteRole.objects.count(), 1)
+        concrete_role.refresh_from_db()
+        self.assertEqual(ConcreteRole.objects.first().name, 'test_role')

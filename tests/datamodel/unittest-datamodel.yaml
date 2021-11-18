@@ -630,7 +630,9 @@ manifest:
       - model_uid: 14c4ee6f-209d-4074-a39a-969d784f58c3
         model_name: UniqueTogetherModel
         search_fields: []
-        filter_fields: []
+        filter_fields:
+          - field1
+          - name
         display_fields: []
         export_fields: []
       - model_uid: fa2704da-74d3-442a-8637-bbca97e1b34d
@@ -658,11 +660,17 @@ manifest:
         search_fields:
           - first_name
           - last_name
-        filter_fields: []
-        display_fields:
+        filter_fields:
           - first_name
           - last_name
-        export_fields: []
+        display_fields:
+          - email
+          - first_name
+          - last_name
+        export_fields:
+          - email
+          - first_name
+          - last_name
       - model_uid: 7158d6af-8c79-4613-82cb-c1b0b20400ab
         model_name: Project
         search_fields:
@@ -754,6 +762,7 @@ manifest:
           - name
         filter_fields:
           - name
+          - cost
         display_fields:
           - name
         export_fields: []
