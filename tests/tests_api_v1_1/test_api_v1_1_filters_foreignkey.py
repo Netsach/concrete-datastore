@@ -55,6 +55,7 @@ class TestFiltersFK(APITestCase):
         )
 
         pagination = 7
+        self.assertEqual(Skill.objects.count(), 2)
         get_url = (
             '/api/v1.1/skill/?c_resp_page_size={}'
             '&c_resp_nested=true&category_uid={}'.format(
@@ -65,9 +66,21 @@ class TestFiltersFK(APITestCase):
             get_url, HTTP_AUTHORIZATION='Token {}'.format(self.token)
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(Skill.objects.count(), 2)
         self.assertEqual(resp.data['objects_count'], 1)
         self.assertEqual(resp.data['results'][0]['uid'], str(skill_1.uid))
+        #: test exclude
+        get_url = (
+            '/api/v1.1/skill/?c_resp_page_size={}'
+            '&c_resp_nested=true&category_uid!={}'.format(
+                pagination, str(category_1.uid)
+            )
+        )
+        resp = self.client.get(
+            get_url, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 1)
+        self.assertEqual(resp.data['results'][0]['uid'], str(skill_2.uid))
 
         #:  test with a wrong uid format (expect a 400 BAD REQUEST)
         get_url = (
