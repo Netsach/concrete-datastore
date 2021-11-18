@@ -74,16 +74,6 @@ class FilterSupportingComparisonBackendTestCase(APITestCase):
         )
         self.assertEqual(resp.data['objects_count'], 1)
         resp = self.client.get(
-            '/api/v1.1/skill/?score__gte!=3',
-            HTTP_AUTHORIZATION='Token {}'.format(self.token),
-        )
-        self.assertEqual(resp.data['objects_count'], 3)
-        resp = self.client.get(
-            '/api/v1.1/skill/?score__gt!=3',
-            HTTP_AUTHORIZATION='Token {}'.format(self.token),
-        )
-        self.assertEqual(resp.data['objects_count'], 4)
-        resp = self.client.get(
             '/api/v1.1/skill/?score__lte=1',
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
         )
@@ -93,16 +83,6 @@ class FilterSupportingComparisonBackendTestCase(APITestCase):
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
         )
         self.assertEqual(resp.data['objects_count'], 1)
-        resp = self.client.get(
-            '/api/v1.1/skill/?score__lte!=1',
-            HTTP_AUTHORIZATION='Token {}'.format(self.token),
-        )
-        self.assertEqual(resp.data['objects_count'], 3)
-        resp = self.client.get(
-            '/api/v1.1/skill/?score__lt!=1',
-            HTTP_AUTHORIZATION='Token {}'.format(self.token),
-        )
-        self.assertEqual(resp.data['objects_count'], 4)
 
 
 @override_settings(DEBUG=True)

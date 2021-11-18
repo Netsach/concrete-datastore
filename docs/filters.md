@@ -5,26 +5,30 @@ API requests support different types of filters on the fields of the `filter_fie
 
 #### Filter against model fields
 
-- **Filter exact value:** (Applied on all fields within the `filter_fields`) by using a strict equality (`field_name=field_value`) and returns all instances that have `field_value` as a value for `field_name`
+- **Filter exact value:** (Applied on all fields within the `filter_fields` except for JsonFields and PointFields) by using a strict equality (`field_name=field_value`) and returns all instances that have `field_value` as a value for `field_name`. This allows also an exclude filter by adding a negation mark (`!`) after the query param, in order to exclude the instances that match the filter (`field_name!=field_value`)
 - **Filter Supporting Or operation:** (Applied on all fields within the `filter_fields`) By adding the `__in` suffix:
-example: `?name__in=project1,project2,project3` returns all objects that the field name has a value of "project1" **OR** "project2" **OR** "project3"
+example: `?name__in=project1,project2,project3` returns all objects that the field name has a value of "project1" **OR** "project2" **OR** "project3". This allows also an exclude filter by adding a negation mark (`!`) after the query param, in order to exclude the instances that match the filter. Example: `?name__in!=project1,project2,project3` returns all objects that the field name is **NEITHER** "project1" **NOR** "project2" **NOR** "project3"
 - **Filter Supporting Contains key:** (Applied on CharFields and TextFields) By adding the `__contains` suffix:
-example: `?name__contains=pro` returns all objects that the field name contains the substring `"pro"`
+example: `?name__contains=pro` returns all objects that the field name contains the substring `"pro"`. This allows also an exclude filter by adding a negation mark (`!`) after the query param, in order to exclude the instances that match the filter. Exmple: `?name__contains!=pro` returns all objects that the field name does not contain the substring `"pro"`. Please note that the `__contains` filter is case-sensitive. For case-insensitive filter, you can use the lookup `__icontains`.
 - **Filter Supporting Empty values:** (Applied on the CharFields and TextFields) By adding `__isempty=true` or `is__empty=false`:
 example: `?name__isempty=true` returns all objects that do not have a `name` and `?name__isempty=false` returns all objects have a non empty `name`
 - **Filter Supporting Null Relation:** (Applied on the ForeignKeys and ManyToManyField) By adding `__isnull=true`:
 example: `?project__isnull=true` returns all objects that do not have a `project`
-- **Filter Supporting Comparison operations:** (Applied on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the suffixes `__gte`, `__gt`, `__lte` and `__lt`.
+- **Filter Supporting Comparison operations:** (Applied on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the lookups `__gte`, `__gt`, `__lte` or `__lt`.
 example:
     - `?price__gte=10` (price >= 10)
     - `?price__gt=10` (price > 10)
     - `?price__lte=10` (price <= 10)
     - `?price__lt=10` (price < 10)
 
-- **Filter Supporting Range:** (Applied on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the suffix `__range`:
-example: `?creation_date__range=2018-01-01,2018-12-31` returns all objects with creation date is between 1st Jan 2018 and 31st Dec 2018
-
-- **Exclude filters:** (Applied on all fields within the `filter_fields`)By adding a negation mark (`!`) after the query parameter, and supports all the previous types of filtering (except for the `__empty` lookup, where the exclusion is within the filter). For example, `field_name__in!=value1,value2` will return all the instances where the value of `field_name` is different form `value1` and `value2`
+- **Filters Supporting Distance:** (Applied only on PointFields) By adding the lookups `__distance_gte`, `__distance_gt`, `__distance_lte`, `__distance_lt`, `__distance_range` or `__distance_range!`.
+    - `?coords__distance_gte=30,1.34,48.543` the distance from the point with longitude 1.34 and latitude 48.543 is bigger or equal to 30 meters
+    - `?coords__distance_gt=30,1.34,48.543` the distance from the point with longitude 1.34 and latitude 48.543 is strictly bigger than 30 meters
+    - `?coords__distance_lte=30,1.34,48.543` the distance from the point with longitude 1.34 and latitude 48.543 is less or equal to 30 meters
+    - `?coords__distance_lt=30,1.34,48.543` the distance from the point with longitude 1.34 and latitude 48.543 is strictly less than 30 meters
+    - `?coords__distance_range=30,40,1.34,48.543` the distance from the point with longitude 1.34 and latitude 48.543 is between 30 meters and 40 meters (inclusive range)
+    - `?coords__distance_range!=30,1.34,48.543` the distance from the point with longitude 1.34 and latitude 48.543 is either strictly bigger than 40 meters or strictly less than 30 meters.
+- **Filter Supporting Range:** (Applied on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the suffix `__range`: example: `?creation_date__range=2018-01-01,2018-12-31` returns all objects with creation date is between 1st Jan 2018 and 31st Dec 2018 (inclusive range). This allows also an exclude filter by adding a negation mark (`!`) after the query param, in order to exclude the instances that match the filter. Exmple: `?creation_date__range!=2018-01-01,2018-12-31` return all the objects that were created **EITHER** before 1st Jan 2018 **OR** after 31st Dec 2018
 
 **Examples**:
 
@@ -36,9 +40,10 @@ https://<webapp>/api/v1.1/mymodel/?name__isempty=false
 https://<webapp>/api/v1.1/mymodel/?name__in=project1,project2,project3
 https://<webapp>/api/v1.1/mymodel/?name__in!=project1,project2,project3
 https://<webapp>/api/v1.1/mymodel/?price__gte=price
-https://<webapp>/api/v1.1/mymodel/?price__gte!=price
 https://<webapp>/api/v1.1/mymodel/?creation_date__range=date1,date2
 https://<webapp>/api/v1.1/mymodel/?creation_date__range!=date1,date2
+https://<webapp>/api/v1.1/mymodel/?coords__lte=Distance,Longitude,latitude
+https://<webapp>/api/v1.1/mymodel/?coords__range=Distance1,Distance2,Longitude,latitude
 ```
 
 

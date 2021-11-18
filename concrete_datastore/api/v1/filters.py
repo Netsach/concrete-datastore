@@ -169,6 +169,33 @@ class ExcludeFilterBackend(DjangoFilterBackend):
 
 
 class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
+    suffixes_map = {
+        'gte': (
+            'get the values greater than or equal to the given distance '
+            '(expected value format: DISTANCE,LONGITUDE,LATITUDE)'
+        ),
+        'lte': (
+            'get the values less than or equal to the given distance '
+            '(expected value format: DISTANCE,LONGITUDE,LATITUDE)'
+        ),
+        'gt': (
+            'get the values greater than the given distance '
+            '(expected value format: DISTANCE,LONGITUDE,LATITUDE)'
+        ),
+        'lt': (
+            'get the values less than the given distance '
+            '(expected value format: DISTANCE,LONGITUDE,LATITUDE)'
+        ),
+        'range': (
+            'get the values between the two given distances (expected '
+            'value format: DISTANCE1,DISTANCE2,LONGITUDE,LATITUDE)'
+        ),
+        'range!': (
+            'get the values outside of the two given distances (expected '
+            'value format: DISTANCE1,DISTANCE2,LONGITUDE,LATITUDE)'
+        ),
+    }
+
     def remove_from_queryset(self, view):
         #: Remove PointField field from filterset_fields because
         #: they cannot be filtered with the other filter backends
@@ -184,42 +211,50 @@ class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
         setattr(view, 'filterset_fields', new_filterset_fields)
 
     def get_schema_operation_parameters(self, view):
-        params = [
-            {
-                'name': f'{field_name}__distance{neg}',
-                'required': False,
-                'in': 'query',
-                'description': (
-                    'DISTANCE,LONGITUDE,LATITUDE'
-                    f'{" (to exclude)" if neg == "!" else ""}'
-                ),
-                'schema': {'type': 'string'},
-            }
-            for field_name in getattr(view, 'filterset_fields', ())
-            if get_filter_field_type(view.model_class, field_name)
-            == 'PointField'
-            for neg in ('', '!')
-        ]
+        params = []
+        for key, description in self.suffixes_map.items():
+            params.extend(
+                [
+                    {
+                        'name': f'{field_name}_distance_{key}',
+                        'required': False,
+                        'in': 'query',
+                        'description': f'{description}',
+                        'schema': {'type': 'string'},
+                    }
+                    for field_name in getattr(view, 'filterset_fields', ())
+                    if get_filter_field_type(view.model_class, field_name)
+                    == 'PointField'
+                ]
+            )
+
         self.remove_from_queryset(view=view)
 
         return self.return_if_not_details(view=view, value=params)
 
+    def get_float_or_error(self, value):
+        try:
+            return float(value)
+        except Exception:
+            raise ValidationError(f'"{value}" is not a valid float')
+
     def filter_queryset(self, request, queryset, view):
         # Only applicable on PointField objects
-        #: The filter is __distance=XXX,LONGITUDE,LATITUDE
         q_object_filter = None
         q_object_exclude = None
         query_params = request.query_params
         filterset_fields = getattr(view, 'filterset_fields', ())
         for param in query_params:
             exclude = False
-            bare_param = param
-            if param.endswith('!'):
-                bare_param = param[:-1]
-                exclude = True
-            if not bare_param.endswith('__distance'):
+            valid_param = any(
+                [
+                    param.endswith(f'__distance_{lookup}')
+                    for lookup in self.suffixes_map.keys()
+                ]
+            )
+            if valid_param is False:
                 continue
-            param_field = bare_param.replace('__distance', '')
+            param_field, lookup = param.rsplit('__distance_', 1)
             if param_field not in filterset_fields:
                 continue
             if (
@@ -227,21 +262,57 @@ class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
                 != 'PointField'
             ):
                 continue
-            #: The split should have three elements
             values = query_params.get(param).split(',')
-            if len(values) != 3:
+            comparaison_lookup = lookup in ('lt', 'lte', 'gt', 'gte')
+            range_lookup = lookup in ('range', 'range!')
+            if comparaison_lookup is True:
+                #: If the lookup is one of [lt, lte, gt, gte]
+                #: the split should have three elements
+                if len(values) != 3:
+                    raise ValidationError(
+                        f"Distance filter with lookup {lookup} needs the "
+                        "following parameters: Distance, longitude and "
+                        "latitude"
+                    )
+                distance = self.get_float_or_error(values[0])
+                longitude = self.get_float_or_error(values[1])
+                latitude = self.get_float_or_error(values[2])
+                point = Point(longitude, latitude)
+                custom_filter = {param: (point, D(m=distance))}
+            elif range_lookup is True:
+                #: If the lookup is one of [range, range!]
+                #: the split should have four elements
+                if len(values) != 4:
+                    raise ValidationError(
+                        f"Distance filter with lookup {lookup} needs the "
+                        "following parameters: Distance1, Distance2, "
+                        "longitude and latitude"
+                    )
+                distance1 = self.get_float_or_error(values[0])
+                distance2 = self.get_float_or_error(values[1])
+                min_distance = min(distance1, distance2)
+                max_distance = max(distance1, distance2)
+                longitude = self.get_float_or_error(values[2])
+                latitude = self.get_float_or_error(values[3])
+                point = Point(longitude, latitude)
+                custom_filter = {
+                    '{}__distance_gte'.format(param_field): (
+                        point,
+                        D(m=min_distance),
+                    ),
+                    '{}__distance_lte'.format(param_field): (
+                        point,
+                        D(m=max_distance),
+                    ),
+                }
+                if lookup.endswith('!'):
+                    exclude = True
+            else:
                 raise ValidationError(
-                    "Distance filter needs the following parameters: "
-                    "Distance, longitude and latitude."
+                    f"Distance filter with lookup {lookup} is not supported. "
+                    f"Supported lookup values are {list(self.suffixes_map)}"
                 )
-            distance = int(values[0])
-            longitude = float(values[1])
-            latitude = float(values[2])
 
-            point = Point(longitude, latitude)
-            custom_filter = {
-                '{}__distance_lte'.format(param_field): (point, D(m=distance))
-            }
             q_object_filter, q_object_exclude = self.get_q_objects(
                 q_filter=q_object_filter,
                 q_exclude=q_object_exclude,
@@ -685,20 +756,16 @@ class FilterSupportingComparaisonBackend(
             params.extend(
                 [
                     {
-                        'name': f'{field_name}__{key}{neg}',
+                        'name': f'{field_name}__{key}',
                         'required': False,
                         'in': 'query',
-                        'description': (
-                            f'{description}'
-                            f'{" (to exclude)" if neg == "!" else ""}'
-                        ),
+                        'description': f'{description}',
                         'schema': {'type': 'string'},
                     }
                     for field_name in getattr(view, 'filterset_fields', ())
                     + ('creation_date', 'modification_date')
                     if get_filter_field_type(view.model_class, field_name)
                     in RANGEABLE_TYPES
-                    for neg in ('', '!')
                 ]
             )
         return self.return_if_not_details(view=view, value=params)
@@ -711,26 +778,19 @@ class FilterSupportingComparaisonBackend(
         )
 
         def get_param_from_query(param):
-            target_field = param
-            if param.endswith('!'):
-                target_field = param[:-1]
-            if target_field.endswith('__gte'):
-                return target_field.replace('__gte', '')
-            if target_field.endswith('__lte'):
-                return target_field.replace('__lte', '')
-            if target_field.endswith('__gt'):
-                return target_field.replace('__gt', '')
-            if target_field.endswith('__lt'):
-                return target_field.replace('__lt', '')
+            if param.endswith('__gte'):
+                return param.replace('__gte', '')
+            if param.endswith('__lte'):
+                return param.replace('__lte', '')
+            if param.endswith('__gt'):
+                return param.replace('__gt', '')
+            if param.endswith('__lt'):
+                return param.replace('__lt', '')
             return None
 
         q_object_filter = None
-        q_object_exclude = None
 
         def get_custom_filters(param):
-            bare_param = param
-            if param.endswith('!'):
-                bare_param = param[:-1]
             target_field = get_param_from_query(param)
             if target_field not in filterset_fields:
                 return None
@@ -743,26 +803,17 @@ class FilterSupportingComparaisonBackend(
             value = convert_type(query_params.get(param), target_field_type)
             if value is None:
                 return None
-            return {bare_param: value}
+            return {param: value}
 
         include_filters = [
             get_custom_filters(qp)
             for qp in query_params
-            if qp.endswith('!') is False and get_custom_filters(qp) is not None
-        ]
-        exclude_filters = [
-            get_custom_filters(qp)
-            for qp in query_params
-            if qp.endswith('!') is True and get_custom_filters(qp) is not None
+            if get_custom_filters(qp) is not None
         ]
         q_object_filter = functools.reduce(
             lambda a, b: a & Q(**b), include_filters, Q()
         )
-        q_object_exclude = functools.reduce(
-            lambda a, b: a & Q(**b), exclude_filters, Q()
-        )
-
-        return queryset.filter(q_object_filter).exclude(q_object_exclude)
+        return queryset.filter(q_object_filter)
 
 
 class FilterSupportingForeignKey(
