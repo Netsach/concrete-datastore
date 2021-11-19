@@ -67,6 +67,48 @@ class TestPaginatedViews(APITestCase):
             ),
         )
 
+    def test_page_size_not_a_number(self):
+        pagination = 'not_int'
+        get_url = '/api/v1.1/project/?c_resp_page_size={}'.format(pagination)
+        resp = self.client.get(
+            get_url, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
+        self.assertEqual(resp.data['_errors'], ['INVALID_QUERY'])
+
+        pagination = 0
+        get_url = '/api/v1.1/project/?c_resp_page_size={}'.format(pagination)
+        resp = self.client.get(
+            get_url, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('_errors', resp.data)
+        self.assertEqual(resp.data['_errors'], ['INVALID_QUERY'])
+
+        pagination = 5
+        get_url = '/api/v1.1/project/?c_resp_page_size={}'.format(pagination)
+        resp = self.client.get(
+            get_url, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            resp.data['objects_count_per_page'],
+            min(settings.API_MAX_PAGINATION_SIZE, pagination),
+        )
+        self.assertEqual(
+            resp.data['max_allowed_objects_per_page'],
+            settings.API_MAX_PAGINATION_SIZE,
+        )
+        self.assertEqual(
+            resp.data["objects_count"],
+            min(
+                pagination,
+                self.objects_count,
+                settings.API_MAX_PAGINATION_SIZE,
+            ),
+        )
+
     @override_settings(API_MAX_PAGINATION_SIZE=10)
     def test_nested(self):
         nested = 'abc'
