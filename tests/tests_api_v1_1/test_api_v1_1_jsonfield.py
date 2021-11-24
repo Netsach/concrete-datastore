@@ -288,3 +288,36 @@ class JsonFieldFiltersTest(APITestCase):
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data['objects_count'], 0)
+
+    def test_jsonfield_with_sets(self):
+        #: If the field does not exist, no results will be given
+        resp = self.client.get(
+            f'{self.url_json}sets/?sets_extra_fields=json_field__name,json_field__item__price',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('json_field__name', resp.data['sets'])
+        self.assertSetEqual(
+            resp.data['sets']['json_field__name'], {'test1', 'tEsT2', 'name'}
+        )
+        self.assertIn('json_field__item__price', resp.data['sets'])
+        self.assertSetEqual(
+            resp.data['sets']['json_field__item__price'], {3.99e3, 0.4, 25}
+        )
+
+        # resp = self.client.get(
+        #     f'{self.url_json}?json_field__items_list__10=1',
+        #     HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
+        # )
+
+        # self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        # self.assertEqual(resp.data['objects_count'], 0)
+
+        # resp = self.client.get(
+        #     f'{self.url_json}?json_field__a__b__3__c=%22test%22',
+        #     HTTP_AUTHORIZATION='Token {}'.format(self.token_user),
+        # )
+
+        # self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        # self.assertEqual(resp.data['objects_count'], 0)

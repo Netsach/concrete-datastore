@@ -25,6 +25,18 @@ class ApiV1_1SetsTestCase(APITestCase):
         self.assertEqual(Project.objects.count(), 5)
         self.assertEqual(Project.objects.filter(archived=True).count(), 3)
 
+    def test_not_filtrable_field(self):
+        resp = self.client.get(
+            '{}sets/?sets_extra_fields=members'.format(self.url_projects)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_wrong_lookup(self):
+        resp = self.client.get(
+            '{}sets/?sets_extra_fields=archived__gte'.format(self.url_projects)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_sets_no_query(self):
 
         projects_set = (

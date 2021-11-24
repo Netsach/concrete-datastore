@@ -4,6 +4,7 @@ import uuid
 import logging
 import pendulum
 import warnings
+from copy import deepcopy
 
 from django.conf import settings
 from django.utils import timezone
@@ -51,6 +52,7 @@ from concrete_datastore.api.v1.authentication import (
     expire_temporary_tokens,
     URLTokenExpiryAuthentication,
 )
+from concrete_datastore.api.v1.filters import get_filter_field_type
 from concrete_datastore.api.v1.views import (
     validate_request_permissions,
     make_api_viewset,
@@ -79,6 +81,7 @@ from concrete_datastore.concrete.automation.signals import user_logged_in
 UserModel = get_user_model()
 
 logger = logging.getLogger('concrete-datastore')
+logger_api_safe = logging.getLogger('api_safe_log')
 logger_api_auth = logging.getLogger('api_auth_log')
 
 
@@ -212,6 +215,7 @@ class ApiModelViewSet(ApiV1ModelViewSet):
     def get_sets(self, request, timestamp_start=None, timestamp_end=None):
         if request.parser_context["view"].model_class.__name__ == "User":
             validate_request_permissions(request=request)
+        filterset_fields = deepcopy(self.filterset_fields)
 
         queryset, timestamp_end = self._get_queryset_filtered_since_timestamp(
             timestamp_start, timestamp_end
@@ -221,6 +225,58 @@ class ApiModelViewSet(ApiV1ModelViewSet):
             field_name: set(queryset.values_list(field_name, flat=True))
             for field_name in self.filterset_fields
         }
+        set_fields = self.request.GET.get('sets_extra_fields')
+        if set_fields is not None:
+            for field_name in set_fields.split(','):
+                #: lookups with `__` are only allowed on JsonFields and FKs
+                print(field_name)
+                field_type = get_filter_field_type(queryset.model, field_name)
+                if '__' in field_name and field_type not in (
+                    'JSONField',
+                    'ForeignKey',
+                ):
+                    return Response(
+                        data={
+                            'message': f'Error with field {field_name}',
+                            '_errors': ['INVALID_QUERY'],
+                        },
+                        status=HTTP_400_BAD_REQUEST,
+                    )
+                param = self._get_bare_field_name(field_name)
+                if param not in self.fields:
+                    continue
+                if param not in filterset_fields:
+                    return Response(
+                        data={
+                            'message': 'filter against {} is not allowed'.format(
+                                param
+                            ),
+                            '_errors': ['INVALID_QUERY'],
+                        },
+                        status=HTTP_400_BAD_REQUEST,
+                    )
+
+                try:
+                    list_filters_field.update(
+                        {
+                            field_name: set(
+                                queryset.values_list(field_name, flat=True)
+                            )
+                        }
+                    )
+                except Exception:
+                    message = (
+                        f'Error with values_list on {field_name} '
+                        f'for model {queryset.model.__name__}'
+                    )
+                    logger_api_safe.info(message, exc_info=True)
+                    return Response(
+                        data={
+                            'message': f'Unexpected field {field_name}',
+                            '_errors': ['INVALID_QUERY'],
+                        },
+                        status=HTTP_400_BAD_REQUEST,
+                    )
 
         data = {
             'sets': list_filters_field,
