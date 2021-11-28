@@ -5,6 +5,7 @@
 ### Added
 
 - Maintenance mode flag in the status view if there is a core app
+- When login, create a new token if the old ones are expired
 
 ### Changed
 
