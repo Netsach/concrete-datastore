@@ -229,7 +229,6 @@ class ApiModelViewSet(ApiV1ModelViewSet):
         if set_fields is not None:
             for field_name in set_fields.split(','):
                 #: lookups with `__` are only allowed on JsonFields and FKs
-                print(field_name)
                 field_type = get_filter_field_type(queryset.model, field_name)
                 if '__' in field_name and field_type not in (
                     'JSONField',
