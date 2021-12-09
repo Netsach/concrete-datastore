@@ -530,6 +530,11 @@ class LoginApiView(generics.GenericAPIView):
         if settings.ALLOW_MULTIPLE_AUTH_TOKEN_SESSION is False:
             AuthToken.objects.filter(user_id=user.uid).delete()
 
+        # Expire tokens that the expiration_date is reached
+        user.auth_tokens.filter(expiration_date__lte=timezone.now()).update(
+            expired=True
+        )
+
         UserModel.objects.filter(pk=user.pk).update(last_login=timezone.now())
         module_name, func_name = settings.MFA_RULE_PER_USER.rsplit('.', 1)
         module = import_module(module_name)
