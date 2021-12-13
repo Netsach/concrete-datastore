@@ -257,8 +257,6 @@ class FilterSupportingOrBackend(
             filter_field_type = get_filter_field_type(
                 queryset.model, param.replace('__in', '')
             )
-            print('=====================$$$$$$$$$$$$$$$$$$$$$$$')
-            print(filter_field_type)
             if filter_field_type in (
                 'UUIDField',
                 'ForeignKey',
