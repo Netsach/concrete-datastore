@@ -3,11 +3,7 @@ import pendulum
 from rest_framework.test import APITestCase
 from django.conf import settings
 from rest_framework import status
-from concrete_datastore.concrete.models import (
-    User,
-    UserConfirmation,
-    Project,
-)
+from concrete_datastore.concrete.models import User, UserConfirmation, Project
 from django.test import override_settings
 
 
@@ -26,7 +22,7 @@ class CRUDTestCase(APITestCase):
         self.confirmation.save()
         url = '/api/v1.1/auth/login/'
         resp = self.client.post(
-            url, {"email": "johndoe@netsach.org", "password": "plop",},
+            url, {"email": "johndoe@netsach.org", "password": "plop"}
         )
         self.token = resp.data['token']
 
@@ -155,6 +151,174 @@ class CRUDTestCase(APITestCase):
             'page2': 'http://testserver/api/v1.1/project/?archived=false&page=2',
         }
         self.assertDictEqual(resp.data['page_urls'], pages_dict)
+
+    @override_settings(API_MAX_PAGINATION_SIZE_NESTED=10)
+    def test_grouped_stats_bad_request(self):
+        url = '/api/v1.1/project/stats/?group_by=fake_field_name'
+        resp = self.client.get(
+            url, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            resp.data,
+            {
+                'message': 'lookup query is not a valid field',
+                '_errors': ['INVALID_QUERY'],
+            },
+        )
+        url = '/api/v1.1/project/stats/?group_by=name,archived&combine=toto'
+        resp = self.client.get(
+            url, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            resp.data,
+            {
+                'message': '"combine" value ("toto") is not valid. Should be either "true" or "false"',
+                '_errors': ['INVALID_QUERY'],
+            },
+        )
+
+    @override_settings(API_MAX_PAGINATION_SIZE_NESTED=10)
+    def test_grouped_stats(self):
+        Project.objects.create(name="A", archived=False, created_by=self.user)
+        Project.objects.create(name="A", archived=False, created_by=self.user)
+        Project.objects.create(name="A", archived=False, created_by=self.user)
+        Project.objects.create(name="A", archived=True, created_by=self.user)
+        Project.objects.create(name="B", archived=False, created_by=self.user)
+        Project.objects.create(name="B", archived=False, created_by=self.user)
+        Project.objects.create(name="B", archived=True, created_by=self.user)
+        Project.objects.create(name="B", archived=True, created_by=self.user)
+
+        url = '/api/v1.1/project/stats/?group_by=name'
+        resp = self.client.get(
+            url, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('objects_count', resp.data)
+        self.assertIn('timestamp_start', resp.data)
+        self.assertIn('timestamp_end', resp.data)
+        self.assertIn('num_total_pages', resp.data)
+        self.assertIn('max_allowed_objects_per_page', resp.data)
+        self.assertIn('page_urls', resp.data)
+        self.assertIn('results', resp.data)
+        self.assertEqual(resp.data["objects_count"], 8)
+        self.assertEqual(resp.data['timestamp_start'], 0)
+        self.assertEqual(resp.data['max_allowed_objects_per_page'], 10)
+        pages_dict = {'page1': 'http://testserver/api/v1.1/project/'}
+        self.assertDictEqual(resp.data['page_urls'], pages_dict)
+
+        results = resp.data['results']
+
+        self.assertIn('name', results)
+
+        self.assertIn('A', results['name'])
+        self.assertEqual(4, results['name']['A'])
+
+        self.assertIn('B', results['name'])
+        self.assertEqual(4, results['name']['B'])
+
+        #: URL with filters
+        url = '/api/v1.1/project/stats/?archived=false&group_by=name'
+        resp = self.client.get(
+            url, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('objects_count', resp.data)
+        self.assertIn('timestamp_start', resp.data)
+        self.assertIn('timestamp_end', resp.data)
+        self.assertIn('num_total_pages', resp.data)
+        self.assertIn('max_allowed_objects_per_page', resp.data)
+        self.assertIn('page_urls', resp.data)
+        self.assertIn('results', resp.data)
+        self.assertEqual(resp.data["objects_count"], 5)
+        self.assertEqual(resp.data['timestamp_start'], 0)
+        self.assertEqual(resp.data['max_allowed_objects_per_page'], 10)
+        pages_dict = {
+            'page1': 'http://testserver/api/v1.1/project/?archived=false'
+        }
+        self.assertDictEqual(resp.data['page_urls'], pages_dict)
+
+        results = resp.data['results']
+
+        self.assertIn('name', results)
+
+        self.assertIn('A', results['name'])
+        self.assertEqual(3, results['name']['A'])
+
+        self.assertIn('B', results['name'])
+        self.assertEqual(2, results['name']['B'])
+
+        # Multiple group by separated
+        url = '/api/v1.1/project/stats/?group_by=name,archived'
+        resp = self.client.get(
+            url, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('objects_count', resp.data)
+        self.assertIn('timestamp_start', resp.data)
+        self.assertIn('timestamp_end', resp.data)
+        self.assertIn('num_total_pages', resp.data)
+        self.assertIn('max_allowed_objects_per_page', resp.data)
+        self.assertIn('page_urls', resp.data)
+        self.assertIn('results', resp.data)
+        self.assertEqual(resp.data["objects_count"], 8)
+        self.assertEqual(resp.data['timestamp_start'], 0)
+        self.assertEqual(resp.data['max_allowed_objects_per_page'], 10)
+        pages_dict = {'page1': 'http://testserver/api/v1.1/project/'}
+        self.assertDictEqual(resp.data['page_urls'], pages_dict)
+
+        results = resp.data['results']
+
+        self.assertIn('name', results)
+        self.assertIn('archived', results)
+
+        self.assertIn('A', results['name'])
+        self.assertEqual(4, results['name']['A'])
+
+        self.assertIn('B', results['name'])
+        self.assertEqual(4, results['name']['B'])
+
+        self.assertIn(True, results['archived'])
+        self.assertEqual(3, results['archived'][True])
+
+        self.assertIn(False, results['archived'])
+        self.assertEqual(5, results['archived'][False])
+
+        # Multiple group by combined
+        url = '/api/v1.1/project/stats/?group_by=name,archived&combine=true'
+        resp = self.client.get(
+            url, {}, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('objects_count', resp.data)
+        self.assertIn('timestamp_start', resp.data)
+        self.assertIn('timestamp_end', resp.data)
+        self.assertIn('num_total_pages', resp.data)
+        self.assertIn('max_allowed_objects_per_page', resp.data)
+        self.assertIn('page_urls', resp.data)
+        self.assertIn('results', resp.data)
+        self.assertEqual(resp.data["objects_count"], 8)
+        self.assertEqual(resp.data['timestamp_start'], 0)
+        self.assertEqual(resp.data['max_allowed_objects_per_page'], 10)
+        pages_dict = {'page1': 'http://testserver/api/v1.1/project/'}
+        self.assertDictEqual(resp.data['page_urls'], pages_dict)
+
+        results = resp.data['results']
+
+        self.assertIn('name,archived', results)
+
+        self.assertIn('A,True', results['name,archived'])
+        self.assertEqual(1, results['name,archived']['A,True'])
+
+        self.assertIn('A,False', results['name,archived'])
+        self.assertEqual(3, results['name,archived']['A,False'])
+
+        self.assertIn('B,True', results['name,archived'])
+        self.assertEqual(2, results['name,archived']['B,True'])
+
+        self.assertIn('B,False', results['name,archived'])
+        self.assertEqual(2, results['name,archived']['B,False'])
 
     @override_settings(API_MAX_PAGINATION_SIZE_NESTED=10)
     def test_stats_endpoint_with_start(self):

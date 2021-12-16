@@ -22,6 +22,7 @@ example:
 example: `?creation_date__range=2018-01-01,2018-12-31` returns all objects with creation date is between 1st Jan 2018 and 31st Dec 2018
 
 - `c_resp_page_size`: The API also features pagination by the use of the query parameter `c_resp_page_size` that takes an integer representing the number of results per page that sould be returned
+- `page`: If this query param is specified, it returns the results of requested page. Returns `404 NOT FOUND` is the page is not found
 - `c_resp_nested`: If there are relation between objects, by default the API shows the relation completely, it is nested.
 Example:
 

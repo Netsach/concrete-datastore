@@ -6,6 +6,7 @@ import uuid
 import sys
 import re
 import os
+from collections import Counter
 from urllib.parse import urljoin, unquote, urlparse, urlunparse
 from importlib import import_module
 from itertools import chain
@@ -1524,6 +1525,9 @@ class PaginatedViewSet(object):
 
         dict_pages = dict()
 
+        url = remove_query_param(url, 'group_by')
+        url = remove_query_param(url, 'combine')
+
         for page_number in range(1, _num_pages + 1):
             if page_number == 1:
                 dict_pages['page{}'.format(page_number)] = unquote(
@@ -1544,6 +1548,44 @@ class PaginatedViewSet(object):
             ],
             'page_urls': dict_pages,
         }
+        group_by_fields = request.GET.get('group_by', None)
+        combine_results = request.GET.get('combine', 'false').lower()
+        if combine_results not in ('true', 'false'):
+            return Response(
+                data={
+                    'message': f'"combine" value ("{combine_results}") is not valid. Should be either "true" or "false"',
+                    '_errors': ['INVALID_QUERY'],
+                },
+                status=HTTP_400_BAD_REQUEST,
+            )
+        if group_by_fields is not None:
+            group_by_fields = group_by_fields.split(',')
+            if any(map(lambda x: x not in self.fields, group_by_fields)):
+                return Response(
+                    data={
+                        'message': 'lookup query is not a valid field',
+                        '_errors': ['INVALID_QUERY'],
+                    },
+                    status=HTTP_400_BAD_REQUEST,
+                )
+
+            grouped_data = {}
+            if combine_results == 'false':
+                for field_name in group_by_fields:
+                    grouped_data[field_name] = dict(
+                        Counter(queryset.values_list(field_name, flat=True))
+                    )
+            else:
+                grouped_data[','.join(group_by_fields)] = dict(
+                    Counter(
+                        map(
+                            lambda x: ','.join(map(str, x)),
+                            queryset.values_list(*group_by_fields),
+                        )
+                    )
+                )
+            data.update({"results": grouped_data})
+
         return Response(data)
 
     def _get_queryset_filtered_since_timestamp(
