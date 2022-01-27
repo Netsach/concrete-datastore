@@ -10,14 +10,26 @@
 
 - The distance filters now support the lookups `__distance_lte`, `__distance_lt`, `__distance_gte`, `__distance_gt`, `__distance_range`, `__distance_range!`. The bare `__distance` is no more supported
 - Maintenance mode flag in the status view if there is a core app
+- nothing added
 
 ### Changed
 
-- Improve unittests
+- nothing changed
 
 ### Removed
 
 - nothing removed
+
+## [1.36.0] - 2021-12-09
+
+### Added
+
+- Maintenance mode flag in the status view if there is a core app
+- When login, create a new token if the old ones are expired
+
+### Changed
+
+- Improve unittests
 
 ## [1.35.0] - 2021-10-22
 
