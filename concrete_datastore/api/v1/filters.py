@@ -146,7 +146,7 @@ class ExcludeFilterBackend(DjangoFilterBackend):
         ]
 
     def filter_queryset(self, request, queryset, view):
-        def _get_unitary_filterset_backed(query_param):
+        def _get_unitary_filterset_backend(query_param):
             class UnitaryFilterBacked(DjangoFilterBackend):
                 def get_filterset_kwargs(self, request, queryset, view):
                     return {
@@ -160,7 +160,7 @@ class ExcludeFilterBackend(DjangoFilterBackend):
             )
 
         for query_param in self.get_negated_query_params(request, view):
-            filtered_qs = _get_unitary_filterset_backed(
+            filtered_qs = _get_unitary_filterset_backend(
                 query_param=query_param
             )
             filtered_qs_pks = filtered_qs.values_list('pk', flat=True)
@@ -219,7 +219,7 @@ class FilterDistanceBackend(BaseFilterBackend, CustomShemaOperationParameters):
                         'name': f'{field_name}_distance_{key}',
                         'required': False,
                         'in': 'query',
-                        'description': f'{description}',
+                        'description': description,
                         'schema': {'type': 'string'},
                     }
                     for field_name in getattr(view, 'filterset_fields', ())
@@ -587,7 +587,7 @@ class FilterSupportingEmptyBackend(
             }
             for field_name in getattr(view, 'filterset_fields', ())
             if get_filter_field_type(view.model_class, field_name)
-            in ('CharField', 'TextField', 'ForeignKey', 'ManyToManyField')
+            in ('CharField', 'TextField')
         ]
         return self.return_if_not_details(view=view, value=params)
 
@@ -884,7 +884,7 @@ class FilterForeignKeyIsNullBackend(
     def get_schema_operation_parameters(self, view):
         params = [
             {
-                'name': f'{field_name}__isull',
+                'name': f'{field_name}__isnull',
                 'required': False,
                 'in': 'query',
                 'schema': {'type': 'boolean'},
