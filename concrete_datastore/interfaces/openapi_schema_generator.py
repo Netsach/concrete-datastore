@@ -96,7 +96,7 @@ DEFAULT_LIST_VIEW_PARAMETERS = [
     },
 ]
 
-FILED_TYPES_MAP = {
+FIELD_TYPES_MAP = {
     "IntegerField": "integer",
     "BooleanField": "boolean",
     "FloatField": "float",
@@ -399,7 +399,7 @@ class AutoSchema(AutoSchemaSuper):
                 )
                 if field_type in ('ForeignKey', 'ManyToManyField'):
                     continue
-                swagger_filed_type = FILED_TYPES_MAP.get(field_type, 'string')
+                swagger_filed_type = FIELD_TYPES_MAP.get(field_type, 'string')
                 parameters.extend(
                     [
                         {
