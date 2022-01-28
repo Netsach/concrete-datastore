@@ -77,7 +77,7 @@ Possible filters:
 "?data__item__name=%22toto%22"  # 200 OK (instance_1)
 "?data__item__name__icontains=%22to%22"  # 200 OK (instance_1, instance_3)
 "?data__custom_field=%22toto%22"  # 200 OK (instance_3)
-"?data__items_list__1=%222%22"  # 200 OK (instance_3)
+"?data__items_list__2=%223%22"  # 200 OK (instance_3)
 "?data__name=test"  # 400 BAD REQUEST
 
 # Boolean filters
@@ -86,6 +86,7 @@ Possible filters:
 
 # Null filters
 "?data__reference=null"  # 200 OK (instance_1, instance_3)
+"?data__reference=nUlL"  # 200 OK (instance_1, instance_3)
 "?data__reference=none"  # 200 OK (instance_1, instance_3)
 
 # Integer filters
