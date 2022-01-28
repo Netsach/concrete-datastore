@@ -1,7 +1,7 @@
 # coding: utf-8
 import uuid
 import functools
-
+import re
 from django.db.models import Q
 from django.contrib.gis.measure import D
 from django.contrib.auth import get_user_model
@@ -20,13 +20,38 @@ RANGEABLE_TYPES = (
     'FloatField',
 )
 
+TYPES_VALUES_MAP = {
+    "str": lambda x: x,
+    "int": lambda x: int(x),
+    "float": lambda x: float(x),
+    "bool": lambda x: True if x.lower() == 'true' else False,
+    "null": lambda x: None,
+}
+
+JSON_FILTER_PATTERN = r'^\"(?P<str>.*)\"$|(?P<int>^\d+$)|(?P<float>^\d+\.\d+([e][+-]?\d+)?$)|(?P<bool>^true$|^false$)|(?P<null>^null$|^none$)'
+
+
+def cast_value_to_right_type(query_value):
+    match = re.search(JSON_FILTER_PATTERN, query_value, flags=re.IGNORECASE)
+    if match is None:
+        raise ValueError(f'{query_value} is not a valid value')
+    match_group = match.groupdict()
+    q_type, q_value = next(
+        (x, y) for x, y in match_group.items() if y is not None
+    )
+    return TYPES_VALUES_MAP[q_type](q_value)
+
 
 def get_filter_field_type(model_class, param) -> str:
     """
     Return the type (as String) of the target field that we want to filter
     """
     splitted_param = param.split('__')
-
+    if (
+        model_class._meta.get_field(splitted_param[0]).get_internal_type()
+        == 'JSONField'
+    ):
+        return 'JSONField'
     if len(splitted_param) == 1:
         return model_class._meta.get_field(
             splitted_param[0]
@@ -454,6 +479,81 @@ class FilterSupportingOrBackend(
                 custom_filter=custom_filter,
                 exclude=exclude,
             )
+
+        return self.get_custom_filtered_queryset(
+            qs=queryset, q_filter=q_object_filter, q_exclude=q_object_exclude
+        )
+
+
+class FilterJSONFieldsBackend(
+    BaseFilterBackend, CustomShemaOperationParameters
+):
+    def remove_from_queryset(self, view):
+        #: Remove JSONField field from filterset_fields because
+        #: they cannot be filtered with the other filter backends
+        filterset_fields = getattr(view, 'filterset_fields', ())
+        new_filterset_fields = tuple(
+            filter_field
+            for filter_field in filterset_fields
+            if (
+                get_filter_field_type(view.model_class, filter_field)
+                != 'JSONField'
+            )
+        )
+        setattr(view, 'filterset_fields', new_filterset_fields)
+
+    def get_schema_operation_parameters(self, view):
+        #: The json filter is generic and has no rules. So it is removed
+        #: from the openAPI schema.
+        #: In this method we will juste remove the JSON fields from the
+        #: filterset_fields of the view and return an empty list
+
+        self.remove_from_queryset(view=view)
+        return []
+
+    def filter_queryset(self, request, queryset, view):
+        query_params = request.query_params
+        filterset_fields = getattr(view, 'filterset_fields', ())
+
+        q_object = None
+        self.remove_from_queryset(view=view)
+        q_object_filter = None
+        q_object_exclude = None
+        for param in query_params:
+            exclude = False
+            bare_param = param
+            if param.endswith('!'):
+                bare_param = param[:-1]
+                exclude = True
+
+            splitted_query_params = bare_param.split('__')
+            if len(splitted_query_params) == 1:
+                continue
+            param_field_name = splitted_query_params[0]
+
+            if param_field_name not in filterset_fields:
+                continue
+            if (
+                get_filter_field_type(queryset.model, param_field_name)
+                != 'JSONField'
+            ):
+                continue
+
+            value = query_params.get(param)
+            try:
+                custom_filter = {bare_param: cast_value_to_right_type(value)}
+            except ValueError as e:
+                raise ValidationError({'message': f'"{param}": {e}'})
+            q_object_filter, q_object_exclude = self.get_q_objects(
+                q_filter=q_object_filter,
+                q_exclude=q_object_exclude,
+                custom_filter=custom_filter,
+                exclude=exclude,
+            )
+            if q_object is None:
+                q_object = Q(**custom_filter)
+            else:
+                q_object &= Q(**custom_filter)
 
         return self.get_custom_filtered_queryset(
             qs=queryset, q_filter=q_object_filter, q_exclude=q_object_exclude

@@ -69,6 +69,7 @@ from concrete_datastore.api.v1.serializers import (
 )
 from concrete_datastore.api.v1.filters import (
     FilterSupportingOrBackend,
+    FilterJSONFieldsBackend,
     FilterSupportingEmptyBackend,
     FilterSupportingContainsBackend,
     FilterSupportingInsensitiveContainsBackend,
@@ -1429,6 +1430,7 @@ class AccountMeApiView(
 class PaginatedViewSet(object):
     pagination_class = ExtendedPagination
     filter_backends = (
+        FilterJSONFieldsBackend,
         FilterDistanceBackend,
         SearchFilter,
         OrderingFilter,
@@ -1802,6 +1804,9 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         # Return the dispatch response
         return rsp
 
+    def _get_bare_field_name(self, param):
+        return param.split('__')[0].replace('_uid', '').replace('!', '')
+
     def list(self, request):
         def check_date_format(date_type, param_values):
             date_format = 'yyyy-mm-dd'
@@ -1849,9 +1854,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
 
         for query_param in request.GET:
             param_values_list = request.GET[query_param].split(',')
-            param = (
-                query_param.split('__')[0].replace('_uid', '').replace('!', '')
-            )
+            param = self._get_bare_field_name(query_param)
             if param not in self.fields:
                 continue
             if param not in self.filterset_fields:

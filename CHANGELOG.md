@@ -4,6 +4,7 @@
 
 ### Added
 
+- Add possibility to filter against keys of JSON fields
 - Add exclude filters within the API
 
 ### Changed
