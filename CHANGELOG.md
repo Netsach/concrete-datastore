@@ -4,7 +4,11 @@
 
 ### Added
 
-- nothing added
+- Add exclude filters within the API
+
+### Changed
+
+- The distance filters now support the lookups `__distance_lte`, `__distance_lt`, `__distance_gte`, `__distance_gt`, `__distance_range`, `__distance_range!`. The bare `__distance` is no more supported
 
 ### Changed
 

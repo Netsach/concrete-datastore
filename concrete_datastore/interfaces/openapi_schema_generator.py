@@ -96,7 +96,7 @@ DEFAULT_LIST_VIEW_PARAMETERS = [
     },
 ]
 
-FILED_TYPES_MAP = {
+FIELD_TYPES_MAP = {
     "IntegerField": "integer",
     "BooleanField": "boolean",
     "FloatField": "float",
@@ -393,22 +393,32 @@ class AutoSchema(AutoSchemaSuper):
             parameters = deepcopy(DEFAULT_LIST_VIEW_PARAMETERS)
         if hasattr(self.view, 'model_class'):
             for field in getattr(self.view, 'filterset_fields', []):
-                field_type = (
-                    concrete_datastore.api.v1.filters.get_filter_field_type(
-                        self.view.model_class, field
-                    )
+                filters_module = concrete_datastore.api.v1.filters
+                field_type = filters_module.get_filter_field_type(
+                    self.view.model_class, field
                 )
                 if field_type in ('ForeignKey', 'ManyToManyField'):
                     continue
-                swagger_filed_type = FILED_TYPES_MAP.get(field_type, 'string')
-                parameters.append(
-                    {
-                        'name': field,
-                        'required': False,
-                        'description': 'Exact value of the field',
-                        'in': 'query',
-                        'schema': {'type': swagger_filed_type},
-                    }
+                swagger_filed_type = FIELD_TYPES_MAP.get(field_type, 'string')
+                parameters.extend(
+                    [
+                        {
+                            'name': field,
+                            'required': False,
+                            'description': 'Exact value of the field',
+                            'in': 'query',
+                            'schema': {'type': swagger_filed_type},
+                        },
+                        {
+                            'name': f'{field}!',
+                            'required': False,
+                            'description': (
+                                'Exact value of the field (to exclude)'
+                            ),
+                            'in': 'query',
+                            'schema': {'type': swagger_filed_type},
+                        },
+                    ]
                 )
         for filter_backend in self.view.filter_backends:
             parameters += filter_backend().get_schema_operation_parameters(
@@ -695,7 +705,9 @@ class AutoSchema(AutoSchemaSuper):
                     'content': {
                         ct: {
                             'schema': {
-                                '$ref': f'#/components/schemas/{component_name}'
+                                '$ref': (
+                                    f'#/components/schemas/{component_name}'
+                                )
                             }
                         }
                         for ct in self.content_types

@@ -19,16 +19,11 @@ from django.core.exceptions import (
     ObjectDoesNotExist,
     SuspiciousOperation,
 )
-from django.contrib.gis.db.models import (
-    PointField,
-)  # it includes all default fields
-
 from django.contrib.auth import authenticate, get_user_model
 from django.http.request import QueryDict
 from django.utils import timezone
 from django.apps import apps
 from django.conf import settings
-from rest_framework_gis.filters import DistanceToPointFilter
 from rest_framework.decorators import action
 from rest_framework.utils.urls import remove_query_param, replace_query_param
 from rest_framework.response import Response
@@ -84,6 +79,7 @@ from concrete_datastore.api.v1.filters import (
     FilterSupportingForeignKey,
     FilterSupportingManyToMany,
     FilterDistanceBackend,
+    ExcludeFilterBackend,
 )
 
 from concrete_datastore.api.v1.authentication import (
@@ -1448,6 +1444,7 @@ class PaginatedViewSet(object):
         FilterForeignKeyIsNullBackend,
         FilterSupportingForeignKey,
         FilterSupportingManyToMany,
+        ExcludeFilterBackend,
     )
     filterset_fields = ()
     ordering_fields = '__all__'
@@ -1852,7 +1849,9 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
 
         for query_param in request.GET:
             param_values_list = request.GET[query_param].split(',')
-            param = query_param.split('__')[0].replace('_uid', '')
+            param = (
+                query_param.split('__')[0].replace('_uid', '').replace('!', '')
+            )
             if param not in self.fields:
                 continue
             if param not in self.filterset_fields:
