@@ -8,7 +8,8 @@
 
 ### Changed
 
-- nothing changed
+- Rename unittests from `tests_` to `test_`
+- sets extra fields: Check that the field is in fields before checking the type
 
 ### Removed
 
