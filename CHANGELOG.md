@@ -4,20 +4,27 @@
 
 ### Added
 
+- nothing added
+
+### Changed
+
+- Rename unittests from `tests_` to `test_`
+- sets extra fields: Check that the field is in fields before checking the type
+
+### Removed
+
+- nothing removed
+
+## [1.37.0] - 2022-02-03
+
+### Added
+
 - Add possibility to filter against keys of JSON fields
 - Add exclude filters within the API
 
 ### Changed
 
 - The distance filters now support the lookups `__distance_lte`, `__distance_lt`, `__distance_gte`, `__distance_gt`, `__distance_range`, `__distance_range!`. The bare `__distance` is no more supported
-
-### Changed
-
-- nothing changed
-
-### Removed
-
-- nothing removed
 
 ## [1.36.0] - 2021-12-09
 

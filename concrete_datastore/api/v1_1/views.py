@@ -228,19 +228,6 @@ class ApiModelViewSet(ApiV1ModelViewSet):
         set_fields = self.request.GET.get('sets_extra_fields')
         if set_fields is not None:
             for field_name in set_fields.split(','):
-                #: lookups with `__` are only allowed on JsonFields and FKs
-                field_type = get_filter_field_type(queryset.model, field_name)
-                if '__' in field_name and field_type not in (
-                    'JSONField',
-                    'ForeignKey',
-                ):
-                    return Response(
-                        data={
-                            'message': f'Error with field {field_name}',
-                            '_errors': ['INVALID_QUERY'],
-                        },
-                        status=HTTP_400_BAD_REQUEST,
-                    )
                 param = self._get_bare_field_name(field_name)
                 if param not in self.fields:
                     continue
@@ -250,6 +237,19 @@ class ApiModelViewSet(ApiV1ModelViewSet):
                             'message': 'filter against {} is not allowed'.format(
                                 param
                             ),
+                            '_errors': ['INVALID_QUERY'],
+                        },
+                        status=HTTP_400_BAD_REQUEST,
+                    )
+                #: lookups with `__` are only allowed on JsonFields and FKs
+                field_type = get_filter_field_type(queryset.model, field_name)
+                if '__' in field_name and field_type not in (
+                    'JSONField',
+                    'ForeignKey',
+                ):
+                    return Response(
+                        data={
+                            'message': f'Error with field {field_name}',
                             '_errors': ['INVALID_QUERY'],
                         },
                         status=HTTP_400_BAD_REQUEST,
