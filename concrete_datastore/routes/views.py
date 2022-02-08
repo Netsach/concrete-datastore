@@ -87,7 +87,7 @@ class DatamodelServer(APIView, TemplateView):
                 'Content-Disposition'
             ] = 'attachment; filename="{}"'.format(filename)
             return response
-        if action == 'viewer':
+        if action == 'view':
             return super().get(request, *args, **kwargs)
         return JsonResponse(
             data={'error': f'unknown action {action}'}, status=400

@@ -48,7 +48,7 @@ urlpatterns = [
     re_path(r'^oauth/', include('social_django.urls', namespace='social')),
     re_path(r'^status/$', service_status_view, name='service-status-view'),
     re_path(
-        r'^datamodel/(?P<action>download|viewer/?)?$',
+        r'^datamodel/(?P<action>download|view/?)?$',
         DatamodelServer.as_view(),
         name='datamodel',
     ),
