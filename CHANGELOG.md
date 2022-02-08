@@ -4,6 +4,7 @@
 
 ### Added
 
+- Add settings to configure the path for OpenAPI schema and the Swagger interface
 - Allow sending emails asynchronously with celery
 
 ### Changed
