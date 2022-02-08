@@ -95,6 +95,23 @@ class TestFiltersFK(APITestCase):
             set([str(self.project_1.uid), str(self.project_3.uid)]),
         )
 
+        exclude_url = (
+            f'/api/v1.1/project/?expected_skills__in!={self.ex_skill_1.uid}'
+        )
+        resp = self.client.get(
+            exclude_url, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        self.assertIn('objects_count', resp.data)
+        self.assertIn('results', resp.data)
+
+        result_uids = set(result['uid'] for result in resp.data['results'])
+        self.assertEqual(resp.data['objects_count'], 1)
+        self.assertEqual(
+            resp.data['results'][0]['uid'], str(self.project_2.uid)
+        )
+
         #:  Expected Skills 1 & 2 ==> Project 1, 2 & 3
         get_url = (
             '/api/v1.1/project/?expected_skills__in='
