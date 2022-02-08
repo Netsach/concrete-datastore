@@ -4,6 +4,7 @@
 
 ### Added
 
+- Allow anonymous creation on Concrete instances with throttling conditions
 - Add settings to configure the path for OpenAPI schema and the Swagger interface
 - Allow sending emails asynchronously with celery
 
