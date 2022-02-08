@@ -345,7 +345,7 @@ def make_serializer_class(
         fields = _fields
 
         read_only_fields = (
-            ['created_by', 'admin', 'is_staff']
+            ['uid', 'created_by', 'admin', 'is_staff']
             + fk_read_only_fields
             + [f for f in _all_fields if f.startswith('resource_')]
         )

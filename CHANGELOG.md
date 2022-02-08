@@ -5,10 +5,12 @@
 ### Added
 
 - Allow anonymous creation on Concrete instances with throttling conditions
+- Add settings to configure the path for OpenAPI schema and the Swagger interface
 - Allow sending emails asynchronously with celery
 
 ### Changed
 
+- Remove nested foreign keys from open api schema for methods POST PUT and PATCH
 - Rename unittests from `tests_` to `test_`
 - sets extra fields: Check that the field is in fields before checking the type
 
