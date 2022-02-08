@@ -4,53 +4,41 @@ import os
 
 from django.conf import settings
 from django.dispatch import receiver
-from django.db.models.signals import pre_save
-
-from concrete_mailer.preparers import prepare_email
+from django.db.models.signals import pre_save, post_save
 
 from concrete_datastore.concrete.models import Email  # pylint:disable=E0611
+from concrete_datastore.concrete.automation.tasks import (
+    send_async_mails,
+    perform_send_email,
+)
 
 
 logger = logging.getLogger(__name__)
 
 
+@receiver(post_save, sender=Email)
+def send_email_post_save(sender, instance, **kwargs):
+    #: If SMTP_MAILING_USE_ASYNC is enabled, the async task should be in a
+    #: post_save signal, because the instance should exist
+    if (
+        instance.resource_status == 'to-send'
+        and settings.SMTP_MAILING_USE_ASYNC is True
+    ):
+        send_async_mails.apply_async(
+            queue='email_senders', kwargs={"email_pk": str(instance.pk)}
+        )
+
+
 @receiver(pre_save, sender=Email)
-def send_email(sender, instance, **kwargs):
-    if instance.resource_status == 'to-send':
-
-        if not instance.subject or not instance.body or not instance.receiver:
-            instance.resource_status = 'send-error'
-            instance.resource_message = 'Some fields are empty'
-            return
-
-        if instance.created_by is None:
-            instance.resource_status = 'send-error'
-            instance.resource_message = 'No sender available'
-            return
-        try:
-            use_tls = not getattr(settings, 'DEBUG', False)
-            email = prepare_email(
-                context={"sender_name": settings.EMAIL_SENDER_NAME},
-                css=settings.EMAIL_CSS,
-                html=instance.body,
-                title=instance.subject,
-                sender=settings.SERVER_EMAIL,
-                reply_to=settings.EMAIL_REPLY_TO,
-                recipients=[instance.receiver.email],
-                use_tls=use_tls,
-                email_host=settings.EMAIL_HOST,
-                email_port=settings.EMAIL_PORT,
-                email_host_user=settings.EMAIL_HOST_USER,
-                email_host_password=settings.EMAIL_HOST_PASSWORD,
-            )
-            email.send()
-
-            instance.resource_status = 'sent'
-            instance.resource_message = 'Mail successfuly sent'
-        except Exception:
-            logger.exception('Error while sending email')
-            instance.resource_status = 'send-error'
-            instance.resource_message = 'Unable to send email'
+def send_email_pre_save(sender, instance, **kwargs):
+    if (
+        instance.resource_status == 'to-send'
+        and settings.SMTP_MAILING_USE_ASYNC is False
+    ):
+        perform_send_email(
+            instance=instance,
+            enable_retrying=settings.RETRY_ON_SENDING_SYNC_EMAILS,
+        )
 
 
 def build_absolute_uri(uri):

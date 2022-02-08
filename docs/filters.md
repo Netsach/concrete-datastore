@@ -1,25 +1,135 @@
 ## Filters and ordering
 
 ### Filters
-API requests support different types of filters on the fields of the `filter_fields` declared in the datamodel:
+API requests support different types of filters on the fields of the `filter_fields` declared in the datamodel, and other specific query parameters:
 
-- **Filter Supporting Or operation:** (Applied on all fields) By adding the `__in` suffix:
-example: `?name__in=project1,project2,project3` returns all objects that the field name has a value of "project1" **OR** "project2" **OR** "project3"
+#### Filter against model fields
+
+- **Filter exact value:** (Applied on all fields within the `filter_fields` except for JsonFields and PointFields) by using a strict equality (`field_name=field_value`) and returns all instances that have `field_value` as a value for `field_name`. This allows also an exclude filter by adding a negation mark (`!`) after the query param, in order to exclude the instances that match the filter (`field_name!=field_value`)
+- **Filter Supporting Or operation:** (Applied on all fields within the `filter_fields`) By adding the `__in` suffix:
+example: `?name__in=project1,project2,project3` returns all objects that the field name has a value of "project1" **OR** "project2" **OR** "project3". This allows also an exclude filter by adding a negation mark (`!`) after the query param, in order to exclude the instances that match the filter. Example: `?name__in!=project1,project2,project3` returns all objects that the field name is **NEITHER** "project1" **NOR** "project2" **NOR** "project3"
 - **Filter Supporting Contains key:** (Applied on CharFields and TextFields) By adding the `__contains` suffix:
-example: `?name__contains=pro` returns all objects that the field name contains the substring `"pro"`
-- **Filter Supporting Empty values:** (Applied on the CharFields and TextFields) By adding `__isempty=true`:
-example: `?project__isempty=true` returns all objects that do not have a `project`
+example: `?name__contains=pro` returns all objects that the field name contains the substring `"pro"`. This allows also an exclude filter by adding a negation mark (`!`) after the query param, in order to exclude the instances that match the filter. Exmple: `?name__contains!=pro` returns all objects that the field name does not contain the substring `"pro"`. Please note that the `__contains` filter is case-sensitive. For case-insensitive filter, you can use the lookup `__icontains`.
+- **Filter Supporting Empty values:** (Applied on the CharFields and TextFields) By adding `__isempty=true` or `is__empty=false`:
+example: `?name__isempty=true` returns all objects that do not have a `name` and `?name__isempty=false` returns all objects have a non empty `name`
 - **Filter Supporting Null Relation:** (Applied on the ForeignKeys and ManyToManyField) By adding `__isnull=true`:
-example: `?project__isempty=true` returns all objects that do not have a `project`
-- **Filter Supporting Comparison operations:** (Applied on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the suffixes `__gte`, `__gt`, `__lte` and `__lt`.
+example: `?project__isnull=true` returns all objects that do not have a `project`
+- **Filter Supporting Comparison operations:** (Applied on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the lookups `__gte`, `__gt`, `__lte` or `__lt`.
 example:
     - `?price__gte=10` (price >= 10)
     - `?price__gt=10` (price > 10)
     - `?price__lte=10` (price <= 10)
     - `?price__lt=10` (price < 10)
 
-- **Filter Supporting Range:** (Applied on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the suffix `__range`:
-example: `?creation_date__range=2018-01-01,2018-12-31` returns all objects with creation date is between 1st Jan 2018 and 31st Dec 2018
+- **Filter against JSON fields:** (Applied only on JSON fields) This backend enables filtering against a JSON field key with `?field__key=value`. If the value is meant to be a string, it should be enclosed between double quotes: `"value"`, otherwise, the server responds with a `400 BAD REQUEST` (Please note that the encoded double quotes are `%22`, so `"value"` becomes `%22value%22`). This allows also an exclude filter by adding a negation mark (`!`) after the query param, in order to exclude the instances that match the filter.
+
+Example: given a model `MyModel` with a JSON field `data`, and 3 instances of this model with:
+
+```python
+# instance_1
+data = {
+    "name": "test1",
+    "item": {
+        "name": "toto",
+        "available": False,
+        "price": 3.99e3,
+        "size": 0
+    },
+    "items_list": [1, 2, 3],
+    "reference": None,
+}
+
+# instance_2
+data = {
+    "name": "tEsT2",
+    "item": {
+        "name": "tata",
+        "available": False,
+        "price": 0.4,
+        "size": 2
+    },
+    "custom_field": "tata",
+    "items_list": [4, 2, 5],
+    "reference": "12345",
+}
+
+# instance_3
+data = {
+    "name": "name",
+    "item": {
+        "name": "TOTO",
+        "available": True,
+        "price": 25,
+        "size": 3
+    },
+    "custom_field": "toto",
+    "items_list": ['1', '2', '3'],
+    "reference": None,
+}
+```
+
+Possible filters:
+
+```python
+# String filters
+"?data__name__icontains=%22test%22"  # 200 OK (instance_1, instance_2)
+"?data__name__icontains!=%22test%22"  # 200 OK (instance_3)
+"?data__item__name=%22toto%22"  # 200 OK (instance_1)
+"?data__item__name__icontains=%22to%22"  # 200 OK (instance_1, instance_3)
+"?data__custom_field=%22toto%22"  # 200 OK (instance_3)
+"?data__items_list__2=%223%22"  # 200 OK (instance_3)
+"?data__name=test"  # 400 BAD REQUEST
+
+# Boolean filters
+"?data__item__available=False"  # 200 OK (instance_1, instance_2)
+"?data__item__available=faLSe"  # 200 OK (instance_1, instance_2)
+
+# Null filters
+"?data__reference=null"  # 200 OK (instance_1, instance_3)
+"?data__reference=nUlL"  # 200 OK (instance_1, instance_3)
+"?data__reference=none"  # 200 OK (instance_1, instance_3)
+
+# Integer filters
+"?data__item__size__gt=0"  # 200 OK (instance_2, instance_3)
+"?data__items_list__1=2"  # 200 OK (instance_1, instance_2)
+
+# Float filters
+"?data__item__price__lt=300.0"  # 200 OK (instance_2, instance_3)
+
+# Invalid filters
+"?data__wrong_field=%22test%22"  # 200 OK (No results)
+"?data__items_list__10=1"  # 200 OK (No results)
+"?data__a__b__3__c=%22test%22"  # 200 OK (No results)
+```
+
+
+- **Filters Supporting Distance:** (Applied only on PointFields) By adding the lookups `__distance_gte`, `__distance_gt`, `__distance_lte`, `__distance_lt`, `__distance_range` or `__distance_range!`.
+    - `?coords__distance_gte=30,1.34,48.543` the distance from the point with longitude 1.34 and latitude 48.543 is bigger or equal to 30 meters
+    - `?coords__distance_gt=30,1.34,48.543` the distance from the point with longitude 1.34 and latitude 48.543 is strictly bigger than 30 meters
+    - `?coords__distance_lte=30,1.34,48.543` the distance from the point with longitude 1.34 and latitude 48.543 is less or equal to 30 meters
+    - `?coords__distance_lt=30,1.34,48.543` the distance from the point with longitude 1.34 and latitude 48.543 is strictly less than 30 meters
+    - `?coords__distance_range=30,40,1.34,48.543` the distance from the point with longitude 1.34 and latitude 48.543 is between 30 meters and 40 meters (inclusive range)
+    - `?coords__distance_range!=30,1.34,48.543` the distance from the point with longitude 1.34 and latitude 48.543 is either strictly bigger than 40 meters or strictly less than 30 meters.
+- **Filter Supporting Range:** (Applied on DateTimeFields, DateFields, DecimalFields, IntegerFields and FloatFields) By adding the suffix `__range`: example: `?creation_date__range=2018-01-01,2018-12-31` returns all objects with creation date is between 1st Jan 2018 and 31st Dec 2018 (inclusive range). This allows also an exclude filter by adding a negation mark (`!`) after the query param, in order to exclude the instances that match the filter. Exmple: `?creation_date__range!=2018-01-01,2018-12-31` return all the objects that were created **EITHER** before 1st Jan 2018 **OR** after 31st Dec 2018
+
+**Examples**:
+
+```
+https://<webapp>/api/v1.1/mymodel/?name=test
+https://<webapp>/api/v1.1/mymodel/?name!=test
+https://<webapp>/api/v1.1/mymodel/?name__isempty=true
+https://<webapp>/api/v1.1/mymodel/?name__isempty=false
+https://<webapp>/api/v1.1/mymodel/?name__in=project1,project2,project3
+https://<webapp>/api/v1.1/mymodel/?name__in!=project1,project2,project3
+https://<webapp>/api/v1.1/mymodel/?price__gte=price
+https://<webapp>/api/v1.1/mymodel/?creation_date__range=date1,date2
+https://<webapp>/api/v1.1/mymodel/?creation_date__range!=date1,date2
+https://<webapp>/api/v1.1/mymodel/?coords__lte=Distance,Longitude,latitude
+https://<webapp>/api/v1.1/mymodel/?coords__range=Distance1,Distance2,Longitude,latitude
+```
+
+
+#### Filter using specific query parameters
 
 - `c_resp_page_size`: The API also features pagination by the use of the query parameter `c_resp_page_size` that takes an integer representing the number of results per page that sould be returned
 - `c_resp_nested`: If there are relation between objects, by default the API shows the relation completely, it is nested.
@@ -61,18 +171,6 @@ If `timestamp_start` is specified and `> 0`, the api reponse will contain the fo
     - `"timestamp_start"`: the given timestamp start
     - `"timestamp_end"`: the timestamp end if given in the queryparams, otherwise the current timestamp
     - `"deleted_uids"`: a list of the objects' uids that are now longer in the response. Please refer to [the example on how to properly use timestamp_start and timestamp_end](#TimestampStartEnd)
-
-
-**Filter examples**:
-
-```
-https://<webapp>/api/v1.1/mymodel/?name=test
-https://<webapp>/api/v1.1/mymodel/?name__isempty=true
-https://<webapp>/api/v1.1/mymodel/?name__in=project1,project2,project3
-https://<webapp>/api/v1.1/mymodel/?price__gte=price
-https://<webapp>/api/v1.1/mymodel/?creation_date__range=date1,date2
-```
-
 
 <a name="TimestampStartEnd"></a>**Using timestamp_start and timestamp_end examples**:
 

@@ -25,6 +25,34 @@ class AuthTestCase(APITestCase):
         self.user.save()
         UserConfirmation.objects.create(user=self.user, confirmed=True).save()
 
+    @override_settings(API_TOKEN_EXPIRY=3 * 60 * 24)
+    def test_login_with_expired_token(self):
+        now = pendulum.now('utc')
+        token = self.user.auth_tokens.create()
+        token.expiration_date = now.subtract(years=1)
+        token.save()
+        self.assertFalse(token.expired)
+        url = '/api/v1.1/auth/login/'
+        url_projects = '/api/v1.1/project/'
+        resp = self.client.post(
+            url, {"email": 'johndoe@netsach.org', "password": "plop"}
+        )
+        self.assertEqual(
+            resp.status_code, status.HTTP_200_OK, msg=resp.content
+        )
+        #: The old token is expired
+        token.refresh_from_db()
+        self.assertTrue(token.expired)
+        token_key = resp.data['token']
+        #: The new token is different form the old one
+        self.assertNotEqual(token_key, token.key)
+        resp = self.client.get(
+            url_projects, HTTP_AUTHORIZATION='Token {}'.format(token_key)
+        )
+        self.assertEqual(
+            resp.status_code, status.HTTP_200_OK, msg=resp.content
+        )
+
     # Set expiry to 3 days
     @override_settings(API_TOKEN_EXPIRY=3 * 60 * 24)
     def test_token_expiry(self):
@@ -280,3 +308,34 @@ class AuthTestCase(APITestCase):
             resp.status_code, status.HTTP_401_UNAUTHORIZED, msg=resp.content
         )
         self.assertEqual(Project.objects.count(), 2)
+
+    def test_token_with_blocked_user(self):
+        url = '/api/v1.1/auth/login/'
+        url_projects = '/api/v1.1/project/'
+
+        # Login to generate token
+        resp = self.client.post(
+            url, {"email": 'johndoe@netsach.org', "password": "plop"}
+        )
+        self.assertEqual(
+            resp.status_code, status.HTTP_200_OK, msg=resp.content
+        )
+        token_key = resp.data['token']
+        self.user.is_active = False
+        self.user.save()
+
+        # CREATE a project with the user blocked
+        resp = self.client.post(
+            url_projects,
+            {
+                "name": "Projects1",
+                "description": "description de mon projet",
+                "skills": [],
+                "members": [],
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(token_key),
+        )
+        self.assertEqual(
+            resp.status_code, status.HTTP_401_UNAUTHORIZED, msg=resp.content
+        )
+        self.assertEqual(Project.objects.count(), 0)
