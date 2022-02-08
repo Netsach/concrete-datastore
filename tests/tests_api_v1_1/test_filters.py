@@ -4,7 +4,6 @@ import uuid
 from rest_framework.test import APITestCase
 from collections import OrderedDict
 from rest_framework import status
-from rest_framework.exceptions import ValidationError
 import pendulum
 
 from concrete_datastore.api.v1.filters import (
@@ -19,6 +18,8 @@ from concrete_datastore.concrete.models import (
     DefaultDivider,
     DIVIDER_MODEL,
     Category,
+    ItemPack,
+    UniqueTogetherModel,
 )
 from django.test import override_settings
 from concrete_datastore.api.v1.datetime import format_datetime
@@ -44,15 +45,28 @@ class FilterSupportingComparisonBackendTestCase(APITestCase):
         for i in range(5):
             Skill.objects.create(name='skill_{}'.format(i), score=i)
 
+    def test_exclusion_filters(self):
+        self.assertEqual(Skill.objects.count(), 5)
+        resp = self.client.get(
+            '/api/v1.1/skill/?score=3',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.data['objects_count'], 1)
+        resp = self.client.get(
+            '/api/v1.1/skill/?score!=3&name!=skill_2',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.data['objects_count'], 3)
+        resp = self.client.get(
+            '/api/v1.1/skill/?score!=3&name=skill_2',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.data['objects_count'], 1)
+
     def test_comparaison_on_integer(self):
         self.assertEqual(Skill.objects.count(), 5)
         resp = self.client.get(
             '/api/v1.1/skill/?score__gte=3',
-            HTTP_AUTHORIZATION='Token {}'.format(self.token),
-        )
-        self.assertEqual(resp.data['objects_count'], 2)
-        resp = self.client.get(
-            '/api/v1.1/skill/?score__lte=1',
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
         )
         self.assertEqual(resp.data['objects_count'], 2)
@@ -62,10 +76,40 @@ class FilterSupportingComparisonBackendTestCase(APITestCase):
         )
         self.assertEqual(resp.data['objects_count'], 1)
         resp = self.client.get(
+            '/api/v1.1/skill/?score__lte=1',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.data['objects_count'], 2)
+        resp = self.client.get(
             '/api/v1.1/skill/?score__lt=1',
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
         )
         self.assertEqual(resp.data['objects_count'], 1)
+        #: Emty sting raises a ValidationError
+        resp = self.client.get(
+            '/api/v1/skill/?score__gt=',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            resp.data,
+            {
+                "message": "Attempting to convert an empty string to a date format"
+            },
+        )
+
+    def test_filter_deciaml_field(self):
+        item_1 = ItemPack.objects.create(cost=3.4)
+        item_2 = ItemPack.objects.create(cost=3.6)
+        resp = self.client.get(
+            '/api/v1.1/item-pack/?cost__gt=3.5',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK, msg=resp.data)
+        self.assertIn('objects_count', resp.data)
+        self.assertEqual(resp.data['objects_count'], 1)
+        self.assertEqual(len(resp.data['results']), 1)
+        self.assertEqual(resp.data['results'][0]['uid'], str(item_2.pk))
 
 
 @override_settings(DEBUG=True)
@@ -148,12 +192,14 @@ class FilterSupportingOrBackendTestClass(APITestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data['objects_count'], 1)
+
         resp = self.client.get(
             '/api/v1.1/project/?name__isempty=false',
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        # self.assertEqual(resp.data['objects_count'], 0)
+        self.assertEqual(resp.data['objects_count'], 3)
+
         resp = self.client.get(
             '/api/v1.1/project/?field__isempty=true',
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
@@ -299,14 +345,11 @@ class FilterDatesTestClass(APITestCase):
         self.date = pendulum.from_format("2017-10-28", 'YYYY-MM-DD')
         url_date = '/api/v1.1/date-utc/'
         for i in range(10):
-            self.client.post(
+            resp = self.client.post(
                 url_date,
                 data={
                     "date": self.date.add(days=i).to_date_string(),
-                    "datetime": self.date.add(days=i)
-                    .to_iso8601_string()
-                    .split('+')[0]
-                    + 'Z',
+                    "datetime": self.date.add(days=i).to_iso8601_string(),
                 },
                 HTTP_AUTHORIZATION="Token {}".format(self.token),
             )
@@ -327,6 +370,19 @@ class FilterDatesTestClass(APITestCase):
             url_date_time, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 4)
+
+        #: URL with exclude datetime filters
+        url_date_time = (
+            '/api/v1.1/date-utc/?datetime__range!='
+            f'{start_datetime},{end_datetime}'
+        )
+
+        resp = self.client.get(
+            url_date_time, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 5)
 
         #: URL with date filters
         url_date = (
@@ -444,6 +500,13 @@ class FilterDatesTestClass(APITestCase):
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_filter_range_date_with_empty_values(self):
+        url_date = '/api/v1.1/date-utc/?date__range=,'
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
 
 @override_settings(DEBUG=True)
@@ -688,6 +751,66 @@ class FilterContainsBackend(APITestCase):
             name='Project2', description='text of description2'
         )
 
+    def test_success_exclude_contains(self):
+        resp = self.client.get(
+            '/api/v1.1/project/',
+            data={'name__contains!': '2'},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('results', resp.data)
+        self.assertIn('total_objects_count', resp.data)
+        self.assertEqual(resp.data['total_objects_count'], 1)
+        names = {project['name'] for project in resp.data['results']}
+        self.assertEqual(names, {'Project1'})
+
+    def test_success_combination_filter_and_exclude(self):
+        Project.objects.create(name='Project A')
+        Project.objects.create(name='Test A')
+        Project.objects.create(name='Project ABC')
+        Project.objects.create(name='Project B')
+        Project.objects.create(name='Test B')
+        #: Exclude projects that the name contains "B"
+        resp = self.client.get(
+            '/api/v1.1/project/',
+            data={'name__contains!': 'B'},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('results', resp.data)
+        self.assertIn('total_objects_count', resp.data)
+        self.assertEqual(resp.data['total_objects_count'], 4)
+        names = {project['name'] for project in resp.data['results']}
+        self.assertSetEqual(
+            names, {'Project1', 'Project2', 'Project A', 'Test A'}
+        )
+
+        #: Filter projects that the name contains "Test"
+        resp = self.client.get(
+            '/api/v1.1/project/',
+            data={'name__contains': 'Test'},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('results', resp.data)
+        self.assertIn('total_objects_count', resp.data)
+        self.assertEqual(resp.data['total_objects_count'], 2)
+        names = {project['name'] for project in resp.data['results']}
+        self.assertSetEqual(names, {'Test B', 'Test A'})
+
+        #: Combine the two querysets
+        resp = self.client.get(
+            '/api/v1.1/project/',
+            data={'name__contains': 'Test', 'name__contains!': 'B'},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('results', resp.data)
+        self.assertIn('total_objects_count', resp.data)
+        self.assertEqual(resp.data['total_objects_count'], 1)
+        names = {project['name'] for project in resp.data['results']}
+        self.assertSetEqual(names, {'Test A'})
+
     def test_success_one_result_with_contain_filter(self):
         resp = self.client.get(
             '/api/v1.1/project/',
@@ -737,6 +860,12 @@ class FilterInsensitiveContainsBackend(APITestCase):
         self.project1 = Project.objects.create(
             name='Project2', description='text of description2'
         )
+        self.unique_together1 = UniqueTogetherModel.objects.create(
+            name='unique_together1', field1='field1'
+        )
+        self.unique_together2 = UniqueTogetherModel.objects.create(
+            name='unique_together2', field1='field1'
+        )
 
     def test_success_one_result_with_icontain_filter(self):
         resp = self.client.get(
@@ -750,6 +879,51 @@ class FilterInsensitiveContainsBackend(APITestCase):
         self.assertEqual(resp.data['total_objects_count'], 1)
         names = {project['name'] for project in resp.data['results']}
         self.assertEqual(names, {'Project1'})
+
+    def test_exclude_icontains(self):
+        resp = self.client.get(
+            '/api/v1.1/project/',
+            data={'name__icontains!': 'pRoJeCt1'},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('results', resp.data)
+        self.assertIn('total_objects_count', resp.data)
+        self.assertEqual(resp.data['total_objects_count'], 1)
+        names = {project['name'] for project in resp.data['results']}
+        self.assertEqual(names, {'Project2'})
+
+    def test_success_one_result_with_two_icontain_filters(self):
+        resp = self.client.get(
+            '/api/v1.1/unique-together-model/',
+            data={
+                'name__icontains': 'uniquE_toGethEr1',
+                'field1__icontains': 'fIe',
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK, msg=resp.data)
+        self.assertIn('results', resp.data)
+        self.assertIn('total_objects_count', resp.data)
+        self.assertEqual(resp.data['total_objects_count'], 1)
+        names = {instance['name'] for instance in resp.data['results']}
+        self.assertEqual(names, {'unique_together1'})
+
+    def test_success_one_result_with_two_contain_filters(self):
+        resp = self.client.get(
+            '/api/v1.1/unique-together-model/',
+            data={
+                'name__contains': 'unique_together1',
+                'field1__contains': 'fie',
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK, msg=resp.data)
+        self.assertIn('results', resp.data)
+        self.assertIn('total_objects_count', resp.data)
+        self.assertEqual(resp.data['total_objects_count'], 1)
+        names = {instance['name'] for instance in resp.data['results']}
+        self.assertEqual(names, {'unique_together1'})
 
 
 @override_settings(DEBUG=True)

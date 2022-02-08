@@ -28,28 +28,36 @@ from concrete_datastore.interfaces.openapi_schema_generator import (
 
 def service_status_view(request):
     plugins = {}
-    list_plugins = []
-    # Get a unique module
-    if isinstance(settings.PLUGINS_TASKS_FUNC, dict):
-        list_plugins = settings.PLUGINS_TASKS_FUNC.keys()
+    # INSTALLED_PLUGIN is a dict with the plugin/core as key and the
+    # version as value
+    if isinstance(settings.INSTALLED_PLUGINS, dict):
+        plugins = settings.INSTALLED_PLUGINS
+    data = {
+        'version': concrete_datastore.__version__,
+        'datamodel_version': settings.DATAMODEL_VERSION,
+        'api': concrete_datastore.api.v1_1.__version__,
+        'plugins': plugins,
+        'healthy': True,
+        'message': '',
+        'name': 'concrete-datastore',
+        'license': 'All rights reserved. Netsach 2021.',
+    }
+    if settings.USE_CORE_AUTOMATION:
+        try:
+            # ImportError if the import fails
+            from ns_core.coreApp.models import (  # pylint: disable = import-error
+                Parameter,
+            )
+        except ImportError:
+            pass
+        else:
+            parameter, created = Parameter.objects.get_or_create(
+                name='MAINTENANCE_MODE', defaults={'data': {'value': False}}
+            )
+            maintenance_mode = parameter.data.get('value', False)
+            data['maintenance_mode'] = maintenance_mode
 
-        for path_task in list_plugins:
-            task_split = path_task.rsplit('.')
-            module = import_module(task_split[0])
-            plugins[module.__name__] = module.__version__
-
-    return JsonResponse(
-        {
-            'version': concrete_datastore.__version__,
-            'datamodel_version': settings.DATAMODEL_VERSION,
-            'api': concrete_datastore.api.v1_1.__version__,
-            'plugins': plugins,
-            'healthy': True,
-            'message': '',
-            'name': 'concrete-datastore',
-            'license': 'All rights reserved. Netsach 2019.',
-        }
-    )
+    return JsonResponse(data)
 
 
 class DatamodelServer(APIView, TemplateView):
