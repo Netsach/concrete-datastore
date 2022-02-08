@@ -4,6 +4,7 @@
 
 ### Added
 
+- Add entrypoint to serve datamodel (json and yaml)
 - Allow anonymous creation on Concrete instances with throttling conditions
 - Add settings to configure the path for OpenAPI schema and the Swagger interface
 - Allow sending emails asynchronously with celery
