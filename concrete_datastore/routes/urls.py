@@ -30,12 +30,12 @@ swagger_urls = []
 if settings.DEBUG or settings.ENABLE_SWAGGER_UI:
     swagger_urls = [
         re_path(
-            r'openapi-schema\.(?P<spec_format>json|yaml)$',
+            fr'{settings.SWAGGER_SPEC_PATH}\.(?P<spec_format>json|yaml)$',
             OpenApiView.as_view(patterns=[api_v1_1_urls]),
             name='openapi-schema',
         ),
         re_path(
-            r'^swagger-ui/',
+            fr'^{settings.SWAGGER_UI_PATH}/',
             TemplateView.as_view(
                 template_name='mainApp/swagger-ui.html',
                 extra_context={'schema_url': 'openapi-schema'},

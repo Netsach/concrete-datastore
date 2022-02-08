@@ -50,6 +50,10 @@ from concrete_datastore.concrete.models import (  # pylint:disable=E0611
     Email,
     SecureConnectToken,
 )
+from concrete_datastore.api.v1.throttling import (
+    CustomUserRateThrottle,
+    CustomAnonymousRateThrottle,
+)
 from concrete_datastore.api.v1.permissions import (
     UserAccessPermission,
     filter_queryset_by_permissions,
@@ -2019,8 +2023,9 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         return self.serializer_class_nested
 
     def perform_create(self, serializer):
-
-        attrs = {'created_by': self.request.user}
+        attrs = {}
+        if self.request.user.is_authenticated:
+            attrs.update({'created_by': self.request.user})
 
         try:
             divider = self.get_divider()
