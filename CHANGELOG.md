@@ -4,6 +4,20 @@
 
 ### Added
 
+- nothing added
+
+### Changed
+
+- nothing changed
+
+### Removed
+
+- nothing removed
+
+## [1.38.0] - 2022-02-08
+
+### Added
+
 - Add entrypoint to serve datamodel (json and yaml)
 - Allow anonymous creation on Concrete instances with throttling conditions
 - Add settings to configure the path for OpenAPI schema and the Swagger interface
@@ -14,10 +28,6 @@
 - Remove nested foreign keys from open api schema for methods POST PUT and PATCH
 - Rename unittests from `tests_` to `test_`
 - sets extra fields: Check that the field is in fields before checking the type
-
-### Removed
-
-- nothing removed
 
 ## [1.37.0] - 2022-02-03
 
