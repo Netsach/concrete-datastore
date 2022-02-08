@@ -3,9 +3,11 @@ import pendulum
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth import authenticate, get_user_model
-from django.test import Client
-from concrete_datastore.concrete.models import User, UserConfirmation
-from django.test import override_settings
+from django.test import Client, override_settings
+from concrete_datastore.concrete.models import User, UserConfirmation, Group
+from concrete_datastore.api.v1.authentication import (
+    default_backend_group_creation_rule,
+)
 
 
 @override_settings(DEBUG=True)
@@ -34,6 +36,12 @@ class AuthTestCase(APITestCase):
             email='juliadoe@netsach.org', password='plop'
         )
         self.user3.save()
+
+    def test_default_backend_group_creation_rule(self):
+        group_names = ['Group1', 'Group2', 'Group3']
+        self.assertEqual(Group.objects.count(), 0)
+        default_backend_group_creation_rule(self.user, group_names)
+        self.assertEqual(Group.objects.count(), 3)
 
     def test_authenticate_user_cant_authenticate(self):
         self.user.is_staff = True
@@ -70,7 +78,7 @@ class AuthTestCase(APITestCase):
 
         # POST a valid user/password and get a session ID (200)
         resp = self.client.post(
-            url, {"email": 'johndoe@netsach.org', "password": "plop",},
+            url, {"email": 'johndoe@netsach.org', "password": "plop"}
         )
         self.assertEqual(
             resp.status_code, status.HTTP_200_OK, msg=resp.content
@@ -83,7 +91,7 @@ class AuthTestCase(APITestCase):
         self.assertIn('groups', resp.data)
 
         resp = self.client.post(
-            url, {"email": 'JOHNDOE@netsach.org', "password": "plop",},
+            url, {"email": 'JOHNDOE@netsach.org', "password": "plop"}
         )
 
         # print(resp.status_code)
@@ -92,7 +100,7 @@ class AuthTestCase(APITestCase):
         )
 
         resp = self.client.post(
-            url, {"email": 'johndoe@netsach.org', "password": "plop",},
+            url, {"email": 'johndoe@netsach.org', "password": "plop"}
         )
 
         # print(resp.status_code)

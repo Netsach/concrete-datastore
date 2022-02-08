@@ -5,14 +5,45 @@
 ### Added
 
 - Allow anonymous creation on Concrete instances with throttling conditions
+- Allow sending emails asynchronously with celery
 
 ### Changed
 
-- nothing changed
+- Rename unittests from `tests_` to `test_`
+- sets extra fields: Check that the field is in fields before checking the type
 
 ### Removed
 
 - nothing removed
+
+## [1.37.0] - 2022-02-03
+
+### Added
+
+- Add possibility to filter against keys of JSON fields
+- Add exclude filters within the API
+
+### Changed
+
+- The distance filters now support the lookups `__distance_lte`, `__distance_lt`, `__distance_gte`, `__distance_gt`, `__distance_range`, `__distance_range!`. The bare `__distance` is no more supported
+
+## [1.36.0] - 2021-12-09
+
+### Added
+
+- Maintenance mode flag in the status view if there is a core app
+- When login, create a new token if the old ones are expired
+
+### Changed
+
+- Improve unittests
+
+## [1.35.0] - 2021-10-22
+
+### Added
+
+- Logs for auth views (Register/Change Password/Secure Login)
+- last_login update for auth views
 
 ## [1.34.0] - 2021-09-03
 

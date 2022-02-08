@@ -496,6 +496,21 @@ class HasPermissionAbstractUser(models.Model):
             return queryset.none()
         return queryset.filter(**EXACT_LEVEL_ATTRS[level])
 
+    @classmethod
+    def exclude_by_at_least_level(cls, level, queryset=None):
+        queryset = queryset or cls.objects.all()
+        if level == 'blocked' or level not in ATLEAST_LEVEL_ATTRS.keys():
+            # A user cannot be at least blocked
+            return queryset.none()
+        return queryset.exclude(**ATLEAST_LEVEL_ATTRS[level])
+
+    @classmethod
+    def exclude_by_exact_level(cls, level, queryset=None):
+        queryset = queryset or cls.objects.all()
+        if level not in EXACT_LEVEL_ATTRS.keys():
+            return queryset.none()
+        return queryset.exclude(**EXACT_LEVEL_ATTRS[level])
+
     def __gt__(self, other):
         if isinstance(other, self.__class__) is False:
             raise ValueError(
