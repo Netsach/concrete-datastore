@@ -906,14 +906,30 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
 
 class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
     serializer_class = RegisterSerializer
-    '''this view is used to register a new user. It first check
+    '''
+        this view is used to register a new user. It first check
         if password1 == password2 and if email isn't already used
-     '''
+    '''
     api_namespace = DEFAULT_API_NAMESPACE
 
     def __init__(self, api_namespace, *args, **kwargs):
         self.api_namespace = api_namespace
         super().__init__(*args, **kwargs)
+
+    @property
+    def register_backend_modules(self):
+        for backend in settings.CONCRETE_REGISTER_BACKENDS:
+            module_name, backend_name = backend.rsplit('.', 1)
+            module = import_module(module_name)
+            yield getattr(module, backend_name)
+
+    def post_register(self, request, user, *args, **kwargs):
+        for backend in self.register_backend_modules:
+            backend().post_register(request, user, *args, **kwargs)
+
+    def pre_register(self, request, *args, **kwargs):
+        for backend in self.register_backend_modules:
+            backend().pre_register(request, *args, **kwargs)
 
     def get_request_user(self):
         """
@@ -1162,10 +1178,12 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
             return Response(status=HTTP_200_OK)
         except UserModel.DoesNotExist:
             pass
+        self.pre_register(request=request)
         user = UserModel.objects.create(**data_to_post)
 
         user.set_password(password)
         user.save()
+        self.post_register(request=request, user=user)
         if send_register_email is True:
             now = pendulum.now('utc')
             password_change_token_expiry_date = now.add(months=6)

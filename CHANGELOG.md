@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Add possibility for register backends in order to run custom functionnalities before/after creating a user by register endpoint
 
 ### Changed
 
