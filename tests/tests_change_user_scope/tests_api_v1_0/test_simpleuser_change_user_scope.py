@@ -120,6 +120,19 @@ class SimpleUserChangeScopesTestCase(APITestCase):
             HTTP_AUTHORIZATION="Token {}".format(self.token),
         )
         self.simple_user.refresh_from_db()
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+
+        #: Change only data of himself
+        self.assertEqual(self.simple_user.defaultdividers.count(), 3)
+        resp = self.client.patch(
+            '/api/v1/account/me/',
+            data={
+                "first_name": "NewFirstNameSimpleU",
+                "last_name": "NewLastNameSimpleU",
+            },
+            HTTP_AUTHORIZATION="Token {}".format(self.token),
+        )
+        self.simple_user.refresh_from_db()
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(self.simple_user.defaultdividers.count(), 3)
         self.assertEqual(self.simple_user.first_name, 'NewFirstNameSimpleU')

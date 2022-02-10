@@ -14,6 +14,12 @@
 
 - nothing removed
 
+## [1.40.0] - 2022-02-11
+
+### Changed
+
+- Changed default permissions for entrypoint `/user/*` (`request.user` should be at least manager), always allow "at least authenticated" user to access `/account/me/`
+
 ## [1.39.0] - 2022-02-10
 
 ### Added

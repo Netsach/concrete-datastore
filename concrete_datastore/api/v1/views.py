@@ -55,6 +55,7 @@ from concrete_datastore.api.v1.throttling import (
     CustomAnonymousRateThrottle,
 )
 from concrete_datastore.api.v1.permissions import (
+    UserAtLeastAuthenticatedPermission,
     UserAccessPermission,
     filter_queryset_by_permissions,
     filter_queryset_by_divider,
@@ -1397,7 +1398,7 @@ class AccountMeApiView(
         TokenExpiryAuthentication,
         URLTokenExpiryAuthentication,
     )
-    permission_classes = (UserAccessPermission,)
+    permission_classes = (UserAtLeastAuthenticatedPermission,)
     api_namespace = DEFAULT_API_NAMESPACE
 
     def __init__(self, api_namespace, *args, **kwargs):
