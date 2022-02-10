@@ -4,7 +4,7 @@
 
 ### Added
 
-- Add possibility for register backends in order to run custom functionnalities before/after creating a user by register endpoint
+- nothing added
 
 ### Changed
 
@@ -13,6 +13,12 @@
 ### Removed
 
 - nothing removed
+
+## [1.39.0] - 2022-02-10
+
+### Added
+
+- Add possibility for register backends in order to run custom functionnalities before/after creating a user by register endpoint
 
 ## [1.38.0] - 2022-02-08
 
