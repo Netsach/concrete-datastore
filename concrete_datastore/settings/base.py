@@ -120,6 +120,8 @@ AUTHENTICATION_BACKENDS = [
     'concrete_datastore.authentication.oauth2_utils.NetsachGitLabOAuth2',
 ]
 
+CONCRETE_REGISTER_BACKENDS = []
+
 MINIMUM_BACKEND_AUTH_LEVEL = 'is_superuser'
 MINIMUM_LEVEL_FOR_USER_LIST = 'is_at_least_staff'
 
