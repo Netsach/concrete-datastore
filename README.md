@@ -62,7 +62,7 @@ In order to describe the database schema, the developer has to write a `datamode
 
 Each API requests is controlled by this `datamodel` file as it acts as a specification of what is in the database and what should be allowed per user.
 
-You can create manually the `datamodel` file following the examples and the documentation or use the online editor [microservices.rest](https://www.microservices.rest/)
+You can create manually the `datamodel` file following the examples and the documentation or use the online editor [concrete-datastore.com](https://concrete-datastore.com/)
 
 ## F.A.Q
 

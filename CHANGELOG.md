@@ -14,6 +14,12 @@
 
 - nothing removed
 
+## [1.40.1] - 2022-02-16
+
+### Changed
+
+- Update the links within the documentation
+
 ## [1.40.0] - 2022-02-11
 
 ### Changed
