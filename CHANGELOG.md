@@ -8,11 +8,17 @@
 
 ### Changed
 
-- When throttling enabled, check if the user making the request is either an AnonymousUser or an AbstractUser
+- nothing changed
 
 ### Removed
 
 - nothing removed
+
+## [1.41.0] - 2022-02-21
+
+### Changed
+
+- When throttling enabled, check if the user making the request is either an AnonymousUser or an AbstractUser
 
 ## [1.40.2] - 2022-02-16
 
