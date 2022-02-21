@@ -2,13 +2,16 @@ import time
 from copy import deepcopy
 from rest_framework.test import APITestCase
 from django.conf import settings
+from django.core.cache import cache
 from rest_framework import status
 from concrete_datastore.concrete.models import User, UserConfirmation, Project
 from django.test import override_settings
 
+
 @override_settings(DEBUG=True)
 class CRUDTestCase(APITestCase):
     def setUp(self):
+        cache.clear()
         self.user = User.objects.create_user(
             'johndoe@netsach.org'
             # 'John',
@@ -22,12 +25,11 @@ class CRUDTestCase(APITestCase):
 
     @override_settings(ENABLE_AUTHENTICATED_USER_THROTTLING=True)
     @override_settings(ENABLE_ANONYMOUS_USER_THROTTLING=True)
-    @override_settings(ANONYMOUS_THROTTLING_RATE='2/s')
-    @override_settings(USER_THROTTLING_RATE='1/s')
+    @override_settings(ANONYMOUS_THROTTLING_RATE='2/m')
+    @override_settings(USER_THROTTLING_RATE='1/m')
     def test_throttling_all_users(self):
         #: Since throttling is enabled, we have to wait 1 second
         #: before running this test
-        time.sleep(1)
         login_url = '/api/v1.1/auth/login/'
 
         #: Anonymous requests
@@ -61,12 +63,11 @@ class CRUDTestCase(APITestCase):
 
     @override_settings(ENABLE_AUTHENTICATED_USER_THROTTLING=False)
     @override_settings(ENABLE_ANONYMOUS_USER_THROTTLING=True)
-    @override_settings(ANONYMOUS_THROTTLING_RATE='2/s')
-    @override_settings(USER_THROTTLING_RATE='1/s')
+    @override_settings(ANONYMOUS_THROTTLING_RATE='2/m')
+    @override_settings(USER_THROTTLING_RATE='1/m')
     def test_throttling_anonymous_users(self):
         #: Since throttling is enabled, we have to wait 1 second
         #: before running this test
-        time.sleep(1)
         login_url = '/api/v1.1/auth/login/'
 
         #: Anonymous requests
@@ -100,12 +101,11 @@ class CRUDTestCase(APITestCase):
 
     @override_settings(ENABLE_AUTHENTICATED_USER_THROTTLING=True)
     @override_settings(ENABLE_ANONYMOUS_USER_THROTTLING=False)
-    @override_settings(ANONYMOUS_THROTTLING_RATE='2/s')
-    @override_settings(USER_THROTTLING_RATE='1/s')
+    @override_settings(ANONYMOUS_THROTTLING_RATE='2/m')
+    @override_settings(USER_THROTTLING_RATE='1/m')
     def test_throttling_authenticated_users(self):
         #: Since throttling is enabled, we have to wait 1 second
         #: before running this test
-        time.sleep(1)
         login_url = '/api/v1.1/auth/login/'
 
         #: Anonymous requests
