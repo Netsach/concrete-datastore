@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- When throttling enabled, check if the user making the request is either an AnonymousUser or an AbstractUser
 
 ### Removed
 

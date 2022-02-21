@@ -1,5 +1,6 @@
 from django.conf import settings
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
+from django.contrib.auth.models import AbstractUser, AnonymousUser
 
 
 class CustomUserRateThrottle(UserRateThrottle):
@@ -7,6 +8,8 @@ class CustomUserRateThrottle(UserRateThrottle):
         if settings.ENABLE_AUTHENTICATED_USER_THROTTLING is False:
             return None
         user = request.user
+        if not isinstance(user, (AbstractUser, AnonymousUser)):
+            return None
         if user.is_authenticated:
             return user.email
         return None
@@ -20,6 +23,9 @@ class CustomAnonymousRateThrottle(AnonRateThrottle):
         if settings.ENABLE_ANONYMOUS_USER_THROTTLING is False:
             return None
         user = request.user
+        if not isinstance(user, (AbstractUser, AnonymousUser)):
+            return None
+
         if user.is_authenticated:
             return None
         return super().get_cache_key(request, view)
