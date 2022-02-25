@@ -21,7 +21,6 @@ from concrete_datastore.concrete.models import (
     DefaultDivider,
     DIVIDER_MODEL,
 )
-from concrete_datastore.api.v1.datetime import format_datetime
 
 
 @override_settings(DEBUG=True)
@@ -334,9 +333,24 @@ class FilterDatesTestClass(APITestCase):
 
     def test_filter_range_date_and_datetime_fields(self):
         start_date = self.date.add(days=-1).to_date_string()
-        start_datetime = format_datetime(self.date.add(days=-1))
+        start_datetime = "2017-10-27T00:00:00Z"
+        print(start_datetime)
         end_date = self.date.add(days=3).to_date_string()
-        end_datetime = format_datetime(self.date.add(days=3))
+        end_datetime = "2017-10-27T00:00:00Z"
+        url_date = '/api/v1/date-utc/?date__range={},{}&datetime__range={},{}'.format(
+            start_date, end_date, start_datetime, end_datetime
+        )
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_filter_range_date_and_datetime_fields_with_microseconds(self):
+        start_date = self.date.add(days=-1).to_date_string()
+        start_datetime = "2017-10-27T00:00:00.000000Z"
+        print(start_datetime)
+        end_date = self.date.add(days=3).to_date_string()
+        end_datetime = "2017-10-30T00:00:00.000000Z"
         url_date = '/api/v1/date-utc/?date__range={},{}&datetime__range={},{}'.format(
             start_date, end_date, start_datetime, end_datetime
         )

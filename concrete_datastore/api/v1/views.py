@@ -1811,8 +1811,9 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         def check_date_format(date_type, param_values):
             date_format = 'yyyy-mm-dd'
             date_regex = r'^\d{4}-\d{2}-\d{2}$'
-            date_time_format = 'yyyy-mm-ddThh:mm:ssZ'
-            date_time_regex = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$'
+            date_time_format = 'yyyy-mm-ddThh:mm:ss.xxxxxxZ'
+            date_time_regex = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?Z$'
+
 
             for param in param_values:
                 if param == '':
@@ -1842,7 +1843,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
                         False,
                         Response(
                             data={
-                                'message': "Wrong date format, should be '{}' or '{}'".format(
+                                'message': "Wrong date format, should be '{}' or 'yyyy-mm-ddThh:mm:ss' or '{}'".format(
                                     date_format, date_time_format
                                 ),
                                 '_errors': ['INVALID_QUERY'],
