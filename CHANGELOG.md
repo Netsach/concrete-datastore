@@ -6,10 +6,12 @@
 
 - Add possibility to filter against keys of JSON fields
 - Add exclude filters within the API
+- Add tests on filters datetime format
 
 ### Changed
 
 - The distance filters now support the lookups `__distance_lte`, `__distance_lt`, `__distance_gte`, `__distance_gt`, `__distance_range`, `__distance_range!`. The bare `__distance` is no more supported
+- The datetime filters now support this format:  `yyyy-mm-ddThh:mm:ss[.xxxxxx]'`
 
 ### Changed
 

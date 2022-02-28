@@ -331,33 +331,53 @@ class FilterDatesTestClass(APITestCase):
     def tearDown(self):
         pass
 
-    def test_filter_range_date_and_datetime_fields(self):
+    def test_filter_range_date(self):
         start_date = self.date.add(days=-1).to_date_string()
-        start_datetime = "2017-10-27T00:00:00Z"
-        print(start_datetime)
         end_date = self.date.add(days=3).to_date_string()
-        end_datetime = "2017-10-27T00:00:00Z"
-        url_date = '/api/v1/date-utc/?date__range={},{}&datetime__range={},{}'.format(
-            start_date, end_date, start_datetime, end_datetime
+        url_date = '/api/v1/date-utc/?date__range={},{}'.format(
+            start_date, end_date
         )
         resp = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-    def test_filter_range_date_and_datetime_fields_with_microseconds(self):
-        start_date = self.date.add(days=-1).to_date_string()
-        start_datetime = "2017-10-27T00:00:00.000000Z"
-        print(start_datetime)
-        end_date = self.date.add(days=3).to_date_string()
-        end_datetime = "2017-10-30T00:00:00.000000Z"
-        url_date = '/api/v1/date-utc/?date__range={},{}&datetime__range={},{}'.format(
-            start_date, end_date, start_datetime, end_datetime
+    def test_filter_range_datetime(self):
+        start_date = self.date.add(days=-1)
+        start_datetime = start_date.format('YYYY-MM-DDTHH:mm:ss\Z')
+        end_date = self.date.add(days=3)
+        end_datetime = end_date.format('YYYY-MM-DDTHH:mm:ss\Z')
+
+        url_date = '/api/v1/date-utc/?datetime__range={},{}'.format(
+            start_datetime, end_datetime
         )
         resp = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_filter_range_datetime_fields_with_miliseconds(self):
+        start_datetime = "2017-10-27T00:00:00.000000Z"
+        end_datetime = "2017-10-30T00:00:00.000000Z"
+        url_date = '/api/v1/date-utc/?datetime__range={},{}'.format(
+            start_datetime, end_datetime
+        )
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_filter_range_datetime_fields_with_miliseconds_wrong_format(self):
+        # We pass 7 numbers in milliseconds but we expected 6
+        start_datetime = "2017-10-27T00:00:00.0000000Z"
+        end_datetime = "2017-10-30T00:00:00.0000000Z"
+        url_date = '/api/v1/date-utc/?datetime__range={},{}'.format(
+            start_datetime, end_datetime
+        )
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_filter_range_date_with_empty_limits(self):
         start_date = self.date.add(days=-1).to_date_string()

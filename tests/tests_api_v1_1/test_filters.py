@@ -424,7 +424,7 @@ class FilterDatesTestClass(APITestCase):
         self.assertDictEqual(
             resp.json(),
             {
-                'message': "Wrong date format, should be 'yyyy-mm-dd' or 'yyyy-mm-ddThh:mm:ss' or 'yyyy-mm-ddThh:mm:ss.xxxxxxZ'",
+                'message': "Wrong date format, should be 'yyyy-mm-dd' or 'yyyy-mm-ddThh:mm:ss[.xxxxxx]Z'",
                 '_errors': ['INVALID_QUERY'],
             },
         )
