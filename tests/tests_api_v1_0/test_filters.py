@@ -20,6 +20,7 @@ from concrete_datastore.concrete.models import (
     Skill,
     DefaultDivider,
     DIVIDER_MODEL,
+    DateUtc
 )
 
 
@@ -295,12 +296,15 @@ class FilterWithInvalidFields(APITestCase):
 @override_settings(DEBUG=True)
 class FilterDatesTestClass(APITestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            'johndoe@netsach.org'
+        self.user = User.objects.create_superuser(
+            email='johndoe@netsach.org',
+            password='plop'
+
+
             # 'John',
             # 'Doe',
         )
-        self.user.set_password('plop')
+
         self.user.save()
         UserConfirmation.objects.create(user=self.user, confirmed=True).save()
         url = '/api/v1/auth/login/'
@@ -342,18 +346,29 @@ class FilterDatesTestClass(APITestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-    def test_filter_range_datetime(self):
-        start_date = self.date.add(days=-1)
-        start_datetime = start_date.format('YYYY-MM-DDTHH:mm:ss\Z')
-        end_date = self.date.add(days=3)
-        end_datetime = end_date.format('YYYY-MM-DDTHH:mm:ss\Z')
 
+    def test_filter_range_datetime(self):
+        date_utc1 = DateUtc.objects.create(datetime=self.date.format('YYYY-MM-DDTHH:mm:ss\Z'))
+
+        end_date_utc2 = self.date.add(minutes=+30)
+        date_utc2 = DateUtc.objects.create(datetime=end_date_utc2.format('YYYY-MM-DDTHH:mm:ss\Z'))
+
+        end_date_utc3 = self.date.add(minutes=+50)
+        DateUtc.objects.create(datetime=end_date_utc3.format('YYYY-MM-DDTHH:mm:ss\Z'))
+
+        start_datetime = date_utc1.datetime
+        end_datetime = date_utc2.datetime
         url_date = '/api/v1/date-utc/?datetime__range={},{}'.format(
             start_datetime, end_datetime
         )
         resp = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        results = resp.json()['results']
+
+        # We don't get the third instance because she is not in the range
+        self.assertEqual(len(results), 2)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_filter_range_datetime_fields_with_miliseconds(self):
@@ -366,6 +381,7 @@ class FilterDatesTestClass(APITestCase):
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
 
     def test_filter_range_datetime_fields_with_miliseconds_wrong_format(self):
         # We pass 7 numbers in milliseconds but we expected 6
