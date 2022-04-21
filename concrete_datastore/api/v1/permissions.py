@@ -123,6 +123,13 @@ def does_intersect(queryset_1, queryset_2):
     ).exists()
 
 
+class UserAtLeastAuthenticatedPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_anonymous:
+            return False
+        return super().has_permission(request, view)
+
+
 class UserAccessPermission(permissions.BasePermission):
     message = 'User access permission refused.'
 
@@ -161,8 +168,12 @@ class UserAccessPermission(permissions.BasePermission):
                         "_errors": ["EMAIL_NOT_VALIDATED"],
                     }
                 )
+        model = view.model_class
+        if model == get_user_model():
+            if not request.user.is_at_least_staff:
+                return False
+
         if request.method not in ["OPTIONS", "HEAD"]:
-            model = view.model_class
             level_allowed = check_minimum_level(
                 request.method, request.user, model
             )

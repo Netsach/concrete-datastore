@@ -170,7 +170,7 @@ def load_data(request):
     if request.user.is_anonymous is True or request.user.is_superuser is False:
         return HttpResponseForbidden()
 
-    file = request.FILES.get('json_dump_file')
+    file = request.FILES.get('file')
     if file is None:
         return JsonResponse(data={'error': 'No file was given'}, status=400)
     full_path = ""

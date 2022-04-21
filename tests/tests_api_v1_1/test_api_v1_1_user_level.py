@@ -55,7 +55,16 @@ class UserTestCase(APITestCase):
             {"level": "admin"},
             HTTP_AUTHORIZATION='Token {}'.format(self.token_simple),
         )
-        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+
+        url_user_simple = '/api/v1.1/account/me/'
+        resp = self.client.patch(
+            url_user_simple,
+            {"level": "admin"},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token_simple),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['level'], 'SimpleUser')
 
     def test_admin_user_can_elevate_simple_to_manager(self):
         url_user_simple = '/api/v1.1/user/{}/'.format(self.user_simple.uid)

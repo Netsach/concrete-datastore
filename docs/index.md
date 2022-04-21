@@ -10,6 +10,8 @@ In order to gain access or modify the database’s data, each request must be au
 
 Concrete Datastore also allows its users to have full control over the data requested by enabling a filtering mechanism on the different elements of the database (see [filters](filters.md) section).
 
+This documentation covers the open source edition of concrete-datastore ([gihub](https://github.com/Netsach/concrete-datastore). You can also find a paid support offering and a multi-instance manager ([concrete-manager](https://platform.concrete-datastore.com)) at the following address : [concrete-datastore.com](https://concrete-datastore.com).
+
 ## Table of contents
 
 - [API Authentication](authentication.md)

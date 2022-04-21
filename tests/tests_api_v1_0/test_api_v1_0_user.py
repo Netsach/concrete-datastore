@@ -33,6 +33,42 @@ class UserTestCase(APITestCase):
         )
         self.token = resp.data['token']
 
+    def test_basic_access_account_me(self):
+        url_account_me = '/api/v1/account/me/'
+        # as an anonymous user, account/me/ is not available ?
+        resp = self.client.get(url_account_me, HTTP_AUTHORIZATION='')
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        # as an blocked user, account/me/ is not available
+        self.user.is_active = False
+        self.user.save()
+        self.assertEqual(self.user.level, 'blocked')
+        resp = self.client.get(
+            url_account_me,
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        # as an authenticated user, account/me/ is available
+        self.user.is_active = True
+        self.user.save()
+        self.assertEqual(self.user.level, 'simpleuser')
+        resp = self.client.get(
+            url_account_me,
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        # as a simpleuser, user/ is forbidden
+        resp = self.client.get(
+            '/api/v1/user/',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        # as a simpleuser, user/<uid>/ is forbidden
+        resp = self.client.get(
+            f'/api/v1/user/{self.user.pk}/',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_user_changes_profile_data(self):
         url_login = '/api/v1/auth/login/'
         url_user = '/api/v1/account/me/'

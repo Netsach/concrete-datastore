@@ -329,8 +329,6 @@ class ResetPasswordTest(APITestCase):
         expected_email_body = settings.AUTH_CONFIRM_RESET_PASSWORD_EMAIL_BODY.format(
             link=uri_reset_password
         )
-        print(expected_email_body)
-        print(email.body)
         self.assertEqual(expected_email_body, email.body)
 
     def test_reset_password_custom_url(self):

@@ -102,7 +102,10 @@ def get_admin_site():
         def get_app_list(self, request):
             app_dict = self._build_app_dict(request)
             if not app_dict:
-                return []
+                #: This case should never occur, due to the admin site
+                #: permssions set to "superuser".
+                return []  # pragma: no cover
+
             # Sort the apps alphabetically.
             app_list = sorted(
                 app_dict.values(), key=lambda x: x['name'].lower()
@@ -160,6 +163,9 @@ def get_admin_site():
                     'enable_db_load': settings.ENABLE_DATABASE_LOAD,
                 }
             )
+            extra_context[
+                'display_datamodel'
+            ] = settings.ENABLE_SERVE_DATAMODEL
             if settings.USE_CORE_AUTOMATION:
                 extra_context.update(
                     {

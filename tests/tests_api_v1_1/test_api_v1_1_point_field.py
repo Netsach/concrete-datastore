@@ -105,6 +105,13 @@ class PointFieldTestCase(APITestCase):
             ).count(),
             0,
         )
+
+        self.assertEqual(
+            Project.objects.exclude(
+                gps_address__distance_lte=(pnt, D(km=1882))
+            ).count(),
+            1,
+        )
         self.assertEqual(
             Project.objects.filter(
                 gps_address__distance_lte=(pnt, D(km=1882.6554))
@@ -113,14 +120,87 @@ class PointFieldTestCase(APITestCase):
         )
 
         #: The distance is in meter and it's longitude first
+        #: __distance_lt(e)
         resp = self.client.get(
-            f'{url_projects}?gps_address__distance=1883000,2.32,32.0',
+            f'{url_projects}?gps_address__distance_lt=1883000.0,2.32,32.0',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.json()['objects_count'], 1, msg=resp.content)
+        resp = self.client.get(
+            f'{url_projects}?gps_address__distance_lte=1883000.0,2.32,32.0',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.json()['objects_count'], 1, msg=resp.content)
+        resp = self.client.get(
+            f'{url_projects}?gps_address__distance_lt=1882000,2.32,32.0',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.json()['objects_count'], 0, msg=resp.content)
+        resp = self.client.get(
+            f'{url_projects}?gps_address__distance_lte=1882000,2.32,32.0',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.json()['objects_count'], 0, msg=resp.content)
+
+        #: __distance_gt(e)
+        resp = self.client.get(
+            f'{url_projects}?gps_address__distance_gt=1882000,2.32,32.0',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.json()['objects_count'], 1, msg=resp.content)
+        resp = self.client.get(
+            f'{url_projects}?gps_address__distance_gte=1882000,2.32,32.0',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.json()['objects_count'], 1, msg=resp.content)
+        resp = self.client.get(
+            f'{url_projects}?gps_address__distance_gt=1883000,2.32,32.0',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.json()['objects_count'], 0, msg=resp.content)
+        resp = self.client.get(
+            f'{url_projects}?gps_address__distance_gte=1883000,2.32,32.0',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.json()['objects_count'], 0, msg=resp.content)
+
+        #: __distance_range(!)
+        resp = self.client.get(
+            f'{url_projects}?gps_address__distance_range=1882000,1883000,2.32,32.0',
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
         )
         self.assertEqual(resp.json()['objects_count'], 1, msg=resp.content)
 
         resp = self.client.get(
-            f'{url_projects}?gps_address__distance=1882000,2.32,32.0',
+            f'{url_projects}?gps_address__distance_range!=1882000,1883000,2.32,32.0',
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
         )
         self.assertEqual(resp.json()['objects_count'], 0, msg=resp.content)
+
+        #: Wrong number of parameters
+        resp = self.client.get(
+            f'{url_projects}?gps_address__distance_range=1,2,3',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        resp = self.client.get(
+            f'{url_projects}?gps_address__distance_lte=1,2',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+        #: Wrong value types
+        resp = self.client.get(
+            f'{url_projects}?gps_address__distance_range=a,b,c',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+        #: Using `__distance_` on a field that is not PointField will ignore
+        #: the filter and returns all results
+        resp = self.client.get(
+            f'{url_projects}?name__distance_lte=fakeName',
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK, msg=resp.data)
+        self.assertEqual(resp.json()['objects_count'], 1, msg=resp.data)
