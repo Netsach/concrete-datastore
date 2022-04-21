@@ -72,7 +72,7 @@ class DatamodelServer(APIView, TemplateView):
 
     def _get_datamodel_format(self, data_format='yaml'):
         def default_dumper(value):
-            #: Default dumper for json becaus the DateTime and Date objects
+            #: Default dumper for json because the DateTime and Date objects
             #: are not json serializable
             if type(value) == datetime.date:
                 return value.isoformat()
