@@ -174,17 +174,17 @@ def load_data(request):
     if file is None:
         return JsonResponse(data={'error': 'No file was given'}, status=400)
     full_path = ""
+    fd = NamedTemporaryFile(suffix='.json', mode='w')
     try:
-        with NamedTemporaryFile(suffix='.json', mode='w', delete=False) as fd:
-            full_path = os.path.join(os.getcwd(), fd.name)
-            json.dump(json.loads(file.read().decode('utf-8')), fd)
+        full_path = os.path.join(os.getcwd(), fd.name)
+        json.dump(json.loads(file.read().decode('utf-8')), fd)
         resp = StringIO()
         errors = StringIO()
         with RedirectStdStreams(stdout=resp, stderr=errors):
             call_command('loaddata', full_path)
         resp_value = resp.getvalue()
         errors_value = errors.getvalue()
-        if errors.getvalue():
+        if errors_value:
             response = JsonResponse(data={'error': errors_value}, status=400)
         else:
             response = JsonResponse(data={'message': resp_value}, status=200)
@@ -193,6 +193,5 @@ def load_data(request):
             data={'error': f'An error has occured: {e}'}, status=400
         )
     finally:
-        if os.path.exists(full_path):
-            os.remove(full_path)
+        fd.close()
         return response
