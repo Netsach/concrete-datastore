@@ -29,6 +29,10 @@ TYPES_VALUES_MAP = {
 }
 
 JSON_FILTER_PATTERN = r'^\"(?P<str>.*)\"$|(?P<int>^\d+$)|(?P<float>^\d+\.\d+([e][+-]?\d+)?$)|(?P<bool>^true$|^false$)|(?P<null>^null$|^none$)'
+REGEX_DATETIME_MICROSECOND = (
+    "^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})Z$"
+)
+REGEX_DATETIME_SECOND = "^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$"
 
 
 def cast_value_to_right_type(query_value):
@@ -104,22 +108,37 @@ def convert_type(string, field_type, close_period=True):
     if field_type in ('DateTimeField', 'DateField'):
         if field_type == 'DateTimeField':
             # Expected format YYYY-MM-DD HH:MM[:ss[.uuuuuu]][TZ]
+            regex_ms = re.compile(REGEX_DATETIME_MICROSECOND)
+            regex_second = re.compile(REGEX_DATETIME_SECOND)
+
+            check_microseconds = regex_ms.match(str(string))
+            check_seconds = regex_second.match(str(string))
+
             dt = ensure_pendulum(string)
-            if close_period:
-                dt = dt.end_of('second')
-            else:
-                dt = dt.start_of('second')
+            if not check_microseconds and not check_seconds:
+                if close_period:
+                    dt = dt.end_of('day')
+                else:
+                    dt = dt.start_of('day')
+            elif check_seconds:
+                if close_period:
+                    dt = dt.end_of('second')
+                else:
+                    dt = dt.start_of('second')
+
             return format_datetime(dt)
         if field_type == 'DateField':
             # Expected YYYY-MM-DD
             dt = ensure_pendulum(string)
             # Deactivated by lco, a date is a date, no time in it
-            # if close_period:
+            # f close_period:
             #     dt.end_of('day')
             return dt.to_date_string()
     elif field_type in ('DecimalField', 'FloatField'):
         return float(string)
     else:
+        return int(string)
+
         return int(string)
 
 
@@ -900,7 +919,16 @@ class FilterSupportingComparaisonBackend(
             )
             if target_field_type not in RANGEABLE_TYPES:
                 return None
-            value = convert_type(query_params.get(param), target_field_type)
+            close_period = True
+            if param.endswith('__lt'):
+                close_period = False
+            elif param.endswith('__gte'):
+                close_period = False
+            value = convert_type(
+                query_params.get(param),
+                target_field_type,
+                close_period=close_period,
+            )
             if value is None:
                 return None
             return {param: value}
