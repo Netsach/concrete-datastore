@@ -20,6 +20,7 @@ from concrete_datastore.concrete.models import (
     Category,
     ItemPack,
     UniqueTogetherModel,
+    DateUtc,
 )
 from django.test import override_settings
 from concrete_datastore.api.v1.datetime import format_datetime
@@ -324,15 +325,16 @@ class FilterWithInvalidFields(APITestCase):
 @override_settings(DEBUG=True)
 class FilterDatesTestClass(APITestCase):
     def setUp(self):
-        self.user = User.objects.create_user(
-            'johndoe@netsach.org'
+        self.user = User.objects.create_superuser(
+            email='johndoe@netsach.org',
+            password='plop'
             # 'John',
             # 'Doe',
         )
-        self.user.set_password('plop')
+
         self.user.save()
         UserConfirmation.objects.create(user=self.user, confirmed=True).save()
-        url = '/api/v1.1/auth/login/'
+        url = '/api/v1/auth/login/'
         resp = self.client.post(
             url,
             {
@@ -342,151 +344,329 @@ class FilterDatesTestClass(APITestCase):
             },
         )
         self.token = resp.data['token']
-        self.date = pendulum.from_format("2017-10-28", 'YYYY-MM-DD')
-        url_date = '/api/v1.1/date-utc/'
+        self.date = pendulum.from_format("2022-2-22", 'YYYY-MM-DD')
+        url_date = '/api/v1/date-utc/'
         for i in range(10):
-            resp = self.client.post(
+            self.client.post(
                 url_date,
                 data={
                     "date": self.date.add(days=i).to_date_string(),
-                    "datetime": self.date.add(days=i).to_iso8601_string(),
+                    "datetime": self.date.add(days=i)
+                    .to_iso8601_string()
+                    .split('+')[0]
+                    + 'Z',
                 },
                 HTTP_AUTHORIZATION="Token {}".format(self.token),
             )
 
-    def test_datetime_two_formats_supported(self):
-        start_date = self.date.add(days=-1).to_date_string()
-        start_datetime = format_datetime(self.date.add(days=-1))
-        end_date = self.date.add(days=3).to_date_string()
-        end_datetime = format_datetime(self.date.add(days=3))
-
-        #: URL with datetime filters
-        url_date_time = (
-            '/api/v1.1/date-utc/?datetime__range='
-            f'{start_datetime},{end_datetime}'
+        self.date_utc1 = DateUtc.objects.create(
+            datetime="2022-02-23T14:00:00.5Z"
         )
 
-        resp = self.client.get(
-            url_date_time, HTTP_AUTHORIZATION="Token {}".format(self.token)
-        )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(resp.data['objects_count'], 4)
-
-        #: URL with exclude datetime filters
-        url_date_time = (
-            '/api/v1.1/date-utc/?datetime__range!='
-            f'{start_datetime},{end_datetime}'
+        self.date_utc2 = DateUtc.objects.create(
+            datetime="2022-02-24T08:45:10.55Z"
         )
 
-        resp = self.client.get(
-            url_date_time, HTTP_AUTHORIZATION="Token {}".format(self.token)
-        )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(resp.data['objects_count'], 5)
-
-        #: URL with date filters
-        url_date = (
-            f'/api/v1.1/date-utc/?datetime__range={start_date},{end_date}'
+        self.date_utc3 = DateUtc.objects.create(
+            datetime="2022-02-25T09:30:00Z"
         )
 
-        resp = self.client.get(
+        self.date_utc4 = DateUtc.objects.create(
+            datetime="2022-02-25T14:00:00.12345Z"
+        )
+
+        self.date_utc5 = DateUtc.objects.create(
+            datetime="2022-02-25T14:00:00.999999Z"
+        )
+
+        self.date_utc6 = DateUtc.objects.create(
+            datetime="2022-02-26T14:00:00Z"
+        )
+
+        self.date_utc7 = DateUtc.objects.create(
+            datetime="2022-02-26T14:00:03Z"
+        )
+
+    def tearDown(self):
+        pass
+
+    def test_filter_range_date(self):
+        """
+        Expected:
+        self.date_utc2
+        self.date_utc3
+        self.date_utc4
+        self.date_utc5
+        """
+        start_date = "2022-02-24"
+        end_date = "2022-02-25"
+
+        url_date = '/api/v1/date-utc/?datetime__range={},{}'.format(
+            start_date, end_date
+        )
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-    def test_wrong_date_range_values(self):
-        #: URL with wrong date values
-        url_date_time = (
-            '/api/v1.1/date-utc/?date__range=WRONG_FORMAT1,WRONG_FORMAT2'
-        )
+        self.assertEqual(len(results.json()['results']), 4)
+        # Recupere que le self.date_utc2 parce qu'il affiche 1 jour avant la date de fin
+        self.assertEqual(results.status_code, status.HTTP_200_OK)
 
-        resp = self.client.get(
-            url_date_time, HTTP_AUTHORIZATION="Token {}".format(self.token)
-        )
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertDictEqual(
-            resp.json(),
-            {
-                'message': "Wrong date format, should be 'yyyy-mm-dd'",
-                '_errors': ['INVALID_QUERY'],
-            },
-        )
+    def test_filter_range_datetime(self):
+        """
+        Expected:
+        self.date_utc3
+        """
+        start_date = "2022-02-25T08:50:00Z"
+        end_date = "2022-02-25T09:30:00Z"
 
-        #: URL with wrong datetime values
-        url_date_time = (
-            '/api/v1.1/date-utc/?datetime__range=WRONG_FORMAT1,WRONG_FORMAT2'
-        )
-
-        resp = self.client.get(
-            url_date_time, HTTP_AUTHORIZATION="Token {}".format(self.token)
-        )
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertDictEqual(
-            resp.json(),
-            {
-                'message': "Wrong date format, should be 'yyyy-mm-dd' or 'yyyy-mm-ddThh:mm:ss[.xxxxxx]Z'",
-                '_errors': ['INVALID_QUERY'],
-            },
-        )
-
-    def test_bad_formatted_range_values(self):
-        start_date = self.date.add(days=-1).to_date_string()
-        start_datetime = format_datetime(self.date.add(days=-1))
-        end_date = self.date.add(days=3).to_date_string()
-
-        #: URL with only one value
-        url_date_time = f'/api/v1.1/date-utc/?datetime__range={start_datetime}'
-
-        resp = self.client.get(
-            url_date_time, HTTP_AUTHORIZATION="Token {}".format(self.token)
-        )
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertDictEqual(
-            resp.json(),
-            {
-                "message": "A comma is expected in the value of the filter. Expected values are '<date1>,<date2>', '<date1>,' or ',<date2>'"
-            },
-        )
-
-        #: URL with 3 values (2 commas)
-        url_date = (
-            f'/api/v1.1/date-utc/?datetime__range={start_date},{end_date},'
-        )
-
-        resp = self.client.get(
-            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
-        )
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertDictEqual(
-            resp.json(),
-            {
-                "message": f'Only two comma-separated values are expected, got 3: [\'{start_date}\', \'{end_date}\', \'\']'
-            },
-        )
-
-    def test_filter_range_date_and_datetime_fields(self):
-        start_date = self.date.add(days=-1).to_date_string()
-        start_datetime = format_datetime(self.date.add(days=-1))
-        end_date = self.date.add(days=3).to_date_string()
-        end_datetime = format_datetime(self.date.add(days=3))
-        url_date = '/api/v1.1/date-utc/?date__range={},{}&datetime__range={},{}'.format(
-            start_date, end_date, start_datetime, end_datetime
+        url_date = '/api/v1/date-utc/?datetime__range={},{}'.format(
+            start_date, end_date
         )
         resp = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
+        results = resp.json()['results']
+        self.assertEqual(len(results), 1)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_filter_range_datetime_same_hour(self):
+        """
+        Expected:
+        self.date_utc4
+        self.date_utc5
+        """
+        start_datetime = "2022-02-25T14:00:00Z"
+        end_datetime = "2022-02-25T14:00:00Z"
+        url_date = '/api/v1/date-utc/?datetime__range={},{}'.format(
+            start_datetime, end_datetime
+        )
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        results = resp.json()['results']
+        self.assertEqual(len(results), 2)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_filter_gte_datetime(self):
+        """
+        Expected:
+        self.date_utc4
+        self.date_utc5
+        self.date_utc6
+        self.date_utc7
+        """
+        start_datetime = "2022-02-25T14:00:00Z"
+        url_date = '/api/v1/date-utc/?datetime__gte={}'.format(start_datetime)
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        results = resp.json()['results']
+        self.assertEqual(len(results), 4)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_filter_gte_datetime_microseconds(self):
+        """
+        Expected:
+        self.date_utc4
+        self.date_utc5
+        self.date_utc6
+        self.date_utc7
+        """
+
+        start_datetime = "2022-02-25T14:00:00.12345Z"
+        url_date = '/api/v1/date-utc/?datetime__gte={}'.format(start_datetime)
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        results = resp.json()['results']
+
+        self.assertEqual(len(results), 4)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_filter_gte_datetime_microseconds_2(self):
+        """
+        Expected:
+        self.date_utc5
+        self.date_utc6
+        self.date_utc7
+        """
+
+        start_datetime = "2022-02-25T14:00:00.999999Z"
+        url_date = '/api/v1/date-utc/?datetime__gte={}'.format(start_datetime)
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        results = resp.json()['results']
+        self.assertEqual(len(results), 3)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_filter_gt_datetime(self):
+        """
+        Expected:
+        self.date_utc6
+        self.date_utc7
+        """
+        start_datetime = "2022-02-25T14:00:00Z"
+        url_date = '/api/v1/date-utc/?datetime__gt={}'.format(start_datetime)
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        results = resp.json()['results']
+        self.assertEqual(len(results), 2)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_filter_gt_datetime_microseconds(self):
+        """
+        Expected:
+        self.date_utc5
+        self.date_utc6
+        self.date_utc7
+        """
+
+        start_datetime = "2022-02-25T14:00:00.12345Z"
+        url_date = '/api/v1/date-utc/?datetime__gt={}'.format(start_datetime)
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        results = resp.json()['results']
+        self.assertEqual(len(results), 3)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_filter_gt_datetime_microseconds_2(self):
+        """
+        Expected:
+        self.date_utc6
+        self.date_utc7
+        """
+
+        start_datetime = "2022-02-25T14:00:00.999999Z"
+        url_date = '/api/v1/date-utc/?datetime__gt={}'.format(start_datetime)
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        results = resp.json()['results']
+        self.assertEqual(len(results), 2)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_filter_lte_datetime(self):
+        """
+        Expected:
+        self.date_utc1
+        self.date_utc2
+        self.date_utc3
+        self.date_utc4
+        self.date_utc5
+        """
+
+        start_datetime = "2022-02-25T14:00:00Z"
+        url_date = '/api/v1/date-utc/?datetime__lte={}'.format(start_datetime)
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        results = resp.json()['results']
+        self.assertEqual(len(results), 5)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_filter_lte_datetime_microseconds(self):
+        """
+        Expected:
+        self.date_utc1
+        self.date_utc2
+        self.date_utc3
+        self.date_utc4
+        """
+
+        datetime = "2022-02-25T14:00:00.12345Z"
+        url_date = '/api/v1/date-utc/?datetime__lte={}'.format(datetime)
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        results = resp.json()['results']
+        self.assertEqual(len(results), 4)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_filter_lte_datetime_microseconds_2(self):
+        """
+        Expected:
+        self.date_utc1
+        self.date_utc2
+        self.date_utc3
+        self.date_utc4
+        self.date_utc5
+        """
+
+        datetime = "2022-02-25T14:00:00.999999Z"
+        url_date = '/api/v1/date-utc/?datetime__lte={}'.format(datetime)
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        results = resp.json()['results']
+        self.assertEqual(len(results), 5)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_filter_lt_datetime(self):
+        """
+        Expected:
+        self.date_utc1
+        self.date_utc2
+        self.date_utc3
+        """
+
+        start_datetime = "2022-02-25T14:00:00Z"
+        url_date = '/api/v1/date-utc/?datetime__lt={}'.format(start_datetime)
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        results = resp.json()['results']
+        self.assertEqual(len(results), 3)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_filter_lt_datetime_microseconds(self):
+        """
+        Expected:
+        self.date_utc1
+        self.date_utc2
+        self.date_utc3
+        self.date_utc4
+        """
+
+        start_datetime = "2022-02-25T14:00:00.999999Z"
+        url_date = '/api/v1/date-utc/?datetime__lt={}'.format(start_datetime)
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        results = resp.json()['results']
+        self.assertEqual(len(results), 4)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_filter_lt_datetime_microseconds_2(self):
+        """
+        Expected:
+        self.date_utc1
+        self.date_utc2
+        self.date_utc3
+        """
+
+        start_datetime = "2022-02-25T14:00:00.12345Z"
+        url_date = '/api/v1/date-utc/?datetime__lt={}'.format(start_datetime)
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        results = resp.json()['results']
+        self.assertEqual(len(results), 3)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_filter_range_date_with_empty_limits(self):
         start_date = self.date.add(days=-1).to_date_string()
-        url_date = '/api/v1.1/date-utc/?date__range={},'.format(start_date)
+        url_date = '/api/v1/date-utc/?date__range={},'.format(start_date)
         resp = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
         end_date = self.date.add(days=3).to_date_string()
-        url_date = '/api/v1.1/date-utc/?date__range=,{}'.format(end_date)
+        url_date = '/api/v1/date-utc/?date__range=,{}'.format(end_date)
         resp = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
@@ -495,18 +675,11 @@ class FilterDatesTestClass(APITestCase):
     def test_filter_date_worng_format(self):
         # FORMAT USED: YYYY/MM/DD
         start_date = self.date.add(days=-1).to_date_string().replace('-', '/')
-        url_date = '/api/v1.1/date-utc/?date__range={},'.format(start_date)
+        url_date = '/api/v1/date-utc/?date__range={},'.format(start_date)
         resp = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_filter_range_date_with_empty_values(self):
-        url_date = '/api/v1.1/date-utc/?date__range=,'
-        resp = self.client.get(
-            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
-        )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
 
 @override_settings(DEBUG=True)
