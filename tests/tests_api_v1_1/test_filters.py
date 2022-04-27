@@ -359,33 +359,75 @@ class FilterDatesTestClass(APITestCase):
                 HTTP_AUTHORIZATION="Token {}".format(self.token),
             )
 
-        self.date_utc1 = DateUtc.objects.create(
-            datetime="2022-02-23T14:00:00.5Z"
+        resp1 = self.client.post(
+            url_date,
+            data={
+                "date": self.date.add(days=i).to_date_string(),
+                "datetime": "2022-02-23T14:00:00.5Z",
+            },
+            HTTP_AUTHORIZATION="Token {}".format(self.token),
         )
+        self.date_utc1_pk = resp1.data['uid']
 
-        self.date_utc2 = DateUtc.objects.create(
-            datetime="2022-02-24T08:45:10.55Z"
+        resp2 = self.client.post(
+            url_date,
+            data={
+                "date": self.date.add(days=i).to_date_string(),
+                "datetime": "2022-02-24T08:45:10.55Z",
+            },
+            HTTP_AUTHORIZATION="Token {}".format(self.token),
         )
+        self.date_utc2_pk = resp2.data['uid']
 
-        self.date_utc3 = DateUtc.objects.create(
-            datetime="2022-02-25T09:30:00Z"
+        resp3 = self.client.post(
+            url_date,
+            data={
+                "date": self.date.add(days=i).to_date_string(),
+                "datetime": "2022-02-25T09:30:00Z",
+            },
+            HTTP_AUTHORIZATION="Token {}".format(self.token),
         )
+        self.date_utc3_pk = resp3.data['uid']
 
-        self.date_utc4 = DateUtc.objects.create(
-            datetime="2022-02-25T14:00:00.12345Z"
+        resp4 = self.client.post(
+            url_date,
+            data={
+                "date": self.date.add(days=i).to_date_string(),
+                "datetime": "2022-02-25T14:00:00.12345Z",
+            },
+            HTTP_AUTHORIZATION="Token {}".format(self.token),
         )
+        self.date_utc4_pk = resp4.data['uid']
 
-        self.date_utc5 = DateUtc.objects.create(
-            datetime="2022-02-25T14:00:00.999999Z"
+        resp5 = self.client.post(
+            url_date,
+            data={
+                "date": self.date.add(days=i).to_date_string(),
+                "datetime": "2022-02-25T14:00:00.999999Z",
+            },
+            HTTP_AUTHORIZATION="Token {}".format(self.token),
         )
+        self.date_utc5_pk = resp5.data['uid']
 
-        self.date_utc6 = DateUtc.objects.create(
-            datetime="2022-02-26T14:00:00Z"
+        resp6 = self.client.post(
+            url_date,
+            data={
+                "date": self.date.add(days=i).to_date_string(),
+                "datetime": "2022-02-26T14:00:00Z",
+            },
+            HTTP_AUTHORIZATION="Token {}".format(self.token),
         )
+        self.date_utc6_pk = resp6.data['uid']
 
-        self.date_utc7 = DateUtc.objects.create(
-            datetime="2022-02-26T14:00:03Z"
+        resp7 = self.client.post(
+            url_date,
+            data={
+                "date": self.date.add(days=i).to_date_string(),
+                "datetime": "2022-02-26T14:00:03Z",
+            },
+            HTTP_AUTHORIZATION="Token {}".format(self.token),
         )
+        self.date_utc7_pk = resp7.data['uid']
 
     def tearDown(self):
         pass
@@ -407,10 +449,21 @@ class FilterDatesTestClass(APITestCase):
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-
-        self.assertEqual(len(results.json()['results']), 4)
-        # Recupere que le self.date_utc2 parce qu'il affiche 1 jour avant la date de fin
         self.assertEqual(results.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(results.data['results']), 4)
+        pks_set = set([result['uid'] for result in results.data['results']])
+        self.assertSetEqual(
+            pks_set,
+            {
+                self.date_utc2_pk,
+                self.date_utc3_pk,
+                self.date_utc4_pk,
+                self.date_utc5_pk,
+            },
+        )
+
+        # Recupere que le self.date_utc2 parce qu'il affiche 1 jour avant la date de fin
 
     def test_filter_range_datetime(self):
         """
@@ -423,12 +476,18 @@ class FilterDatesTestClass(APITestCase):
         url_date = '/api/v1/date-utc/?datetime__range={},{}'.format(
             start_date, end_date
         )
-        resp = self.client.get(
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        results = resp.json()['results']
-        self.assertEqual(len(results), 1)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(results.status_code, status.HTTP_200_OK)
+        pks_set = set([result['uid'] for result in results.data['results']])
+
+        self.assertEqual(len(results.data['results']), 1)
+
+        self.assertSetEqual(
+            pks_set,
+            {self.date_utc3_pk},
+        )
 
     def test_filter_range_datetime_same_hour(self):
         """
@@ -441,12 +500,22 @@ class FilterDatesTestClass(APITestCase):
         url_date = '/api/v1/date-utc/?datetime__range={},{}'.format(
             start_datetime, end_datetime
         )
-        resp = self.client.get(
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        results = resp.json()['results']
-        self.assertEqual(len(results), 2)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(results.data['results']), 2)
+
+        pks_set = set([result['uid'] for result in results.data['results']])
+
+        self.assertSetEqual(
+            pks_set,
+            {
+                self.date_utc4_pk,
+                self.date_utc5_pk,
+            },
+        )
+
+        self.assertEqual(results.status_code, status.HTTP_200_OK)
 
     def test_filter_gte_datetime(self):
         """
@@ -458,12 +527,24 @@ class FilterDatesTestClass(APITestCase):
         """
         start_datetime = "2022-02-25T14:00:00Z"
         url_date = '/api/v1/date-utc/?datetime__gte={}'.format(start_datetime)
-        resp = self.client.get(
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        results = resp.json()['results']
-        self.assertEqual(len(results), 4)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        pks_set = set([result['uid'] for result in results.data['results']])
+
+        self.assertEqual(results.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(results.data['results']), 4)
+
+        self.assertSetEqual(
+            pks_set,
+            {
+                self.date_utc4_pk,
+                self.date_utc5_pk,
+                self.date_utc6_pk,
+                self.date_utc7_pk,
+            },
+        )
 
     def test_filter_gte_datetime_microseconds(self):
         """
@@ -476,13 +557,25 @@ class FilterDatesTestClass(APITestCase):
 
         start_datetime = "2022-02-25T14:00:00.12345Z"
         url_date = '/api/v1/date-utc/?datetime__gte={}'.format(start_datetime)
-        resp = self.client.get(
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        results = resp.json()['results']
 
-        self.assertEqual(len(results), 4)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        pks_set = set([result['uid'] for result in results.data['results']])
+
+        self.assertEqual(results.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(results.data['results']), 4)
+
+        self.assertSetEqual(
+            pks_set,
+            {
+                self.date_utc4_pk,
+                self.date_utc5_pk,
+                self.date_utc6_pk,
+                self.date_utc7_pk,
+            },
+        )
 
     def test_filter_gte_datetime_microseconds_2(self):
         """
@@ -494,12 +587,23 @@ class FilterDatesTestClass(APITestCase):
 
         start_datetime = "2022-02-25T14:00:00.999999Z"
         url_date = '/api/v1/date-utc/?datetime__gte={}'.format(start_datetime)
-        resp = self.client.get(
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        results = resp.json()['results']
-        self.assertEqual(len(results), 3)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        pks_set = set([result['uid'] for result in results.data['results']])
+
+        self.assertEqual(results.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(results.data['results']), 3)
+
+        self.assertSetEqual(
+            pks_set,
+            {
+                self.date_utc5_pk,
+                self.date_utc6_pk,
+                self.date_utc7_pk,
+            },
+        )
 
     def test_filter_gt_datetime(self):
         """
@@ -509,12 +613,22 @@ class FilterDatesTestClass(APITestCase):
         """
         start_datetime = "2022-02-25T14:00:00Z"
         url_date = '/api/v1/date-utc/?datetime__gt={}'.format(start_datetime)
-        resp = self.client.get(
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        results = resp.json()['results']
-        self.assertEqual(len(results), 2)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        pks_set = set([result['uid'] for result in results.data['results']])
+
+        self.assertEqual(results.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(results.data['results']), 2)
+
+        self.assertSetEqual(
+            pks_set,
+            {
+                self.date_utc6_pk,
+                self.date_utc7_pk,
+            },
+        )
 
     def test_filter_gt_datetime_microseconds(self):
         """
@@ -526,12 +640,23 @@ class FilterDatesTestClass(APITestCase):
 
         start_datetime = "2022-02-25T14:00:00.12345Z"
         url_date = '/api/v1/date-utc/?datetime__gt={}'.format(start_datetime)
-        resp = self.client.get(
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        results = resp.json()['results']
-        self.assertEqual(len(results), 3)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        pks_set = set([result['uid'] for result in results.data['results']])
+
+        self.assertEqual(results.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(results.data['results']), 3)
+
+        self.assertSetEqual(
+            pks_set,
+            {
+                self.date_utc5_pk,
+                self.date_utc6_pk,
+                self.date_utc7_pk,
+            },
+        )
 
     def test_filter_gt_datetime_microseconds_2(self):
         """
@@ -542,12 +667,23 @@ class FilterDatesTestClass(APITestCase):
 
         start_datetime = "2022-02-25T14:00:00.999999Z"
         url_date = '/api/v1/date-utc/?datetime__gt={}'.format(start_datetime)
-        resp = self.client.get(
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        results = resp.json()['results']
-        self.assertEqual(len(results), 2)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        pks_set = set([result['uid'] for result in results.data['results']])
+
+        self.assertEqual(results.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(results.data['results']), 2)
+
+        self.assertSetEqual(
+            pks_set,
+            {
+                self.date_utc6_pk,
+                self.date_utc7_pk,
+            },
+        )
 
     def test_filter_lte_datetime(self):
         """
@@ -561,12 +697,25 @@ class FilterDatesTestClass(APITestCase):
 
         start_datetime = "2022-02-25T14:00:00Z"
         url_date = '/api/v1/date-utc/?datetime__lte={}'.format(start_datetime)
-        resp = self.client.get(
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        results = resp.json()['results']
-        self.assertEqual(len(results), 5)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        pks_set = set([result['uid'] for result in results.data['results']])
+
+        self.assertEqual(results.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(results.data['results']), 5)
+
+        self.assertSetEqual(
+            pks_set,
+            {
+                self.date_utc1_pk,
+                self.date_utc2_pk,
+                self.date_utc3_pk,
+                self.date_utc4_pk,
+                self.date_utc5_pk,
+            },
+        )
 
     def test_filter_lte_datetime_microseconds(self):
         """
@@ -579,12 +728,23 @@ class FilterDatesTestClass(APITestCase):
 
         datetime = "2022-02-25T14:00:00.12345Z"
         url_date = '/api/v1/date-utc/?datetime__lte={}'.format(datetime)
-        resp = self.client.get(
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        results = resp.json()['results']
-        self.assertEqual(len(results), 4)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        pks_set = set([result['uid'] for result in results.data['results']])
+
+        self.assertEqual(results.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(results.data['results']), 4)
+        self.assertSetEqual(
+            pks_set,
+            {
+                self.date_utc1_pk,
+                self.date_utc2_pk,
+                self.date_utc3_pk,
+                self.date_utc4_pk,
+            },
+        )
 
     def test_filter_lte_datetime_microseconds_2(self):
         """
@@ -598,12 +758,24 @@ class FilterDatesTestClass(APITestCase):
 
         datetime = "2022-02-25T14:00:00.999999Z"
         url_date = '/api/v1/date-utc/?datetime__lte={}'.format(datetime)
-        resp = self.client.get(
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        results = resp.json()['results']
-        self.assertEqual(len(results), 5)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        pks_set = set([result['uid'] for result in results.data['results']])
+        self.assertEqual(results.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(results.data['results']), 5)
+
+        self.assertSetEqual(
+            pks_set,
+            {
+                self.date_utc1_pk,
+                self.date_utc2_pk,
+                self.date_utc3_pk,
+                self.date_utc4_pk,
+                self.date_utc5_pk,
+            },
+        )
 
     def test_filter_lt_datetime(self):
         """
@@ -615,12 +787,11 @@ class FilterDatesTestClass(APITestCase):
 
         start_datetime = "2022-02-25T14:00:00Z"
         url_date = '/api/v1/date-utc/?datetime__lt={}'.format(start_datetime)
-        resp = self.client.get(
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        results = resp.json()['results']
-        self.assertEqual(len(results), 3)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(results.data['results']), 3)
+        self.assertEqual(results.status_code, status.HTTP_200_OK)
 
     def test_filter_lt_datetime_microseconds(self):
         """
@@ -633,12 +804,23 @@ class FilterDatesTestClass(APITestCase):
 
         start_datetime = "2022-02-25T14:00:00.999999Z"
         url_date = '/api/v1/date-utc/?datetime__lt={}'.format(start_datetime)
-        resp = self.client.get(
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        results = resp.json()['results']
-        self.assertEqual(len(results), 4)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        pks_set = set([result['uid'] for result in results.data['results']])
+        self.assertEqual(results.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(results.data['results']), 4)
+
+        self.assertSetEqual(
+            pks_set,
+            {
+                self.date_utc1_pk,
+                self.date_utc2_pk,
+                self.date_utc3_pk,
+                self.date_utc4_pk,
+            },
+        )
 
     def test_filter_lt_datetime_microseconds_2(self):
         """
@@ -650,36 +832,46 @@ class FilterDatesTestClass(APITestCase):
 
         start_datetime = "2022-02-25T14:00:00.12345Z"
         url_date = '/api/v1/date-utc/?datetime__lt={}'.format(start_datetime)
-        resp = self.client.get(
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        results = resp.json()['results']
-        self.assertEqual(len(results), 3)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        pks_set = set([result['uid'] for result in results.data['results']])
+        self.assertEqual(results.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(results.data['results']), 3)
+
+        self.assertSetEqual(
+            pks_set,
+            {
+                self.date_utc1_pk,
+                self.date_utc2_pk,
+                self.date_utc3_pk,
+            },
+        )
 
     def test_filter_range_date_with_empty_limits(self):
         start_date = self.date.add(days=-1).to_date_string()
         url_date = '/api/v1/date-utc/?date__range={},'.format(start_date)
-        resp = self.client.get(
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(results.status_code, status.HTTP_200_OK)
 
         end_date = self.date.add(days=3).to_date_string()
         url_date = '/api/v1/date-utc/?date__range=,{}'.format(end_date)
-        resp = self.client.get(
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(results.status_code, status.HTTP_200_OK)
 
     def test_filter_date_worng_format(self):
         # FORMAT USED: YYYY/MM/DD
         start_date = self.date.add(days=-1).to_date_string().replace('-', '/')
         url_date = '/api/v1/date-utc/?date__range={},'.format(start_date)
-        resp = self.client.get(
+        results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(results.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 @override_settings(DEBUG=True)

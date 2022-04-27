@@ -920,9 +920,7 @@ class FilterSupportingComparaisonBackend(
             if target_field_type not in RANGEABLE_TYPES:
                 return None
             close_period = True
-            if param.endswith('__lt'):
-                close_period = False
-            elif param.endswith('__gte'):
+            if param.endswith('__lt') or param.endswith('__gte'):
                 close_period = False
             value = convert_type(
                 query_params.get(param),
