@@ -1857,9 +1857,17 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         for query_param in request.GET:
             param_values_list = request.GET[query_param].split(',')
             param = self._get_bare_field_name(query_param)
-            if param not in self.fields:
+            if param not in self.fields + [
+                'uid',
+                'creation_date',
+                'modification_date',
+            ]:
                 continue
-            if param not in self.filterset_fields:
+            if param not in self.filterset_fields + (
+                'uid',
+                'creation_date',
+                'modification_date',
+            ):
                 return Response(
                     data={
                         'message': 'filter against {} is not allowed'.format(

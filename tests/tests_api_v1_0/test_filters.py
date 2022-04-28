@@ -853,14 +853,67 @@ class FilterDatesTestClass(APITestCase):
             },
         )
 
-    def test_filter_date_worng_format(self):
+    def test_filter_wrong_format_on_creation_date(self):
+        """
+        Expected:
+        self.date_utc3
+        self.date_utc4
+        self.date_utc5
+        self.date_utc6
+        self.date_utc7
+        """
+
+        start_datetime = "2022-02-25A"
+
+        url_date = '/api/v1/date-utc/?modification_date__gt={}'.format(
+            start_datetime
+        )
+        results = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(results.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            results.data['message'],
+            "Wrong date format, should be 'yyyy-mm-dd' or 'yyyy-mm-ddThh:mm:ss[.xxxxxx]Z'",
+        )
+
+    def test_filter_wrong_format_on_modification_date(self):
+        """
+        Expected:
+        self.date_utc3
+        self.date_utc4
+        self.date_utc5
+        self.date_utc6
+        self.date_utc7
+        """
+
+        start_datetime = "2022-02-25:14:00:12a"
+
+        url_date = '/api/v1/date-utc/?modification_date__gt={}'.format(
+            start_datetime
+        )
+        results = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(results.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            results.data['message'],
+            "Wrong date format, should be 'yyyy-mm-dd' or 'yyyy-mm-ddThh:mm:ss[.xxxxxx]Z'",
+        )
+
+    def test_filter_wrong_date_format(self):
         # FORMAT USED: YYYY/MM/DD
         start_date = self.date.add(days=-1).to_date_string().replace('-', '/')
         url_date = '/api/v1/date-utc/?date__range={},'.format(start_date)
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
+        print(results.data)
         self.assertEqual(results.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            results.data['message'],
+            "Wrong date format, should be 'yyyy-mm-dd'",
+        )
 
 
 @override_settings(DEBUG=True)
@@ -917,80 +970,6 @@ class FilterDividedModelByDivider(APITestCase):
 
         # User get only projects from cloisonY
         url_filter = '/api/v1.1/project/?{}={}'.format(
-            DIVIDER_MODEL.lower(), str(self.cloisonY.uid)
-        )
-        resp = self.client.get(
-            url_filter, HTTP_AUTHORIZATION='Token {}'.format(self.token_a)
-        )
-        self.assertEqual(
-            resp.status_code, status.HTTP_200_OK, msg=resp.content
-        )
-        results = resp.json()['results']
-
-        self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]['name'], "projet B")
-
-        # User get two projects without filter
-        resp = self.client.get(
-            url_projects, HTTP_AUTHORIZATION='Token {}'.format(self.token_a)
-        )
-        self.assertEqual(len(resp.json()['results']), 2)
-
-
-@override_settings(DEBUG=True)
-class FilterDividedModelByDivider(APITestCase):
-    def setUp(self):
-
-        # USER A
-        self.user1 = User.objects.create_user('usera@netsach.org')
-        self.user1.set_password('plop')
-        self.user1.save()
-        self.confirmation = UserConfirmation.objects.create(user=self.user1)
-        self.confirmation.confirmed = True
-        self.confirmation.save()
-        url = '/api/v1/auth/login/'
-        resp = self.client.post(
-            url, {"email": "usera@netsach.org", "password": "plop"}
-        )
-        self.token_a = resp.data['token']
-
-        self.cloisonX = DefaultDivider.objects.create(name="TEST1")
-
-        self.cloisonY = DefaultDivider.objects.create(name="TEST2")
-
-        self.proj_a = Project.objects.create(
-            name="projet A",
-            description="tutu",
-            defaultdivider=self.cloisonX,
-            public=True,
-        )
-
-        self.proj_b = Project.objects.create(
-            name="projet B",
-            description="toto",
-            defaultdivider=self.cloisonY,
-            public=True,
-        )
-
-    def test_filter_objects_by_divider(self):
-        url_projects = '/api/v1/project/'
-        # User get only projects from cloisonX
-        url_filter = '/api/v1/project/?{}={}'.format(
-            DIVIDER_MODEL.lower(), str(self.cloisonX.uid)
-        )
-        resp = self.client.get(
-            url_filter, HTTP_AUTHORIZATION='Token {}'.format(self.token_a)
-        )
-        self.assertEqual(
-            resp.status_code, status.HTTP_200_OK, msg=resp.content
-        )
-        results = resp.json()['results']
-
-        self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]['name'], "projet A")
-
-        # User get only projects from cloisonY
-        url_filter = '/api/v1/project/?{}={}'.format(
             DIVIDER_MODEL.lower(), str(self.cloisonY.uid)
         )
         resp = self.client.get(

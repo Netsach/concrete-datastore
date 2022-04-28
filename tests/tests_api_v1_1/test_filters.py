@@ -882,14 +882,67 @@ class FilterDatesTestClass(APITestCase):
             },
         )
 
-    def test_filter_date_wrong_format(self):
+    def test_filter_wrong_format_on_creation_date(self):
+        """
+        Expected:
+        self.date_utc3
+        self.date_utc4
+        self.date_utc5
+        self.date_utc6
+        self.date_utc7
+        """
+
+        start_datetime = "2022-02-25A"
+
+        url_date = '/api/v1/date-utc/?modification_date__gt={}'.format(
+            start_datetime
+        )
+        results = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(results.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            results.data['message'],
+            "Wrong date format, should be 'yyyy-mm-dd' or 'yyyy-mm-ddThh:mm:ss[.xxxxxx]Z'",
+        )
+
+    def test_filter_wrong_format_on_modification_date(self):
+        """
+        Expected:
+        self.date_utc3
+        self.date_utc4
+        self.date_utc5
+        self.date_utc6
+        self.date_utc7
+        """
+
+        start_datetime = "2022-02-25:14:00:12a"
+
+        url_date = '/api/v1/date-utc/?modification_date__gt={}'.format(
+            start_datetime
+        )
+        results = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(results.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            results.data['message'],
+            "Wrong date format, should be 'yyyy-mm-dd' or 'yyyy-mm-ddThh:mm:ss[.xxxxxx]Z'",
+        )
+
+    def test_filter_wrong_date_format(self):
         # FORMAT USED: YYYY/MM/DD
         start_date = self.date.add(days=-1).to_date_string().replace('-', '/')
         url_date = '/api/v1/date-utc/?date__range={},'.format(start_date)
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
+        print(results.data)
         self.assertEqual(results.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            results.data['message'],
+            "Wrong date format, should be 'yyyy-mm-dd'",
+        )
 
 
 @override_settings(DEBUG=True)
