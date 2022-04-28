@@ -59,7 +59,7 @@ class CRUDTestCase(APITestCase):
             resp.status_code, status.HTTP_201_CREATED, msg=resp.content
         )
         url_create_date = resp.data['datetime']
-        self.assertEqual(url_create_date, "2018-05-07T12:44:29Z")
+        self.assertEqual(url_create_date, "2018-05-07T12:44:29.000000Z")
 
     @override_settings(TIME_ZONE='Europe/Paris', USE_TZ=False)
     def test_utc_tz_false(self):
