@@ -820,20 +820,38 @@ class FilterDatesTestClass(APITestCase):
             },
         )
 
-    def test_filter_range_date_with_empty_limits(self):
-        start_date = self.date.add(days=-1).to_date_string()
-        url_date = '/api/v1/date-utc/?date__range={},'.format(start_date)
+    def test_filter_range_date_without_limits(self):
+        """
+        Expected:
+        self.date_utc3
+        self.date_utc4
+        self.date_utc5
+        self.date_utc6
+        self.date_utc7
+        """
+
+        start_datetime = "2022-02-25"
+        url_date = '/api/v1/date-utc/?date__range={},'.format(start_datetime)
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
+
+        pks_set = set([result['uid'] for result in results.data['results']])
+
         self.assertEqual(results.status_code, status.HTTP_200_OK)
 
-        end_date = self.date.add(days=3).to_date_string()
-        url_date = '/api/v1/date-utc/?date__range=,{}'.format(end_date)
-        results = self.client.get(
-            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        self.assertEqual(len(results.data['results']), 5)
+
+        self.assertSetEqual(
+            pks_set,
+            {
+                self.date_utc3_pk,
+                self.date_utc4_pk,
+                self.date_utc5_pk,
+                self.date_utc6_pk,
+                self.date_utc7_pk,
+            },
         )
-        self.assertEqual(results.status_code, status.HTTP_200_OK)
 
     def test_filter_date_worng_format(self):
         # FORMAT USED: YYYY/MM/DD
