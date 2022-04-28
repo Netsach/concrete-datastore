@@ -1812,8 +1812,9 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
             date_format = 'yyyy-mm-dd'
             date_regex = r'^\d{4}-\d{2}-\d{2}$'
             date_time_format = 'yyyy-mm-ddThh:mm:ss[.xxxxxx]Z'
-            date_time_regex = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?Z$'
-
+            date_time_regex = (
+                r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?Z$'
+            )
 
             for param in param_values:
                 if param == '':
