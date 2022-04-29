@@ -1858,13 +1858,11 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
             param_values_list = request.GET[query_param].split(',')
             param = self._get_bare_field_name(query_param)
             if param not in self.fields + [
-                'uid',
                 'creation_date',
                 'modification_date',
             ]:
                 continue
             if param not in self.filterset_fields + (
-                'uid',
                 'creation_date',
                 'modification_date',
             ):
