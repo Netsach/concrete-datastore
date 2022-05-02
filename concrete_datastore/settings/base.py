@@ -206,7 +206,7 @@ DEFAULT_PAGE_SIZE = 250
 # DRF
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'concrete_datastore.interfaces.openapi_schema_generator.AutoSchema',
-    'DATETIME_FORMAT': "%Y-%m-%dT%H:%M:%SZ",
+    'DATETIME_FORMAT': "%Y-%m-%dT%H:%M:%S.%fZ",
     'COERCE_DECIMAL_TO_STRING': False,
     'PAGE_SIZE': DEFAULT_PAGE_SIZE,
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -295,6 +295,14 @@ LOGGING = {
             'class': 'logging.handlers.WatchedFileHandler',
             'filename': get_log_path('auth.log'),
         },
+        'celery_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': get_log_path('celery_scheduling.log'),
+            'when': 'd',
+            'interval': 1,
+            'backupCount': 1,
+        },
     },
     'loggers': {
         '': {
@@ -323,7 +331,7 @@ LOGGING = {
             'level': 'WARNING',
         },
         'celery.app.trace': {
-            'handlers': ['console', 'stream'],
+            'handlers': ['celery_file'],
             'propagate': False,
             'level': 'INFO',
         },
