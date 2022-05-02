@@ -206,7 +206,7 @@ DEFAULT_PAGE_SIZE = 250
 # DRF
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'concrete_datastore.interfaces.openapi_schema_generator.AutoSchema',
-    'DATETIME_FORMAT': "%Y-%m-%dT%H:%M:%SZ",
+    'DATETIME_FORMAT': "%Y-%m-%dT%H:%M:%S.%fZ",
     'COERCE_DECIMAL_TO_STRING': False,
     'PAGE_SIZE': DEFAULT_PAGE_SIZE,
     'DEFAULT_AUTHENTICATION_CLASSES': (

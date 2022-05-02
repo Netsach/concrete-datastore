@@ -944,6 +944,14 @@ class FilterDatesTestClass(APITestCase):
             "Wrong date format, should be 'yyyy-mm-dd'",
         )
 
+    def test_filter_7_occurences_microseconds(self):
+        start_datetime = "2022-02-25T14:00:00.1234568Z"
+        url_date = '/api/v1/date-utc/?datetime__lt={}'.format(start_datetime)
+        results = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(results.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 @override_settings(DEBUG=True)
 class FilterDividedModelByDivider(APITestCase):
