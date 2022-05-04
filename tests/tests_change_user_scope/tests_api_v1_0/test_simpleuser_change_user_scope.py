@@ -30,7 +30,7 @@ class SimpleUserChangeScopesTestCase(APITestCase):
         self.staff.save()
         UserConfirmation.objects.create(user=self.staff, confirmed=True).save()
 
-        url = '/api/v1.1/auth/login/'
+        url = '/api/v1/auth/login/'
         resp = self.client.post(
             url, {"email": "simpleuser@netsach.org", "password": "plop"}
         )
@@ -60,7 +60,7 @@ class SimpleUserChangeScopesTestCase(APITestCase):
         self.simpleuser2.defaultdividers.add(self.divider_2)
 
     def test_simpleuser_add_scopes(self):
-        url_user = '/api/v1.1/user/{}/'
+        url_user = '/api/v1/user/{}/'
         # Change anything on a user is impossible except himself (fields)
         self.assertEqual(self.staff.defaultdividers.count(), 1)
         resp = self.client.patch(
@@ -88,7 +88,7 @@ class SimpleUserChangeScopesTestCase(APITestCase):
         self.simpleuser2.save()
         self.simple_user.save()
 
-        url_user = '/api/v1.1/user/{}/'
+        url_user = '/api/v1/user/{}/'
 
         # Change data of other users is forbidden
         self.assertEqual(self.simpleuser2.defaultdividers.count(), 1)
@@ -113,6 +113,19 @@ class SimpleUserChangeScopesTestCase(APITestCase):
         self.assertEqual(self.simple_user.defaultdividers.count(), 3)
         resp = self.client.patch(
             url_user.format(self.simple_user.uid),
+            data={
+                "first_name": "NewFirstNameSimpleU",
+                "last_name": "NewLastNameSimpleU",
+            },
+            HTTP_AUTHORIZATION="Token {}".format(self.token),
+        )
+        self.simple_user.refresh_from_db()
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+
+        #: Change only data of himself
+        self.assertEqual(self.simple_user.defaultdividers.count(), 3)
+        resp = self.client.patch(
+            '/api/v1/account/me/',
             data={
                 "first_name": "NewFirstNameSimpleU",
                 "last_name": "NewLastNameSimpleU",

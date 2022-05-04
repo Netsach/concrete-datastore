@@ -50,26 +50,13 @@ class FixBug79Test(TestCase):
         client = Client(HTTP_AUTHORIZATION='Token {}'.format(token))
         response = client.get('/api/v{}/user/'.format(api_version))
 
-        self.assertEqual(response.status_code, 200)
-
-        users = response.json()
-
-        # Ensure user is accessible via /api/vX.Y/user/
-        if is_public:
-            self.assertEqual(len(users['results']), 1)
-        else:
-            self.assertEqual(len(users['results']), 0)
+        # This test is obsolete. Any action on /user/
+        # by a simpleuser is forbidden
+        self.assertEqual(response.status_code, 403)
 
         response = client.patch(
             user_url,
             json.dumps({'last_name': 'balek'}),
             content_type='application/json',
         )
-
-        if is_public:
-            self.assertEqual(response.status_code, 200)
-
-            user.refresh_from_db()
-            self.assertEqual(user.last_name, 'balek')
-        else:
-            self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)

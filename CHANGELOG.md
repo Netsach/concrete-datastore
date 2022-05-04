@@ -4,12 +4,7 @@
 
 ### Added
 
-- Add possibility to filter against keys of JSON fields
-- Add exclude filters within the API
-
-### Changed
-
-- The distance filters now support the lookups `__distance_lte`, `__distance_lt`, `__distance_gte`, `__distance_gt`, `__distance_range`, `__distance_range!`. The bare `__distance` is no more supported
+- nothing added
 
 ### Changed
 
@@ -18,6 +13,58 @@
 ### Removed
 
 - nothing removed
+
+## [1.41.0] - 2022-02-21
+
+### Changed
+
+- When throttling enabled, check if the user making the request is either an AnonymousUser or an AbstractUser
+
+## [1.40.2] - 2022-02-16
+
+## [1.40.1] - 2022-02-16
+
+### Changed
+
+- Update the links within the documentation
+
+## [1.40.0] - 2022-02-11
+
+### Changed
+
+- Changed default permissions for entrypoint `/user/*` (`request.user` should be at least manager), always allow "at least authenticated" user to access `/account/me/`
+
+## [1.39.0] - 2022-02-10
+
+### Added
+
+- Add possibility for register backends in order to run custom functionnalities before/after creating a user by register endpoint
+
+## [1.38.0] - 2022-02-08
+
+### Added
+
+- Add entrypoint to serve datamodel (json and yaml)
+- Allow anonymous creation on Concrete instances with throttling conditions
+- Add settings to configure the path for OpenAPI schema and the Swagger interface
+- Allow sending emails asynchronously with celery
+
+### Changed
+
+- Remove nested foreign keys from open api schema for methods POST PUT and PATCH
+- Rename unittests from `tests_` to `test_`
+- sets extra fields: Check that the field is in fields before checking the type
+
+## [1.37.0] - 2022-02-03
+
+### Added
+
+- Add possibility to filter against keys of JSON fields
+- Add exclude filters within the API
+
+### Changed
+
+- The distance filters now support the lookups `__distance_lte`, `__distance_lt`, `__distance_gte`, `__distance_gt`, `__distance_range`, `__distance_range!`. The bare `__distance` is no more supported
 
 ## [1.36.0] - 2021-12-09
 
