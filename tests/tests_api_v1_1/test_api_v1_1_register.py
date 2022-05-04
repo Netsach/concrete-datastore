@@ -529,3 +529,31 @@ class RegisterTestCaseEmailFilter(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['NOT_ENOUGH_CHARS'])
+
+
+@override_settings(DEBUG=True, ENABLE_USERS_SELF_REGISTER=False)
+class RegisterTestCaseEnableUsersSelf(APITestCase):
+    def setUp(self):
+        pass
+
+    def test_register(self):
+
+        url = '/api/v1.1/auth/register/'
+
+        # POST informations to register a new user
+
+        # POST correct informations
+        email = "johndoe@netsach.org"
+        resp = self.client.post(
+            url,
+            {
+                "email": email,
+                "password1": "mypassword",
+                "password2": "mypassword",
+            },
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.data['message'], 'Self register is not allowed')
+        self.assertEqual(
+            resp.data['_errors'], ['NOT_ALLOWED_TO_SELF_REGISTER']
+        )

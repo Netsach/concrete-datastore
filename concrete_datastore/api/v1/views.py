@@ -963,6 +963,14 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
                 },
                 status=HTTP_400_BAD_REQUEST,
             )
+        elif not settings.ENABLE_USERS_SELF_REGISTER:
+            return Response(
+                data={
+                    "message": "Self register is not allowed",
+                    "_errors": ["NOT_ALLOWED_TO_SELF_REGISTER"],
+                },
+                status=HTTP_400_BAD_REQUEST,
+            )
 
         request_user = self.get_request_user()
         ip = get_client_ip(request)
