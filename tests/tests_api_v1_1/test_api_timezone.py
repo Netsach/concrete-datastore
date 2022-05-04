@@ -46,7 +46,7 @@ class CheckTimezoneTestCase(APITestCase):
         self.assertEqual(Project.objects.count(), 1)
         project = Project.objects.first()
         creation_date_utc = (
-            project.creation_date.strftime('%Y-%m-%d %H:%M:%S.%f').replace(
+            project.creation_date.strftime('%Y-%m-%d %H:%M:%S').replace(
                 ' ', 'T'
             )
             + 'Z'

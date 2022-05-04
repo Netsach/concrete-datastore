@@ -18,6 +18,12 @@
 
 ### Changed
 
+- The datetimefomat accept two formats `yyyy-mm-ddTHH-mm-ssZ` and `yyyy-mm-ddTHH-mm-ss.SSSSSSZ`
+
+## [1.40.3] - 2022-05-04
+
+### Changed
+
 - When throttling enabled, check if the user making the request is either an AnonymousUser or an AbstractUser
 
 ## [1.40.2] - 2022-02-16
