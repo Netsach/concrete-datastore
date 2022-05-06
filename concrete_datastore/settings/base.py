@@ -335,6 +335,11 @@ LOGGING = {
             'propagate': False,
             'level': 'INFO',
         },
+        'celery.worker': {
+            'handlers': ['celery_file'],
+            'propagate': False,
+            'level': 'INFO',
+        },
         'api_safe_log': {
             'handlers': ['safe_file'],
             'propagate': True,
