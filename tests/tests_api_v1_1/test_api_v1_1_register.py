@@ -565,9 +565,12 @@ class RegisterTestCaseEmailFilter(APITestCase):
 @override_settings(DEBUG=True, ENABLE_USERS_SELF_REGISTER=False)
 class RegisterTestCaseEnableUsersSelf(APITestCase):
     def setUp(self):
-        pass
+        self.superuser = User.objects.create_user('superuser@netsach.com')
+        self.superuser.set_password('plop')
+        self.superuser.set_level('superuser')
+        self.superuser.save()
 
-    def test_register(self):
+    def test_register_self_user(self):
 
         url = '/api/v1.1/auth/register/'
 
@@ -588,3 +591,28 @@ class RegisterTestCaseEnableUsersSelf(APITestCase):
         self.assertEqual(
             resp.data['_errors'], ['NOT_ALLOWED_TO_SELF_REGISTER']
         )
+
+    def test_register_by_manager(self):
+        url_login = '/api/v1.1/auth/login/'
+
+        resp = self.client.post(
+            url_login, {"email": "superuser@netsach.com", "password": "plop"}
+        )
+        super_token = resp.data['token']
+
+        url = '/api/v1.1/auth/register/'
+
+        # POST informations to register a new user
+
+        # POST correct informations
+        email = "johndoe@netsach.org"
+        resp = self.client.post(
+            url,
+            {
+                "email": email,
+                "password1": "mypassword",
+                "password2": "mypassword",
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(super_token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
