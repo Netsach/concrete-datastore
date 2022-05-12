@@ -108,4 +108,4 @@ sudo apt-get install gdal-bin
 ```
 ## Version Anglaise
 
-You can find the french version [here](FAQS.md)
+You can find the french version [here](FAQS.md).

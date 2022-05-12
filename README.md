@@ -61,7 +61,7 @@ Afin de décrire le schéma de la base de données, le développeur doit écrire
 
 Chaque demande d'API est contrôlée par ce fichier `datamodel` car il agit comme une spécification de ce qui se trouve dans la base de données et de ce qui devrait être autorisé par chaque utilisateur.
 
-Vous pouvez créer manuellement le fichier `datamodel` en suivant les exemples et la documentation ou utiliser l'éditeur en ligne [microservices.rest](https://www.microservices.rest/)
+Vous pouvez créer manuellement le fichier `datamodel` en suivant les exemples et la documentation ou utiliser l'éditeur en ligne [platform.concrete-datastore](https://platform.concrete-datastore.app/)
 
 ## F.A.Q
 
