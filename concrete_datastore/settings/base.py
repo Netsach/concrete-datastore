@@ -302,6 +302,7 @@ LOGGING = {
             'when': 'd',
             'interval': 1,
             'backupCount': 1,
+            'formatter': 'verbose',
         },
     },
     'loggers': {
