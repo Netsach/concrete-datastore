@@ -314,6 +314,15 @@ LOGGING = {
             'class': 'logging.handlers.WatchedFileHandler',
             'filename': get_log_path('auth.log'),
         },
+        'celery_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': get_log_path('celery_scheduling.log'),
+            'when': 'd',
+            'interval': 1,
+            'backupCount': 1,
+            'formatter': 'verbose',
+        },
     },
     'loggers': {
         '': {
@@ -342,7 +351,12 @@ LOGGING = {
             'level': 'WARNING',
         },
         'celery.app.trace': {
-            'handlers': ['console', 'stream'],
+            'handlers': ['celery_file'],
+            'propagate': False,
+            'level': 'INFO',
+        },
+        'celery.worker': {
+            'handlers': ['celery_file'],
             'propagate': False,
             'level': 'INFO',
         },
