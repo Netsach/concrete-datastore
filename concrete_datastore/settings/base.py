@@ -526,7 +526,6 @@ MAX_SIMULTANEOUS_SESSIONS = 1
 
 TWO_FACTOR_CODE_TIMEOUT_SECONDS = 600
 
-
 USE_TWO_FACTOR_AUTH = False
 MFA_RULE_PER_USER = 'concrete_datastore.api.v1.authentication.default_mfa_rule'
 
