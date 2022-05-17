@@ -18,6 +18,11 @@
 
 ### Changed
 
+- Change of the `# nosec` to multiline in the `settings/base.py`
+## [1.40.3] - 2022-05-17
+
+### Changed
+
 - When throttling enabled, check if the user making the request is either an AnonymousUser or an AbstractUser
 
 ## [1.40.2] - 2022-02-16

@@ -62,7 +62,27 @@ ALLOW_MULTIPLE_AUTH_TOKEN_SESSION = True
 AUTH_CONFIRM_EMAIL_ENABLE = False
 AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO = 'https://www.netsach.org'
 
-# Disable the black module for the nosec to work
+# ince python3.8 the bandit changed the way to use the `# nosec` in multiline
+# strings: the following is accepted in python versions prior to 3.8, and is
+# no longer supported since python 3.8:
+#
+# MY_CONST = """
+# password
+# """  # nosec
+#
+# The new right way to use nosec with multiline since python 3.8 is
+#
+# MY_CONST = (  # nosec
+# """
+# password
+# """
+# )
+#
+# Doing so, black will format it back to the first way, so we have to disable
+# black for the following lines.
+# Refer to https://github.com/PyCQA/bandit/issues/658 for more details
+# about the issue.
+
 # fmt:off
 AUTH_CONFIRM_EMAIL_MESSAGE_BODY = (  # nosec B105
     """
