@@ -70,12 +70,12 @@ AUTH_CONFIRM_EMAIL_MESSAGE_BODY = (  # nosec B105
 <body>
 <h3>Welcome to {platform},</h3>
 
-<p>Please confirm your access and your email address : {email} by clicking <a rel="notrack" href="{link}">here</a>. This email will be used to log in.</p>
+<p>Please confirm your access and your email address : {email} by clicking <a rel="notrack" href='{link}'>here</a>. This email will be used to log in.</p>
 
 
 <h3>Bienvenue sur {platform},</h3>
 
-<p>Merci de confirmer votre accès et votre adresse email : {email} en cliquant <a rel="notrack" href="{link}">ici</a>. Cet email sera utilisé pour se connecter.</p>
+<p>Merci de confirmer votre accès et votre adresse email : {email} en cliquant <a rel="notrack" href='{link}'>ici</a>. Cet email sera utilisé pour se connecter.</p>
 </body>
 </html>
 """
@@ -87,12 +87,12 @@ SECURE_TOKEN_MESSAGE_BODY = (  # nosec B105
 <body>
 <h3>Welcome to {platform},</h3>
 
-<p>Please click <a rel="notrack" href="{link}">here</a> to authenticate to the platform.</p>
+<p>Please click <a rel="notrack" href='{link}'>here</a> to authenticate to the platform.</p>
 
 
 <h3>Bienvenue sur {platform},</h3>
 
-<p>Veuillez cliquer <a rel="notrack" href="{link}">ici</a> pour vous connecter sur la plateforme.</p>
+<p>Veuillez cliquer <a rel="notrack" href='{link}'>ici</a> pour vous connecter sur la plateforme.</p>
 </body>
 </html>
 """)
