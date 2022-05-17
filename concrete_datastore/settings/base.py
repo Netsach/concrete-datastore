@@ -114,11 +114,11 @@ AUTH_CONFIRM_RESET_PASSWORD_EMAIL_BODY = (  # nosec B105
 <html>
 <body>
 <h3>Reset password</h3>
-<p>Please follow <a rel='notrack' href='{link}'>this link</a> to reset your password.<br>
+<p>Please follow <a rel="notrack" href="{link}">this link</a> to reset your password.<br>
 Ignore this email if you didn't ask to reset your password.</p><br>
 
 <h3>Mise à jour du mot de passe</h3>
-<p>Veuillez suivre <a rel='notrack' href='{link}'>ce lien</a> pour mettre à jour votre mot de passe<br>
+<p>Veuillez suivre <a rel="notrack" href="{link}">ce lien</a> pour mettre à jour votre mot de passe<br>
 Veuillez ignorer ce mail si vous n'avez pas demandé à mettre à jour votre mot de passe</p>
 </body>
 </html>
