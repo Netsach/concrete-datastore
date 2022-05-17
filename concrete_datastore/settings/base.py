@@ -115,7 +115,8 @@ SECURE_TOKEN_MESSAGE_BODY = (  # nosec B105
 <p>Veuillez cliquer <a rel="notrack" href='{link}'>ici</a> pour vous connecter sur la plateforme.</p>
 </body>
 </html>
-""")
+"""
+)
 
 
 AUTH_CONFIRM_RESET_PASSWORD_EMAIL_BODY = (  # nosec B105
