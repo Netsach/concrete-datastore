@@ -62,7 +62,7 @@ ALLOW_MULTIPLE_AUTH_TOKEN_SESSION = True
 AUTH_CONFIRM_EMAIL_ENABLE = False
 AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO = 'https://www.netsach.org'
 
-# Since python3.8 the bandit changed the way to use the `# nosec` in multiline
+# Since python3.8 bandit changed the way to use the `# nosec` in multiline
 # strings: the following is accepted in python versions prior to 3.8, and is
 # no longer supported since python 3.8:
 #
