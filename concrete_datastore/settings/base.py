@@ -61,6 +61,7 @@ ALLOW_MULTIPLE_AUTH_TOKEN_SESSION = True
 
 AUTH_CONFIRM_EMAIL_ENABLE = False
 AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO = 'https://www.netsach.org'
+
 # fmt:off
 AUTH_CONFIRM_EMAIL_MESSAGE_BODY = (  # nosec B105
     """
@@ -84,8 +85,10 @@ PASSWORD_CHANGE_TOKEN_EXPIRY_HOURS = 4
 
 SECURE_CONNECT_EXPIRY_TIME_DAYS = 2
 MAX_SECURE_CONNECT_TOKENS = 10
-# fmt: on
-SECURE_TOKEN_MESSAGE_BODY = """
+
+# fmt: off
+SECURE_TOKEN_MESSAGE_BODY = (  # nosec B105
+    """
 <html>
 <body>
 <h3>Welcome to {platform},</h3>
@@ -98,8 +101,8 @@ SECURE_TOKEN_MESSAGE_BODY = """
 <p>Veuillez cliquer <a rel='notrack' href='{link}'>ici</a> pour vous connecter sur la plateforme.</p>
 </body>
 </html>
-"""  # nosec B105
-# fmt: off
+""")
+# fmt: on
 
 
 DEFAULT_RESET_PASSWORD_URL_FORMAT = (
