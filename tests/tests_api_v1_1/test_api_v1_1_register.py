@@ -562,12 +562,12 @@ class RegisterTestCaseEmailFilter(APITestCase):
         self.assertEqual(resp.data['_errors'], ['NOT_ENOUGH_CHARS'])
 
 
-@override_settings(DEBUG=True, ENABLE_USERS_SELF_REGISTER=False)
+@override_settings(ENABLE_USERS_SELF_REGISTER=False)
 class RegisterTestCaseEnableUsersSelf(APITestCase):
     def setUp(self):
         self.superuser = User.objects.create_user('superuser@netsach.com')
         self.superuser.set_password('plop')
-        self.superuser.set_level('superuser')
+        self.superuser.set_level('manager')
         self.superuser.save()
 
     def test_register_self_user(self):
@@ -602,9 +602,7 @@ class RegisterTestCaseEnableUsersSelf(APITestCase):
 
         url = '/api/v1.1/auth/register/'
 
-        # POST informations to register a new user
-
-        # POST correct informations
+        # Anonymous request to self register
         email = "johndoe@netsach.org"
         resp = self.client.post(
             url,
