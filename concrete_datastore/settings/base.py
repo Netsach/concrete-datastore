@@ -84,7 +84,7 @@ AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO = 'https://www.netsach.org'
 # about the issue.
 
 # fmt:off
-AUTH_CONFIRM_EMAIL_MESSAGE_BODY = (  # nosec
+AUTH_CONFIRM_EMAIL_MESSAGE_BODY = (  # nosec hardcoded_password_string
     """
 <html>
 <body>
@@ -101,7 +101,7 @@ AUTH_CONFIRM_EMAIL_MESSAGE_BODY = (  # nosec
 """
 )
 
-SECURE_TOKEN_MESSAGE_BODY = (  # nosec
+SECURE_TOKEN_MESSAGE_BODY = (  # nosec hardcoded_password_string
     """
 <html>
 <body>
@@ -119,7 +119,7 @@ SECURE_TOKEN_MESSAGE_BODY = (  # nosec
 )
 
 
-AUTH_CONFIRM_RESET_PASSWORD_EMAIL_BODY = (  # nosec
+AUTH_CONFIRM_RESET_PASSWORD_EMAIL_BODY = (  # nosec hardcoded_password_string
     """
 <html>
 <body>
@@ -136,7 +136,7 @@ Veuillez ignorer ce mail si vous n'avez pas demandé à mettre à jour votre mot
 )
 
 
-TWO_FACTOR_TOKEN_MSG = (  # nosec
+TWO_FACTOR_TOKEN_MSG = (  # nosec hardcoded_password_string
     """
 <html>
 <body>
@@ -156,7 +156,7 @@ Ce code est valable pendant {min_validity} minutes.
 """
 )
 
-DEFAULT_REGISTER_EMAIL_FORMAT = (  # nosec
+DEFAULT_REGISTER_EMAIL_FORMAT = (  # nosec hardcoded_password_string
     """
 <html>
 <body>
