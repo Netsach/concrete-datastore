@@ -571,12 +571,9 @@ class RegisterTestCaseEnableUsersSelf(APITestCase):
         self.superuser.save()
 
     def test_register_self_user(self):
+        # Anonymous request to self register
 
         url = '/api/v1.1/auth/register/'
-
-        # POST informations to register a new user
-
-        # POST correct informations
         email = "johndoe@netsach.org"
         resp = self.client.post(
             url,
@@ -593,6 +590,7 @@ class RegisterTestCaseEnableUsersSelf(APITestCase):
         )
 
     def test_register_by_manager(self):
+        # Authenticated request (by a manager) to register a user
         url_login = '/api/v1.1/auth/login/'
 
         resp = self.client.post(
@@ -601,8 +599,6 @@ class RegisterTestCaseEnableUsersSelf(APITestCase):
         super_token = resp.data['token']
 
         url = '/api/v1.1/auth/register/'
-
-        # Anonymous request to self register
         email = "johndoe@netsach.org"
         resp = self.client.post(
             url,
