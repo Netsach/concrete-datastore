@@ -61,7 +61,9 @@ ALLOW_MULTIPLE_AUTH_TOKEN_SESSION = True
 
 AUTH_CONFIRM_EMAIL_ENABLE = False
 AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO = 'https://www.netsach.org'
-AUTH_CONFIRM_EMAIL_MESSAGE_BODY = """
+# fmt:off
+AUTH_CONFIRM_EMAIL_MESSAGE_BODY = (  # nosec B105
+    """
 <html>
 <body>
 <h3>Welcome to {platform},</h3>
@@ -74,15 +76,16 @@ AUTH_CONFIRM_EMAIL_MESSAGE_BODY = """
 <p>Merci de confirmer votre accès et votre adresse email : {email} en cliquant <a rel='notrack' href='{link}'>ici</a>. Cet email sera utilisé pour se connecter.</p>
 </body>
 </html>
-"""  # nosec B105
-# fmt:off
+"""
+)
+# fmt:on
 
 PASSWORD_CHANGE_TOKEN_EXPIRY_HOURS = 4
 
 SECURE_CONNECT_EXPIRY_TIME_DAYS = 2
 MAX_SECURE_CONNECT_TOKENS = 10
-SECURE_TOKEN_MESSAGE_BODY = (  # nosec B105
-    """
+# fmt: on
+SECURE_TOKEN_MESSAGE_BODY = """
 <html>
 <body>
 <h3>Welcome to {platform},</h3>
@@ -95,14 +98,14 @@ SECURE_TOKEN_MESSAGE_BODY = (  # nosec B105
 <p>Veuillez cliquer <a rel='notrack' href='{link}'>ici</a> pour vous connecter sur la plateforme.</p>
 </body>
 </html>
-"""
-)
+"""  # nosec B105
 # fmt: off
+
 
 DEFAULT_RESET_PASSWORD_URL_FORMAT = (
     '/#/reset-password/{token}/{email}/'  # nosec
 )
-
+# fmt:off
 AUTH_CONFIRM_RESET_PASSWORD_EMAIL_BODY = (  # nosec B105
     """
 <html>
@@ -118,7 +121,7 @@ Veuillez ignorer ce mail si vous n'avez pas demandé à mettre à jour votre mot
 </html>
 """
 )
-# fmt:off
+# fmt:on
 
 PLATFORM_NAME = 'Concrete Datastore'
 
@@ -461,6 +464,8 @@ MAX_SIMULTANEOUS_SESSIONS = 1
 # 0 for unlimited, only if SESSIONS_NUMBER_CONTROL_ENABLED == True
 
 TWO_FACTOR_CODE_TIMEOUT_SECONDS = 600
+
+# fmt:off
 TWO_FACTOR_TOKEN_MSG = (  # nosec B105
     """
 <html>
@@ -480,7 +485,7 @@ Ce code est valable pendant {min_validity} minutes.
 </html>
 """
 )
-# fmt:off
+# fmt:on
 
 USE_TWO_FACTOR_AUTH = False
 MFA_RULE_PER_USER = 'concrete_datastore.api.v1.authentication.default_mfa_rule'
@@ -504,6 +509,7 @@ REGISTER_EMAIL_SUBJECT = "Account created"
 
 DEFAULT_REGISTER_URL_FORMAT = '/#/set-password/{token}/{email}/'  # nosec
 
+# fmt:off
 DEFAULT_REGISTER_EMAIL_FORMAT = (  # nosec B105
     """
 <html>
@@ -517,7 +523,7 @@ DEFAULT_REGISTER_EMAIL_FORMAT = (  # nosec B105
 </html>
 """
 )
-# fmt:off
+# fmt:on
 
 
 # Flag to allow a user to reuse a password on change, only applicable if
