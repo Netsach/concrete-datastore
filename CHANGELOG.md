@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Fix bandit for python3.9 : Change of the `# nosec` to multiline in the `settings/base.py `
 
 ### Removed
 
