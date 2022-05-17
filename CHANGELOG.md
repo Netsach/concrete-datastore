@@ -4,7 +4,9 @@
 
 ### Added
 
-- nothing added
+- Add the option that a user cannot register by himself
+
+## 2022-05-17
 
 ### Changed
 
