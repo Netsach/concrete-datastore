@@ -4,8 +4,7 @@
 
 ### Added
 
-- Check if a user is not anonymous before calling `user.is_at_least_staff`
-
+- nothing added
 
 ### Changed
 
@@ -14,6 +13,13 @@
 ### Removed
 
 - nothing removed
+
+## [1.43.0] - 2022-05-18
+
+### Added
+
+- Check if a user is not anonymous before calling `user.is_at_least_staff`
+
 
 ## [1.42.0] - 2022-05-17
 
