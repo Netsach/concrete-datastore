@@ -170,9 +170,11 @@ class UserAccessPermission(permissions.BasePermission):
                 )
         model = view.model_class
         if model == get_user_model():
-            if not request.user.is_anonymous:
-                if not request.user.is_at_least_staff:
-                    return False
+            if (
+                not request.user.is_at_least_staff
+                and not request.user.is_anonymous
+            ):
+                return False
 
         if request.method not in ["OPTIONS", "HEAD"]:
             level_allowed = check_minimum_level(
