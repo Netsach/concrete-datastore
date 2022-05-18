@@ -38,7 +38,7 @@ class PermissionTestCase(APITestCase):
     def test_has_permission(self):
         request = MagicMock()
         request.method = "OPTIONS"
-        self.assertTrue(
+        self.assertFalse(
             UserAccessPermission().has_permission(
                 request=request, view=AccountMeApiView
             )

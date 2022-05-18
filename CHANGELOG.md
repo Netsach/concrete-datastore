@@ -6,7 +6,6 @@
 
 - Check if a user is not anonymous before calling `user.is_at_least_staff`
 
-## 2022-05-18
 
 ### Changed
 
