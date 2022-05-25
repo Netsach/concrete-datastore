@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Command management `reset_password`
 
 ### Changed
 
