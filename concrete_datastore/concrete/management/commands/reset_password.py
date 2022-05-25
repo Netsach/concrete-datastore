@@ -6,7 +6,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.management.base import CommandError
 
 
 class Command(BaseCommand):
@@ -24,7 +24,7 @@ class Command(BaseCommand):
         try:
             user = UserModel.objects.get(email=email)
         except UserModel.DoesNotExist:
-            raise ObjectDoesNotExist("This email does not exists")
+            raise CommandError(f"This email: {email} does not exist")
 
         password = ''.join(
             random.choice(string.ascii_letters + string.digits)  # nosec
