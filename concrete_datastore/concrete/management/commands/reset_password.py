@@ -6,6 +6,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class Command(BaseCommand):
@@ -22,8 +23,8 @@ class Command(BaseCommand):
 
         try:
             user = UserModel.objects.get(email=email)
-        except Exception:
-            return "This email does not exists"
+        except UserModel.DoesNotExist:
+            raise ObjectDoesNotExist("This email does not exists")
 
         password = ''.join(
             random.choice(string.ascii_letters + string.digits)  # nosec
@@ -32,19 +33,32 @@ class Command(BaseCommand):
         user.set_password(password)
         user.save()
 
+        port = ''
+        if int(settings.PORT) not in (80, 443):
+            port = ':{}'.format(settings.PORT)
+
+        admin_url = '{}://{}{}/concrete-datastore-admin/'.format(
+            settings.SCHEME, settings.HOSTNAME, port
+        )
+
         email_instance = EmailModel(
             created_by=user,
-            subject='Reset password on concrete',
+            subject='Reset password to Concrete Instance',
             body='''
-            You have requested a new password.
-            <br>
-            You can now connect to your concrete instance with the following
-            password<br>
+            Welcome to Concrete <a href="{admin_url}">{hostname}</a><br>
+                <br>
+                You have requested a new password.
+                You can now connect to your concrete instance with the following
+                credentials :<br>
 
-            password: {password}<br>
-            <br>
+                email {email}<br>
+                password {password}<br>
+                <br>
+                Please change your password as you connect for the first time.
 
         '''.format(
+                hostname=settings.HOSTNAME,
+                admin_url=admin_url,
                 email=email,
                 password=password,
             ),

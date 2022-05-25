@@ -31,17 +31,18 @@ class CreateSuperUserWithEmailTests(TestCase):
         self.assertEqual("Access to Concrete Instance", email_sent.subject)
 
     def test_create_superuser_email_exists(self):
-        self.assertEqual(1, User.objects.all().count())
+        self.assertEqual(User.objects.all().count(), 1)
 
-        resp = call_command(
-            'create_superuser_with_email', self.super_user.email
-        )
-        self.assertEqual(resp, "This email is already used")
+        call_command('create_superuser_with_email', self.super_user.email)
         self.assertEqual(Email.objects.all().count(), 0)
         self.assertEqual(User.objects.all().count(), 1)
 
     def test_create_superuser_email_is_none(self):
-        with self.assertRaises(CommandError):
+        with self.assertRaises(CommandError) as e:
             call_command('create_superuser_with_email')
+        self.assertEqual(
+            str(e.exception),
+            "Error: the following arguments are required: email",
+        )
 
         self.assertEqual(0, Email.objects.all().count())
