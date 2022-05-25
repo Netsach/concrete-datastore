@@ -18,10 +18,6 @@ class Command(BaseCommand):
         concrete = apps.get_app_config('concrete')
         EmailModel = concrete.models['email']
         UserModel = get_user_model()
-
-        if options['email'] is None:
-            raise ValueError("'email' is needed to send your password")
-
         email = options['email'].lower()
 
         try:
@@ -40,7 +36,7 @@ class Command(BaseCommand):
             created_by=user,
             subject='Reset password on concrete',
             body='''
-            You have requested a new password
+            You have requested a new password.
             <br>
             You can now connect to your concrete instance with the following
             password<br>
