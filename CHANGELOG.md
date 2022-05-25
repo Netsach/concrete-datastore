@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Command management `check_superuser_with_email`: Now we check if any users exists not only superuser
 
 ### Removed
 
