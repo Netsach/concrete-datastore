@@ -8,17 +8,17 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('email', type=str, help='choosen email')
-        parser.add_argument('--password', type=str, help='raw password')
+        parser.add_argument('password', type=str, help='choosen password')
 
     def handle(self, *args, **options):
-        UserClass = get_user_model()
-        kwargs = {
-            'email': options['email'].lower(),
-            'admin': True,
-            'is_superuser': True,
-            'is_staff': True,
-        }
-        instance, created = UserClass.objects.get_or_create(**kwargs)
-        if options['password'] is not None:
-            instance.set_password(options['password'])
-            instance.save()
+        UserModel = get_user_model()
+        email = options['email'].lower()
+
+        user, created = UserModel.objects.get_or_create(email=email)
+
+        if created:
+            user.set_level('superuser')
+            if options['password'] is not None:
+                user.set_password(options['password'])
+
+            user.save()
