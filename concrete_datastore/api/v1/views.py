@@ -2191,10 +2191,15 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
                     request, *args, **kwargs
                 )
             except ProtectedError as e:
-                protected_objects_qs = e.protected_objects
+                instance_model_name = instance._meta.model_name
+                protected_objects_list = [
+                    f'{o._meta.model_name} - {str(o.uid)}'
+                    for o in e.protected_objects
+                ]
                 msg = (
                     'Attempting to delete a protected related instance: '
-                    f'related to instance(s) {[str(o.uid) for o in protected_objects_qs]}'
+                    f'{instance_model_name} - {str(instance.uid)} '
+                    f'related to instance(s) {protected_objects_list}'
                 )
                 return Response(
                     status=HTTP_412_PRECONDITION_FAILED,
