@@ -71,6 +71,32 @@ class TestFiltersOrderingFK(APITestCase):
         self.assertEqual(Category.objects.count(), 4)
         self.assertEqual(Skill.objects.count(), 10)
 
+    def test_exclude_on_same_key(self):
+        get_url = '/api/v1.1/skill/?name__in!=skill_a,skill_b'
+
+        resp = self.client.get(
+            get_url, HTTP_AUTHORIZATION='Token {}'.format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        self.assertIn('results', resp.data)
+        self.assertEqual(len(resp.data['results']), 8)
+
+        result_names = set(obj['name'] for obj in resp.data['results'])
+        self.assertSetEqual(
+            result_names,
+            {
+                'skill_c',
+                'skill_e',
+                'skill_f',
+                'skill_g',
+                'skill_h',
+                'skill_i',
+                'skill_j',
+                'skill_k',
+            },
+        )
+
     def test_filter_on_same_key(self):
         get_url = '/api/v1.1/skill/?name__in=skill_a,skill_b'
 

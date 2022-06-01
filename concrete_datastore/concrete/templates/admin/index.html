@@ -2,6 +2,11 @@
 {% load i18n admin_urls static admin_list %}
 {% block content %}
 <div id="content-main"class="module">
+{% if display_datamodel %}
+<a href="{% url 'datamodel' action='view' %}">> Show datamodel</a>
+<br>
+<br>
+{% endif %}
 {% if use_core_automation %}
 <button class="btn btn-primary" style="background: #79aec8;padding: 10px 15px;border: none;border-radius: 4px;color: #fff;cursor: pointer;" onclick="window.location.href='{{target_admin_view}}';">Go to {{target_admin_view_name}}</button>
 <br>

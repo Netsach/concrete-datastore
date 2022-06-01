@@ -142,7 +142,7 @@ class SaveModelMixin:
 
 
 @admin.register(ConcretePermission, site=admin_site)
-class ConcretePermissionAdmin(admin.ModelAdmin, SaveModelMixin):
+class ConcretePermissionAdmin(SaveModelMixin, admin.ModelAdmin):
     list_display = ['uid', 'model_name', 'creation_date']
     search_fields = ['model_name']
     readonly_fields = [
@@ -173,7 +173,7 @@ class ConcretePermissionAdmin(admin.ModelAdmin, SaveModelMixin):
 
 
 @admin.register(ConcreteRole, site=admin_site)
-class ConcreteRoleAdmin(admin.ModelAdmin, SaveModelMixin):
+class ConcreteRoleAdmin(SaveModelMixin, admin.ModelAdmin):
     list_display = ['uid', 'name', 'creation_date']
     search_fields = ['name']
     readonly_fields = [

@@ -11,6 +11,8 @@
 ![Python](https://img.shields.io/badge/python-3.6-3473A7?logo=python&logoColor=FED646)
 ![Python](https://img.shields.io/badge/python-3.7-3473A7?logo=python&logoColor=FED646)
 ![Python](https://img.shields.io/badge/python-3.8-3473A7?logo=python&logoColor=FED646)
+![Python](https://img.shields.io/badge/python-3.9-3473A7?logo=python&logoColor=FED646)
+
 
 ## Description
 
@@ -62,7 +64,7 @@ In order to describe the database schema, the developer has to write a `datamode
 
 Each API requests is controlled by this `datamodel` file as it acts as a specification of what is in the database and what should be allowed per user.
 
-You can create manually the `datamodel` file following the examples and the documentation or use the online editor [microservices.rest](https://www.microservices.rest/)
+You can create manually the `datamodel` file following the examples and the documentation or use the online editor [concrete-datastore.com](https://concrete-datastore.com/)
 
 ## F.A.Q
 

@@ -183,10 +183,10 @@ class UserSerializer(serializers.ModelSerializer):
             and not unlimited_sessions
             and not user_is_session_control_exempted
         ):
-            # On va expirer les tokens les plus anciens tant que le nombre
-            # total de token actifs est >= MAX_SIMULTANEOUS_SESSIONS
-            # NB: le token nouvellement créé ne fait pas partie de ce queryset
-            # d'où le +1
+            # We expire the most ancient tokens, while keeping the number of
+            # active tokens >= MAX_SIMULTANEOUS_SESSIONS
+            # NB: the recently created token is not included in the queryset
+            # that's why we add the +1 to the tokens_count
             tokens_count = user_active_tokens.count()
             nb_of_token_to_expire = tokens_count - max_sessions_allowed + 1
             tokens_to_expire_pks = user_active_tokens.values_list(
@@ -345,7 +345,7 @@ def make_serializer_class(
         fields = _fields
 
         read_only_fields = (
-            ['created_by', 'admin', 'is_staff']
+            ['uid', 'created_by', 'admin', 'is_staff']
             + fk_read_only_fields
             + [f for f in _all_fields if f.startswith('resource_')]
         )

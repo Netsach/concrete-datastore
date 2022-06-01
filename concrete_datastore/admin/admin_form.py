@@ -85,7 +85,10 @@ class OTPAuthenticationForm(MyAuthForm, OTPAuthenticationFormMixin):
             elif username and password:
                 self._handle_challenge(device)
             else:
-                raise django_forms.ValidationError(
+                #: If no username or no password are given, the user
+                #: would be None, so this case should never occur,
+                #: but we keep it in case it happens
+                raise django_forms.ValidationError(  # pragma: no cover
                     self.otp_error_messages['token_required'],
                     code='token_required',
                 )

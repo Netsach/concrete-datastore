@@ -102,7 +102,10 @@ def get_admin_site():
         def get_app_list(self, request):
             app_dict = self._build_app_dict(request)
             if not app_dict:
-                return []
+                #: This case should never occur, due to the admin site
+                #: permssions set to "superuser".
+                return []  # pragma: no cover
+
             # Sort the apps alphabetically.
             app_list = sorted(
                 app_dict.values(), key=lambda x: x['name'].lower()
@@ -152,12 +155,19 @@ def get_admin_site():
             return custom_app_groups_list
 
         def index(self, request, extra_context=None, *args, **kwargs):
+            if extra_context is None:
+                extra_context = {}
+            extra_context[
+                'display_datamodel'
+            ] = settings.ENABLE_SERVE_DATAMODEL
             if settings.USE_CORE_AUTOMATION:
-                extra_context = {
-                    'use_core_automation': True,
-                    'target_admin_view': reverse('coreAdmin:index'),
-                    'target_admin_view_name': 'Core Admin',
-                }
+                extra_context.update(
+                    {
+                        'use_core_automation': True,
+                        'target_admin_view': reverse('coreAdmin:index'),
+                        'target_admin_view_name': 'Core Admin',
+                    }
+                )
             return super().index(request, extra_context, *args, **kwargs)
 
     CustomAdminSite.login_template = login_template
