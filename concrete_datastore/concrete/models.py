@@ -11,7 +11,6 @@ from itertools import chain
 from binascii import unhexlify
 from datetime import date
 
-from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
@@ -829,13 +828,10 @@ def make_django_model(meta_model, divider):
                 {'blank': True, 'null': True, 'validators': [validate_file]}
             )
         elif field.f_type == 'JSONField':
-            json_args = args
-            json_args['blank'] = True
-            json_args['encoder'] = None
-            json_args['null'] = False
-            json_args['default'] = dict
-            attrs.update({field_name: JSONField(**json_args)})
-            continue
+            args['blank'] = True
+            args['encoder'] = None
+            args['null'] = False
+            args['default'] = dict
         elif field.f_type in ('CharField', 'TextField'):
             args['null'] = False
             args.setdefault('blank', True)
