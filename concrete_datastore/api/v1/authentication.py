@@ -8,6 +8,7 @@ from rest_framework import exceptions
 
 from concrete_datastore.concrete.models import (  # pylint:disable=E0611
     SecureConnectToken,
+    SecureConnectCode,
     AuthToken,
     Group,
 )
@@ -90,7 +91,16 @@ class TokenExpiryAuthentication(authentication.TokenAuthentication):
         for secure_token in SecureConnectToken.objects.filter(
             user=token.user, expired=False
         ):
-            expire_secure_token(secure_token)
+            expire_secure_connect_instance(
+                secure_token, settings.SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS
+            )
+        # Check if the secure token is expired and expire in database
+        for secure_code in SecureConnectCode.objects.filter(
+            user=token.user, expired=False
+        ):
+            expire_secure_connect_instance(
+                secure_code, settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS
+            )
 
         return (token.user, token)
 
