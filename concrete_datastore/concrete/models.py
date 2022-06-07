@@ -310,8 +310,25 @@ class SecureConnectModelMixin(models.Model):
     def __str__(self):
         return str(self.value)
 
-    def send_mail(self):
+    def get_body(self):
         raise NotImplementedError
+
+    def send_mail(self):
+        main_app = apps.get_app_config('concrete')
+
+        body = self.get_body()
+        main_app.models['email'].objects.create(
+            receiver=self.user,
+            body=body,
+            resource_status='to-send',
+            subject='[Authentication {}]'.format(settings.PLATFORM_NAME),
+            created_by=self.user,
+        )
+        logging.debug(
+            'Confirm Email has been sent to {}'.format(self.user.email)
+        )
+        self.mail_sent = True
+        self.save()
 
 
 class SecureConnectToken(SecureConnectModelMixin):
@@ -327,26 +344,12 @@ class SecureConnectToken(SecureConnectModelMixin):
     def __str__(self):
         return str(self.value)
 
-    def send_mail(self):
-        main_app = apps.get_app_config('concrete')
+    def get_body(self):
         body = settings.SECURE_TOKEN_MESSAGE_BODY.format(
             platform=settings.PLATFORM_NAME,
             email=self.user.email,
             link=self.url,
         )
-
-        main_app.models['email'].objects.create(
-            receiver=self.user,
-            body=body,
-            resource_status='to-send',
-            subject='[Authentication {}]'.format(settings.PLATFORM_NAME),
-            created_by=self.user,
-        )
-        logging.debug(
-            'Confirm Email has been sent to {}'.format(self.user.email)
-        )
-        self.mail_sent = True
-        self.save()
 
 
 def get_random_secure_connect_code():
@@ -371,27 +374,14 @@ class SecureConnectCode(SecureConnectModelMixin):
     def __str__(self):
         return str(self.value)
 
-    def send_mail(self):
+    def get_body(self):
         code_timeout = settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS
-        main_app = apps.get_app_config('concrete')
         body = settings.SECURE_CONNECT_CODE_MESSAGE_BODY.format(
             platform=settings.PLATFORM_NAME,
             auth_code=self.value,
             min_validity=int(code_timeout / 60),
         )
-
-        main_app.models['email'].objects.create(
-            receiver=self.user,
-            body=body,
-            resource_status='to-send',
-            subject='[Authentication {}]'.format(settings.PLATFORM_NAME),
-            created_by=self.user,
-        )
-        logging.debug(
-            'Confirm Email has been sent to {}'.format(self.user.email)
-        )
-        self.mail_sent = True
-        self.save()
+        return body
 
 
 class UserConfirmation(models.Model):
