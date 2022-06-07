@@ -8,17 +8,15 @@ from concrete_datastore.concrete.models import (
 )
 from django.test import override_settings
 from datetime import timedelta
-import uuid
 
 
-@override_settings(DEBUG=True)
 class RetrieveCodeTestCase(APITestCase):
     def setUp(self):
         # Create a user
-        self.userA = User.objects.create_user('usera@netsach.org')
-        self.userA.set_password('plop')
-        self.userA.save()
-        UserConfirmation.objects.create(user=self.userA, confirmed=True).save()
+        self.user = User.objects.create_user('usera@netsach.org')
+        self.user.set_password('plop')
+        self.user.save()
+        UserConfirmation.objects.create(user=self.user, confirmed=True).save()
 
     def test_secure_login_success(self):
         retrieve_url = '/api/v1.1/secure-connect/retrieve-code/'
@@ -26,7 +24,7 @@ class RetrieveCodeTestCase(APITestCase):
 
         # POST a valid email
         resp = self.client.post(retrieve_url, {"email": 'usera@netsach.org'})
-        secure_codes = SecureConnectCode.objects.filter(user=self.userA)
+        secure_codes = SecureConnectCode.objects.filter(user=self.user)
         self.assertEqual(secure_codes.count(), 1)
         first_code = secure_codes.first()
 
@@ -62,7 +60,7 @@ class RetrieveCodeTestCase(APITestCase):
         retrieve_url = '/api/v1.1/secure-connect/retrieve-code/'
         login_url = '/api/v1.1/secure-connect/login-code/'
         resp = self.client.post(retrieve_url, {"email": 'usera@netsach.org'})
-        secure_codes = SecureConnectCode.objects.filter(user=self.userA)
+        secure_codes = SecureConnectCode.objects.filter(user=self.user)
         self.assertEqual(secure_codes.count(), 1)
         first_code = secure_codes.first()
 
@@ -86,7 +84,7 @@ class RetrieveCodeTestCase(APITestCase):
 
         # POST a valid email
         resp = self.client.post(retrieve_url, {"email": 'usera@netsach.org'})
-        secure_codes = SecureConnectCode.objects.filter(user=self.userA)
+        secure_codes = SecureConnectCode.objects.filter(user=self.user)
         self.assertEqual(secure_codes.count(), 1)
         first_code = secure_codes.first()
         self.assertFalse(first_code.expired)
