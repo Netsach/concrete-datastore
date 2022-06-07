@@ -466,8 +466,8 @@ class SecureLoginApiView(generics.GenericAPIView):
 
 class SecureLoginCodeApiView(generics.GenericAPIView):
     """
-     this view is used to login the user with Secure Login
-     with email and code
+    this view is used to login the user with Secure Login
+    with email and code
     """
 
     serializer_class = SecureLoginCodeSerializer
