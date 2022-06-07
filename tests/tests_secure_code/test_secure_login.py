@@ -78,7 +78,7 @@ class RetrieveCodeTestCase(APITestCase):
             resp.data, {'message': 'Invalid code', "_errors": ["INVALID_CODE"]}
         )
 
-    # Set expiry to 3 days
+    # Set expiry to 10 minutes
     @override_settings(SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS=60 * 10)
     def test_secure_login_expire_code(self):
         retrieve_url = '/api/v1.1/secure-connect/retrieve-code/'
@@ -91,7 +91,7 @@ class RetrieveCodeTestCase(APITestCase):
         first_code = secure_codes.first()
         self.assertFalse(first_code.expired)
         # Expire code
-        first_code.creation_date += timedelta(-10)
+        first_code.creation_date += timedelta(minutes=-11)
         first_code.save()
         self.assertFalse(first_code.expired)
         resp = self.client.post(
