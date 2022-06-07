@@ -341,9 +341,6 @@ class SecureConnectToken(SecureConnectModelMixin):
     )
     url = models.URLField(blank=True, null=True)
 
-    def __str__(self):
-        return str(self.value)
-
     def get_body(self):
         body = settings.SECURE_TOKEN_MESSAGE_BODY.format(
             platform=settings.PLATFORM_NAME,
@@ -371,9 +368,6 @@ class SecureConnectCode(SecureConnectModelMixin):
         on_delete=models.PROTECT,
         related_name='secure_connect_codes',
     )
-
-    def __str__(self):
-        return str(self.value)
 
     def get_body(self):
         code_timeout = settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS

@@ -112,6 +112,10 @@ class ResetPasswordSerializer(serializers.Serializer):
         return value
 
 
+class RetrieveSecureConnectCodeSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
 class UserSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
     token = serializers.SerializerMethodField()

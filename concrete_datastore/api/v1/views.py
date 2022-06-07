@@ -73,6 +73,7 @@ from concrete_datastore.api.v1.serializers import (
     make_serializer_class,
     SecureLoginSerializer,
     SecureLoginCodeSerializer,
+    RetrieveSecureConnectCodeSerializer,
 )
 from concrete_datastore.api.v1.filters import (
     FilterSupportingOrBackend,
@@ -236,11 +237,10 @@ class SecurityRulesMixin(object):
 
 
 class RetrieveSecureConnectCode(generics.GenericAPIView):
-    serializer_class = ResetPasswordSerializer
+    serializer_class = RetrieveSecureConnectCodeSerializer
 
     def post(self, request, *args, **kwargs):
-        # The ResetPasswordSerializer only need an email like this view
-        serializer = ResetPasswordSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         if not serializer.is_valid():
             return Response(
                 data={
@@ -263,18 +263,23 @@ class RetrieveSecureConnectCode(generics.GenericAPIView):
             )
 
         user = user_queryset.first()
-        # Check if the secure token is expired and expire in database
         secure_codes = SecureConnectCode.objects.filter(
             user=user, expired=False
         )
         for secure_code in secure_codes:
+            # Check if the secure code is expired and expire in database
             expire_secure_connect_instance(
                 secure_code, settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS
             )
         secure_codes_count = secure_codes.count()
-        if secure_codes_count >= settings.MAX_SECURE_CONNECT_CODES:
+        if (
+            secure_codes_count
+            >= settings.MAX_SIMULTANEOUS_SECURE_CONNECT_CODES_PER_USER
+        ):
             return Response(status=HTTP_429_TOO_MANY_REQUESTS)
-        secure_connect_code = SecureConnectCode.objects.create(user=user)
+        secure_connect_code = SecureConnectCode.objects.create(
+            user=user, expired=False
+        )
 
         if secure_connect_code.mail_sent is False:
             secure_connect_code.send_mail()
@@ -507,7 +512,8 @@ class SecureLoginCodeApiView(generics.GenericAPIView):
                 data={'message': 'Invalid code', "_errors": ["INVALID_CODE"]},
                 status=HTTP_401_UNAUTHORIZED,
             )
-        user = secure_connect_code.user
+        else:
+            user = secure_connect_code.user
 
         if expire_secure_connect_instance(
             secure_connect_code,

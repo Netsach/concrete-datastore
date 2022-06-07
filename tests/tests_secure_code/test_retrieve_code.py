@@ -52,7 +52,7 @@ class RetrieveCodeTestCase(APITestCase):
             },
         )
 
-    @override_settings(MAX_SECURE_CONNECT_CODES=1)
+    @override_settings(MAX_SIMULTANEOUS_SECURE_CONNECT_CODES_PER_USER=1)
     def test_retrieve_code_too_many_requests(self):
         url = '/api/v1.1/secure-connect/retrieve-code/'
 
