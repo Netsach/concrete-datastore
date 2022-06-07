@@ -121,7 +121,7 @@ class GenerateTokenTestCase(APITestCase):
         self.assertEqual(secure_tokens.count(), 1)
 
     # Set expiry to 3 days
-    @override_settings(SECURE_CONNECT_EXPIRY_TIME_DAYS=3)
+    @override_settings(SECURE_CONNECT_EXPIRY_TIME_SECONDS=3 * 3600 * 24)
     def test_generate_token_expire_token(self):
         url = '/api/v1.1/secure-connect/generate-token/'
 

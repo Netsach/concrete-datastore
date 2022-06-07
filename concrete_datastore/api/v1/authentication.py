@@ -56,18 +56,17 @@ def api_token_has_expired(token):
     return False
 
 
-def expire_secure_token(token):
+def expire_secure_connect_instance(instance, expiration_limit_in_seconds):
 
-    secure_token_can_expire = settings.SECURE_CONNECT_EXPIRY_TIME_DAYS
-    if secure_token_can_expire:
-        now = pendulum.now()
-        secure_token_expired = (
-            now.diff(token.creation_date).in_days()
-            >= settings.SECURE_CONNECT_EXPIRY_TIME_DAYS
+    if expiration_limit_in_seconds:
+        now = pendulum.now('utc')
+        secure_connect_instance_expired = (
+            now.diff(instance.creation_date).in_seconds()
+            >= expiration_limit_in_seconds
         )
-        if secure_token_expired:
-            token.expired = True
-            token.save()
+        if secure_connect_instance_expired:
+            instance.expired = True
+            instance.save()
             return True
     return False
 

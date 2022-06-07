@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Secure connect with email and code
 
 ### Changed
 

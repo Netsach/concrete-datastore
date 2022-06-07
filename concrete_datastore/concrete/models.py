@@ -2,6 +2,7 @@
 import pendulum
 import binascii
 import logging
+import string
 import uuid
 import sys
 import os
@@ -10,7 +11,7 @@ from collections import defaultdict
 from itertools import chain
 from binascii import unhexlify
 from datetime import date
-
+from django.utils.crypto import get_random_string
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import ugettext_lazy as _
@@ -296,18 +297,31 @@ class ConcretePermission(models.Model):
         return str(self.model_name)
 
 
-class SecureConnectToken(models.Model):
+class SecureConnectModelMixin(models.Model):
+    class Meta:
+        abstract = True
+
+    creation_date = models.DateTimeField(auto_now_add=True)
+    modification_date = models.DateTimeField(auto_now=True)
+    expired = models.BooleanField(default=False)
+
+    mail_sent = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.value)
+
+    def send_mail(self):
+        raise NotImplementedError
+
+
+class SecureConnectToken(SecureConnectModelMixin):
+
     value = models.UUIDField(default=uuid.uuid4, primary_key=True)
     user = models.ForeignKey(
         'concrete.User',
         on_delete=models.PROTECT,
         related_name='secure_connect_tokens',
     )
-    creation_date = models.DateTimeField(auto_now_add=True)
-    modification_date = models.DateTimeField(auto_now=True)
-    expired = models.BooleanField(default=False)
-
-    mail_sent = models.BooleanField(default=False)
     url = models.URLField(blank=True, null=True)
 
     def __str__(self):
@@ -319,6 +333,51 @@ class SecureConnectToken(models.Model):
             platform=settings.PLATFORM_NAME,
             email=self.user.email,
             link=self.url,
+        )
+
+        main_app.models['email'].objects.create(
+            receiver=self.user,
+            body=body,
+            resource_status='to-send',
+            subject='[Authentication {}]'.format(settings.PLATFORM_NAME),
+            created_by=self.user,
+        )
+        logging.debug(
+            'Confirm Email has been sent to {}'.format(self.user.email)
+        )
+        self.mail_sent = True
+        self.save()
+
+
+def get_random_secure_connect_code():
+    auth_code = get_random_string(
+        length=settings.SECURE_CONNECT_CODE_LENGTH,
+        allowed_chars=string.digits + string.ascii_letters,
+    )
+    return auth_code
+
+
+class SecureConnectCode(SecureConnectModelMixin):
+    uid = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    value = models.CharField(
+        default=get_random_secure_connect_code, max_length=250
+    )
+    user = models.ForeignKey(
+        'concrete.User',
+        on_delete=models.PROTECT,
+        related_name='secure_connect_codes',
+    )
+
+    def __str__(self):
+        return str(self.value)
+
+    def send_mail(self):
+        code_timeout = settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS
+        main_app = apps.get_app_config('concrete')
+        body = settings.SECURE_CONNECT_CODE_MESSAGE_BODY.format(
+            platform=settings.PLATFORM_NAME,
+            auth_code=self.value,
+            min_validity=int(code_timeout / 60),
         )
 
         main_app.models['email'].objects.create(

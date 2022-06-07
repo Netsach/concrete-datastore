@@ -64,6 +64,11 @@ class SecureLoginSerializer(serializers.Serializer):
     token = serializers.UUIDField()
 
 
+class SecureLoginCodeSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.CharField()
+
+
 class RegisterSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password1 = serializers.CharField(required=False, allow_null=True)

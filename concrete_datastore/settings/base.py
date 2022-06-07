@@ -118,6 +118,26 @@ SECURE_TOKEN_MESSAGE_BODY = (  # nosec
 """
 )
 
+SECURE_CONNECT_CODE_MESSAGE_BODY = (  # nosec
+    """
+<html>
+<body>
+<h3>Welcome to {platform},</h3>
+<p>Please enter the following confirmation code to authenticate to the platform: <br>
+<strong>{auth_code}</strong><br>
+This code is valid for {min_validity} minutes.
+</p>
+
+<h3>Bienvenue sur {platform},</h3>
+<p>Veuillez entrer le code de confirmation suivant pour vous connecter sur la plateforme: <br>
+<strong>{auth_code}</strong><br>
+Ce code est valable pendant {min_validity} minutes.
+</p>
+
+</body>
+</html>
+"""
+)
 
 AUTH_CONFIRM_RESET_PASSWORD_EMAIL_BODY = (  # nosec
     """
@@ -174,9 +194,13 @@ DEFAULT_REGISTER_EMAIL_FORMAT = (  # nosec
 
 
 PASSWORD_CHANGE_TOKEN_EXPIRY_HOURS = 4
-
-SECURE_CONNECT_EXPIRY_TIME_DAYS = 2
+SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS = 2 * 3600 * 24  # 2 days
 MAX_SECURE_CONNECT_TOKENS = 10
+
+# Secure connect with code
+SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS = 60 * 10  # 10 minutes
+SECURE_CONNECT_CODE_LENGTH = 8
+MAX_SECURE_CONNECT_CODES = 10
 
 
 DEFAULT_RESET_PASSWORD_URL_FORMAT = (
