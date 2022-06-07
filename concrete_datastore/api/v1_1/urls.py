@@ -26,7 +26,6 @@ from concrete_datastore.api.v1_1.views import (  # pylint:disable=E0611
     BlockedUsersApiViewset,
     AccountMeApiView,
     ProcessRegisterApiView,
-
 )
 from concrete_datastore.api.v1_1 import views, API_NAMESPACE
 
