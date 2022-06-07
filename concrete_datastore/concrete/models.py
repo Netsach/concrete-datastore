@@ -350,6 +350,7 @@ class SecureConnectToken(SecureConnectModelMixin):
             email=self.user.email,
             link=self.url,
         )
+        return body
 
 
 def get_random_secure_connect_code():
