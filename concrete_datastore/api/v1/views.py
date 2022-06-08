@@ -61,6 +61,7 @@ from concrete_datastore.api.v1.permissions import (
     filter_queryset_by_permissions,
     filter_queryset_by_divider,
 )
+from concrete_datastore.api.v1.responses import ConcreteBadResponse
 from concrete_datastore.api.v1.pagination import ExtendedPagination
 from concrete_datastore.api.v1.serializers import (
     AuthLoginSerializer,
@@ -242,13 +243,7 @@ class RetrieveSecureConnectCode(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         if not serializer.is_valid():
-            return Response(
-                data={
-                    "message": serializer.errors,
-                    "_errors": ["INVALID_DATA"],
-                },
-                status=HTTP_400_BAD_REQUEST,
-            )
+            return ConcreteBadResponse(message=serializer.errors)
 
         email = serializer.validated_data["email"].lower()
 
@@ -302,13 +297,7 @@ class RetrieveSecureTokenApiView(generics.GenericAPIView):
         # The ResetPasswordSerializer only need an email like this view
         serializer = ResetPasswordSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(
-                data={
-                    "message": serializer.errors,
-                    "_errors": ["INVALID_DATA"],
-                },
-                status=HTTP_400_BAD_REQUEST,
-            )
+            return ConcreteBadResponse(message=serializer.errors)
 
         email = serializer.validated_data["email"].lower()
 
@@ -365,13 +354,8 @@ class GenerateSecureTokenApiView(generics.GenericAPIView):
 
         serializer = ResetPasswordSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(
-                data={
-                    "message": serializer.errors,
-                    "_errors": ["INVALID_DATA"],
-                },
-                status=HTTP_400_BAD_REQUEST,
-            )
+            return ConcreteBadResponse(message=serializer.errors)
+
 
         email = serializer.validated_data["email"].lower()
 
@@ -421,13 +405,8 @@ class SecureLoginApiView(generics.GenericAPIView):
 
         serializer = SecureLoginSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(
-                data={
-                    "message": serializer.errors,
-                    "_errors": ["INVALID_DATA"],
-                },
-                status=HTTP_400_BAD_REQUEST,
-            )
+            return ConcreteBadResponse(message=serializer.errors)
+
         token = serializer.validated_data['token']
         try:
             secure_connect_token = SecureConnectToken.objects.get(value=token)
@@ -445,10 +424,13 @@ class SecureLoginApiView(generics.GenericAPIView):
             )
         user = secure_connect_token.user
 
-        if ensure_secure_connect_instance_is_not_expired(
-            secure_connect_token,
-            settings.SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS,
-        ) is False:
+        if (
+            ensure_secure_connect_instance_is_not_expired(
+                secure_connect_token,
+                settings.SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS,
+            )
+            is False
+        ):
             log_request = base_message + (
                 f"Secure login attempt for user {user.email}, "
                 "but the token has expired"
@@ -499,13 +481,8 @@ class SecureLoginCodeApiView(generics.GenericAPIView):
                 f" - {serializer.errors}"
             )
             logger_api_auth.info(log_request)
-            return Response(
-                data={
-                    "message": serializer.errors,
-                    "_errors": ["INVALID_DATA"],
-                },
-                status=HTTP_400_BAD_REQUEST,
-            )
+            return ConcreteBadResponse(message=serializer.errors)
+
         email = serializer.validated_data['email']
         code = serializer.validated_data['code']
         try:
@@ -528,10 +505,13 @@ class SecureLoginCodeApiView(generics.GenericAPIView):
         else:
             user = secure_connect_code.user
 
-        if ensure_secure_connect_instance_is_not_expired(
-            secure_connect_code,
-            settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS,
-        ) is False:
+        if (
+            ensure_secure_connect_instance_is_not_expired(
+                secure_connect_code,
+                settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS,
+            )
+            is False
+        ):
             log_request = base_message + (
                 f"Secure login with code attempt for user {user.email}, "
                 "but the token has expired"
@@ -578,13 +558,7 @@ class LoginApiView(generics.GenericAPIView):
 
         serializer = AuthLoginSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(
-                data={
-                    'message': serializer.errors,
-                    "_errors": ["INVALID_DATA"],
-                },
-                status=HTTP_400_BAD_REQUEST,
-            )
+            return ConcreteBadResponse(message=serializer.errors)
 
         email = serializer.validated_data["email"].lower()
 
