@@ -28,7 +28,11 @@ class RetrieveCodeTestCase(APITestCase):
             resp.status_code, status.HTTP_201_CREATED, msg=resp.content
         )
         self.assertDictEqual(
-            resp.data, {'message': 'Code created and email sent'}
+            resp.data,
+            {
+                'message_en': 'Code created and email sent',
+                'message_fr': 'Code créé et email envoyé',
+            },
         )
         secure_codes = SecureConnectCode.objects.filter(user=self.user)
         self.assertEqual(secure_codes.count(), 1)
@@ -47,7 +51,8 @@ class RetrieveCodeTestCase(APITestCase):
         self.assertEqual(
             resp.data,
             {
-                "message": "Wrong email address",
+                "message_en": "Wrong email address",
+                "message_fr": "Adresse email incorrecte",
                 "_errors": ["WRONG_EMAIL_ADDRESS"],
             },
         )

@@ -448,7 +448,7 @@ class SecureLoginApiView(generics.GenericAPIView):
         if ensure_secure_connect_instance_is_not_expired(
             secure_connect_token,
             settings.SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS,
-        ):
+        ) is False:
             log_request = base_message + (
                 f"Secure login attempt for user {user.email}, "
                 "but the token has expired"
@@ -531,7 +531,7 @@ class SecureLoginCodeApiView(generics.GenericAPIView):
         if ensure_secure_connect_instance_is_not_expired(
             secure_connect_code,
             settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS,
-        ):
+        ) is False:
             log_request = base_message + (
                 f"Secure login with code attempt for user {user.email}, "
                 "but the token has expired"

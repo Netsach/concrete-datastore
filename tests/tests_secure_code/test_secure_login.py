@@ -29,8 +29,7 @@ class RetrieveCodeTestCase(APITestCase):
         first_code = secure_codes.first()
 
         resp = self.client.post(
-            login_url,
-            {"email": "usera@netsach.org", "code": first_code.value},
+            login_url, {"email": "usera@netsach.org", "code": first_code.value}
         )
         self.assertEqual(
             resp.status_code, status.HTTP_200_OK, msg=resp.content
@@ -45,15 +44,19 @@ class RetrieveCodeTestCase(APITestCase):
         login_url = '/api/v1.1/secure-connect/login-code/'
 
         resp = self.client.post(
-            login_url,
-            {"email": 'usera@netsach.org', "code": "UNKNOWN_CODE"},
+            login_url, {"email": 'usera@netsach.org', "code": "UNKNOWN_CODE"}
         )
         self.assertEqual(
             resp.status_code, status.HTTP_401_UNAUTHORIZED, msg=resp.content
         )
         self.assertIn('_errors', resp.data)
         self.assertEqual(
-            resp.data, {'message': 'Invalid code', "_errors": ["INVALID_CODE"]}
+            resp.data,
+            {
+                'message_fr': 'Code invalide',
+                'message_en': 'Invalid code',
+                "_errors": ["INVALID_CODE"],
+            },
         )
 
     def test_secure_login_not_existing_email(self):
@@ -73,7 +76,12 @@ class RetrieveCodeTestCase(APITestCase):
         )
         self.assertIn('_errors', resp.data)
         self.assertEqual(
-            resp.data, {'message': 'Invalid code', "_errors": ["INVALID_CODE"]}
+            resp.data,
+            {
+                'message_fr': 'Code invalide',
+                'message_en': 'Invalid code',
+                "_errors": ["INVALID_CODE"],
+            },
         )
 
     # Set expiry to 10 minutes
@@ -93,8 +101,7 @@ class RetrieveCodeTestCase(APITestCase):
         first_code.save()
         self.assertFalse(first_code.expired)
         resp = self.client.post(
-            login_url,
-            {"email": 'usera@netsach.org', "code": first_code.value},
+            login_url, {"email": 'usera@netsach.org', "code": first_code.value}
         )
         self.assertEqual(
             resp.status_code, status.HTTP_403_FORBIDDEN, msg=resp.content
@@ -102,7 +109,11 @@ class RetrieveCodeTestCase(APITestCase):
         self.assertIn('_errors', resp.data)
         self.assertEqual(
             resp.data,
-            {"message": "Code has expired", "_errors": ["CODE_HAS_EXPIRED"]},
+            {
+                "message_fr": "Code expiré",
+                "message_en": "Code has expired",
+                "_errors": ["CODE_HAS_EXPIRED"],
+            },
         )
         first_code.refresh_from_db()
         self.assertTrue(first_code.expired)
