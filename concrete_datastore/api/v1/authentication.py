@@ -57,8 +57,9 @@ def api_token_has_expired(token):
     return False
 
 
-def expire_secure_connect_instance(instance, expiration_limit_in_seconds):
-
+def ensure_secure_connect_instance_is_not_expired(instance, expiration_limit_in_seconds):
+    # if the instance is not expired, return True
+    # false otherwise
     if expiration_limit_in_seconds:
         now = pendulum.now('utc')
         secure_connect_instance_expired = (
@@ -68,8 +69,8 @@ def expire_secure_connect_instance(instance, expiration_limit_in_seconds):
         if secure_connect_instance_expired:
             instance.expired = True
             instance.save()
-            return True
-    return False
+            return False
+    return True
 
 
 class TokenExpiryAuthentication(authentication.TokenAuthentication):

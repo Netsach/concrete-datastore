@@ -490,6 +490,11 @@ class SecureLoginCodeApiView(generics.GenericAPIView):
 
         serializer = self.serializer_class(data=request.data)
         if not serializer.is_valid():
+            log_request = base_message + (
+                f"Secure login attempt failed: invalid data"
+                f" - {serializer.errors}"
+            )
+            logger_api_auth.info(log_request)
             return Response(
                 data={
                     "message": serializer.errors,
