@@ -93,7 +93,7 @@ from concrete_datastore.api.v1.filters import (
 
 from concrete_datastore.api.v1.authentication import (
     TokenExpiryAuthentication,
-    expire_secure_connect_instance,
+    ensure_secure_connect_instance_is_not_expired,
     URLTokenExpiryAuthentication,
 )
 from concrete_datastore.concrete.automation.signals import user_logged_in
@@ -268,8 +268,8 @@ class RetrieveSecureConnectCode(generics.GenericAPIView):
             user=user, expired=False
         )
         for secure_code in secure_codes:
-            # Check if the secure code is expired and expire in database
-            expire_secure_connect_instance(
+            # Ensure that the code is not expired
+            ensure_secure_connect_instance_is_not_expired(
                 secure_code, settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS
             )
         secure_codes_count = secure_codes.count()
@@ -328,7 +328,7 @@ class RetrieveSecureTokenApiView(generics.GenericAPIView):
             user=user, expired=False
         )
         for secure_token in secure_tokens:
-            expire_secure_connect_instance(
+            ensure_secure_connect_instance_is_not_expired(
                 secure_token, settings.SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS
             )
         secure_tokens_count = secure_tokens.count()
@@ -391,7 +391,7 @@ class GenerateSecureTokenApiView(generics.GenericAPIView):
             user=user, expired=False
         )
         for secure_token in secure_tokens:
-            expire_secure_connect_instance(
+            ensure_secure_connect_instance_is_not_expired(
                 secure_token, settings.SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS
             )
         secure_tokens_count = secure_tokens.count()
@@ -445,7 +445,7 @@ class SecureLoginApiView(generics.GenericAPIView):
             )
         user = secure_connect_token.user
 
-        if expire_secure_connect_instance(
+        if ensure_secure_connect_instance_is_not_expired(
             secure_connect_token,
             settings.SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS,
         ):
@@ -528,7 +528,7 @@ class SecureLoginCodeApiView(generics.GenericAPIView):
         else:
             user = secure_connect_code.user
 
-        if expire_secure_connect_instance(
+        if ensure_secure_connect_instance_is_not_expired(
             secure_connect_code,
             settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS,
         ):
