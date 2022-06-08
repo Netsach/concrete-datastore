@@ -277,8 +277,8 @@ class RetrieveSecureConnectCode(generics.GenericAPIView):
             user=user, expired=False
         )
 
-        if secure_connect_code.mail_sent is False:
-            secure_connect_code.send_mail()
+        secure_connect_code.send_mail()
+
         data = {
             'message_en': 'Code created and email sent',
             'message_fr': 'Code créé et email envoyé',
