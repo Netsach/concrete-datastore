@@ -356,7 +356,6 @@ class GenerateSecureTokenApiView(generics.GenericAPIView):
         if not serializer.is_valid():
             return ConcreteBadResponse(message=serializer.errors)
 
-
         email = serializer.validated_data["email"].lower()
 
         user_queryset = UserModel.objects.filter(email=email, is_active=True)
@@ -453,88 +452,6 @@ class SecureLoginApiView(generics.GenericAPIView):
         )
         logger_api_auth.info(log_request)
         return Response(data=serializer.data, status=HTTP_200_OK)
-
-
-class SecureLoginCodeApiView(generics.GenericAPIView):
-    """
-    this view is used to login the user with Secure Login
-    with email and code
-    """
-
-    serializer_class = SecureLoginCodeSerializer
-    api_namespace = DEFAULT_API_NAMESPACE
-
-    def __init__(self, api_namespace, *args, **kwargs):
-        self.api_namespace = api_namespace
-        super().__init__(*args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        ip = get_client_ip(request)
-        now = pendulum.now('utc').format(settings.LOGGING['datefmt'])
-        user = self.request.user
-        base_message = f"[{now}|{ip}|{user}|AUTH] "
-
-        serializer = self.serializer_class(data=request.data)
-        if not serializer.is_valid():
-            log_request = base_message + (
-                f"Secure login attempt failed: invalid data"
-                f" - {serializer.errors}"
-            )
-            logger_api_auth.info(log_request)
-            return ConcreteBadResponse(message=serializer.errors)
-
-        email = serializer.validated_data['email']
-        code = serializer.validated_data['code']
-        try:
-            secure_connect_code = SecureConnectCode.objects.get(
-                user__email=email, value=code
-            )
-        except ObjectDoesNotExist:
-            log_request = base_message + (
-                f"Secure login attempt failed: invalid code"
-            )
-            logger_api_auth.info(log_request)
-            return Response(
-                data={
-                    'message_en': 'Invalid code',
-                    "message_fr": "Code invalide",
-                    "_errors": ["INVALID_CODE"],
-                },
-                status=HTTP_401_UNAUTHORIZED,
-            )
-        else:
-            user = secure_connect_code.user
-
-        if (
-            ensure_secure_connect_instance_is_not_expired(
-                secure_connect_code,
-                settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS,
-            )
-            is False
-        ):
-            log_request = base_message + (
-                f"Secure login with code attempt for user {user.email}, "
-                "but the token has expired"
-            )
-            logger_api_auth.info(log_request)
-            return Response(
-                data={
-                    "message_en": "Code has expired",
-                    "message_fr": "Code expiré",
-                    "_errors": ["CODE_HAS_EXPIRED"],
-                },
-                status=HTTP_403_FORBIDDEN,
-            )
-
-        user_serializer = UserSerializer(
-            instance=user, api_namespace=self.api_namespace
-        )
-        UserModel.objects.filter(pk=user.pk).update(last_login=timezone.now())
-        log_request = base_message + (
-            f"Secure login with code attempt for user {user.email} is successful"
-        )
-        logger_api_auth.info(log_request)
-        return Response(data=user_serializer.data, status=HTTP_200_OK)
 
 
 class LoginApiView(generics.GenericAPIView):
@@ -690,6 +607,83 @@ class LoginApiView(generics.GenericAPIView):
         )
         logger_api_auth.info(log_request)
         return Response(data=serializer.data, status=HTTP_200_OK)
+
+
+class SecureLoginCodeApiView(LoginApiView):
+    """
+    this view is used to login the user with Secure Login
+    with email and code
+    """
+
+    serializer_class = SecureLoginCodeSerializer
+
+    def post(self, request, *args, **kwargs):
+        ip = get_client_ip(request)
+        now = pendulum.now('utc').format(settings.LOGGING['datefmt'])
+        user = self.request.user
+        base_message = f"[{now}|{ip}|{user}|AUTH] "
+
+        serializer = self.serializer_class(data=request.data)
+        if not serializer.is_valid():
+            log_request = base_message + (
+                f"Secure login attempt failed: invalid data"
+                f" - {serializer.errors}"
+            )
+            logger_api_auth.info(log_request)
+            return ConcreteBadResponse(message=serializer.errors)
+
+        email = serializer.validated_data['email']
+        code = serializer.validated_data['code']
+        try:
+            secure_connect_code = SecureConnectCode.objects.get(
+                user__email=email, value=code
+            )
+        except ObjectDoesNotExist:
+            log_request = base_message + (
+                f"Secure login attempt failed: invalid code"
+            )
+            logger_api_auth.info(log_request)
+            return Response(
+                data={
+                    'message_en': 'Invalid code',
+                    "message_fr": "Code invalide",
+                    "_errors": ["INVALID_CODE"],
+                },
+                status=HTTP_401_UNAUTHORIZED,
+            )
+        else:
+            user = secure_connect_code.user
+
+        if (
+            ensure_secure_connect_instance_is_not_expired(
+                secure_connect_code,
+                settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS,
+            )
+            is False
+        ):
+            log_request = base_message + (
+                f"Secure login with code attempt for user {user.email}, "
+                "but the token has expired"
+            )
+            logger_api_auth.info(log_request)
+            return Response(
+                data={
+                    "message_en": "Code has expired",
+                    "message_fr": "Code expiré",
+                    "_errors": ["CODE_HAS_EXPIRED"],
+                },
+                status=HTTP_403_FORBIDDEN,
+            )
+
+        user_serializer = UserSerializer(
+            instance=user, api_namespace=self.api_namespace
+        )
+        UserModel.objects.filter(pk=user.pk).update(last_login=timezone.now())
+        log_request = base_message + (
+            f"Secure login with code attempt for user {user.email} is successful"
+        )
+        logger_api_auth.info(log_request)
+        return Response(data=user_serializer.data, status=HTTP_200_OK)
 
 
 class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
