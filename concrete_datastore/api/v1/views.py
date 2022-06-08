@@ -256,7 +256,8 @@ class RetrieveSecureConnectCode(generics.GenericAPIView):
         if not user_queryset.exists():
             return Response(
                 data={
-                    "message": "Wrong email address",
+                    "message_en": "Wrong email address",
+                    "message_fr": "Adresse email incorrecte",
                     "_errors": ["WRONG_EMAIL_ADDRESS"],
                 },
                 status=HTTP_400_BAD_REQUEST,
@@ -283,7 +284,10 @@ class RetrieveSecureConnectCode(generics.GenericAPIView):
 
         if secure_connect_code.mail_sent is False:
             secure_connect_code.send_mail()
-        data = {'message': 'Code created and email sent'}
+        data = {
+            'message_en': 'Code created and email sent',
+            'message_fr': 'Code créé et email envoyé',
+        }
         return Response(data=data, status=HTTP_201_CREATED)
 
 
@@ -514,7 +518,11 @@ class SecureLoginCodeApiView(generics.GenericAPIView):
             )
             logger_api_auth.info(log_request)
             return Response(
-                data={'message': 'Invalid code', "_errors": ["INVALID_CODE"]},
+                data={
+                    'message_en': 'Invalid code',
+                    "message_fr": "Code invalide",
+                    "_errors": ["INVALID_CODE"],
+                },
                 status=HTTP_401_UNAUTHORIZED,
             )
         else:
@@ -531,13 +539,14 @@ class SecureLoginCodeApiView(generics.GenericAPIView):
             logger_api_auth.info(log_request)
             return Response(
                 data={
-                    "message": "Code has expired",
+                    "message_en": "Code has expired",
+                    "message_fr": "Code expiré",
                     "_errors": ["CODE_HAS_EXPIRED"],
                 },
                 status=HTTP_403_FORBIDDEN,
             )
 
-        serializer = UserSerializer(
+        user_serializer = UserSerializer(
             instance=user, api_namespace=self.api_namespace
         )
         UserModel.objects.filter(pk=user.pk).update(last_login=timezone.now())
@@ -545,7 +554,7 @@ class SecureLoginCodeApiView(generics.GenericAPIView):
             f"Secure login with code attempt for user {user.email} is successful"
         )
         logger_api_auth.info(log_request)
-        return Response(data=serializer.data, status=HTTP_200_OK)
+        return Response(data=user_serializer.data, status=HTTP_200_OK)
 
 
 class LoginApiView(generics.GenericAPIView):
