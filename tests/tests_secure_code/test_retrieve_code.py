@@ -51,8 +51,7 @@ class RetrieveCodeTestCase(APITestCase):
         self.assertEqual(
             resp.data,
             {
-                "message_en": "Wrong email address",
-                "message_fr": "Adresse email incorrecte",
+                "message": "Wrong email address",
                 "_errors": ["WRONG_EMAIL_ADDRESS"],
             },
         )

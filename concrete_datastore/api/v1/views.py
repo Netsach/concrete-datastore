@@ -251,8 +251,7 @@ class RetrieveSecureConnectCode(generics.GenericAPIView):
         if not user_queryset.exists():
             return Response(
                 data={
-                    "message_en": "Wrong email address",
-                    "message_fr": "Adresse email incorrecte",
+                    "message": "Wrong email address",
                     "_errors": ["WRONG_EMAIL_ADDRESS"],
                 },
                 status=HTTP_400_BAD_REQUEST,
@@ -645,8 +644,7 @@ class SecureLoginCodeApiView(LoginApiView):
             logger_api_auth.info(log_request)
             return Response(
                 data={
-                    'message_en': 'Invalid code',
-                    "message_fr": "Code invalide",
+                    'message': 'Invalid code',
                     "_errors": ["INVALID_CODE"],
                 },
                 status=HTTP_401_UNAUTHORIZED,
@@ -668,8 +666,7 @@ class SecureLoginCodeApiView(LoginApiView):
             logger_api_auth.info(log_request)
             return Response(
                 data={
-                    "message_en": "Code has expired",
-                    "message_fr": "Code expiré",
+                    "message": "Code has expired",
                     "_errors": ["CODE_HAS_EXPIRED"],
                 },
                 status=HTTP_403_FORBIDDEN,

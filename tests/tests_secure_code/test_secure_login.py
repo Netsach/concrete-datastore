@@ -53,8 +53,7 @@ class RetrieveCodeTestCase(APITestCase):
         self.assertEqual(
             resp.data,
             {
-                'message_fr': 'Code invalide',
-                'message_en': 'Invalid code',
+                'message': 'Invalid code',
                 "_errors": ["INVALID_CODE"],
             },
         )
@@ -78,8 +77,7 @@ class RetrieveCodeTestCase(APITestCase):
         self.assertEqual(
             resp.data,
             {
-                'message_fr': 'Code invalide',
-                'message_en': 'Invalid code',
+                'message': 'Invalid code',
                 "_errors": ["INVALID_CODE"],
             },
         )
@@ -110,8 +108,7 @@ class RetrieveCodeTestCase(APITestCase):
         self.assertEqual(
             resp.data,
             {
-                "message_fr": "Code expiré",
-                "message_en": "Code has expired",
+                "message": "Code has expired",
                 "_errors": ["CODE_HAS_EXPIRED"],
             },
         )
