@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Merge migrations in tests to fix the test workflow
 
 ### Removed
 
