@@ -4,16 +4,26 @@
 
 ### Added
 
+- nothing added
+
+### Changed
+
+- nothing changed
+
+### Removed
+
+- nothing removed
+
+## [1.44.0] - 2022-06-13
+
+### Added
+
 - Add the option that a user cannot register by himself
 - Secure connect with email and code
 
 ### Changed
 
 - Update django from 2.2 to 3.2 (LTS)
-
-### Removed
-
-- nothing removed
 
 ## [1.43.0] - 2022-05-18
 
