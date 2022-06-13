@@ -563,7 +563,7 @@ class RegisterTestCaseEmailFilter(APITestCase):
 
 
 @override_settings(ENABLE_USERS_SELF_REGISTER=False)
-class RegisterTestCaseEnableUsersSelf(APITestCase):
+class DisableUsersSelfRegisterTestCase(APITestCase):
     def setUp(self):
         self.superuser = User.objects.create_user('superuser@netsach.com')
         self.superuser.set_password('plop')
