@@ -2,6 +2,7 @@
 import pendulum
 import binascii
 import logging
+import string
 import uuid
 import sys
 import os
@@ -10,7 +11,7 @@ from collections import defaultdict
 from itertools import chain
 from binascii import unhexlify
 from datetime import date
-
+from django.utils.crypto import get_random_string
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
@@ -295,31 +296,26 @@ class ConcretePermission(models.Model):
         return str(self.model_name)
 
 
-class SecureConnectToken(models.Model):
-    value = models.UUIDField(default=uuid.uuid4, primary_key=True)
-    user = models.ForeignKey(
-        'concrete.User',
-        on_delete=models.PROTECT,
-        related_name='secure_connect_tokens',
-    )
+class SecureConnectModelMixin(models.Model):
+    class Meta:
+        abstract = True
+
     creation_date = models.DateTimeField(auto_now_add=True)
     modification_date = models.DateTimeField(auto_now=True)
     expired = models.BooleanField(default=False)
 
     mail_sent = models.BooleanField(default=False)
-    url = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return str(self.value)
 
+    def get_body(self):
+        raise NotImplementedError
+
     def send_mail(self):
         main_app = apps.get_app_config('concrete')
-        body = settings.SECURE_TOKEN_MESSAGE_BODY.format(
-            platform=settings.PLATFORM_NAME,
-            email=self.user.email,
-            link=self.url,
-        )
 
+        body = self.get_body()
         main_app.models['email'].objects.create(
             receiver=self.user,
             body=body,
@@ -332,6 +328,54 @@ class SecureConnectToken(models.Model):
         )
         self.mail_sent = True
         self.save()
+
+
+class SecureConnectToken(SecureConnectModelMixin):
+
+    value = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    user = models.ForeignKey(
+        'concrete.User',
+        on_delete=models.PROTECT,
+        related_name='secure_connect_tokens',
+    )
+    url = models.URLField(blank=True, null=True)
+
+    def get_body(self):
+        body = settings.SECURE_TOKEN_MESSAGE_BODY.format(
+            platform=settings.PLATFORM_NAME,
+            email=self.user.email,
+            link=self.url,
+        )
+        return body
+
+
+def get_random_secure_connect_code():
+    auth_code = get_random_string(
+        length=settings.SECURE_CONNECT_CODE_LENGTH,
+        allowed_chars=string.digits + string.ascii_letters,
+    )
+    return auth_code
+
+
+class SecureConnectCode(SecureConnectModelMixin):
+    uid = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    value = models.CharField(
+        default=get_random_secure_connect_code, max_length=250
+    )
+    user = models.ForeignKey(
+        'concrete.User',
+        on_delete=models.PROTECT,
+        related_name='secure_connect_codes',
+    )
+
+    def get_body(self):
+        code_timeout = settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS
+        body = settings.SECURE_CONNECT_CODE_MESSAGE_BODY.format(
+            platform=settings.PLATFORM_NAME,
+            auth_code=self.value,
+            min_validity=int(code_timeout / 60),
+        )
+        return body
 
 
 class UserConfirmation(models.Model):

@@ -49,6 +49,7 @@ from concrete_datastore.concrete.models import (  # pylint:disable=E0611
     PasswordChangeToken,
     Email,
     SecureConnectToken,
+    SecureConnectCode,
 )
 from concrete_datastore.api.v1.throttling import (
     CustomUserRateThrottle,
@@ -60,6 +61,7 @@ from concrete_datastore.api.v1.permissions import (
     filter_queryset_by_permissions,
     filter_queryset_by_divider,
 )
+from concrete_datastore.api.v1.responses import ConcreteBadResponse
 from concrete_datastore.api.v1.pagination import ExtendedPagination
 from concrete_datastore.api.v1.serializers import (
     AuthLoginSerializer,
@@ -71,6 +73,8 @@ from concrete_datastore.api.v1.serializers import (
     ConcretePasswordValidator,
     make_serializer_class,
     SecureLoginSerializer,
+    SecureLoginCodeSerializer,
+    RetrieveSecureConnectCodeSerializer,
 )
 from concrete_datastore.api.v1.filters import (
     FilterSupportingOrBackend,
@@ -90,7 +94,7 @@ from concrete_datastore.api.v1.filters import (
 
 from concrete_datastore.api.v1.authentication import (
     TokenExpiryAuthentication,
-    expire_secure_token,
+    ensure_secure_connect_instance_is_not_expired,
     URLTokenExpiryAuthentication,
 )
 from concrete_datastore.concrete.automation.signals import user_logged_in
@@ -233,6 +237,54 @@ class SecurityRulesMixin(object):
         return Response(data=default_options, status=HTTP_200_OK)
 
 
+class RetrieveSecureConnectCode(generics.GenericAPIView):
+    serializer_class = RetrieveSecureConnectCodeSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if not serializer.is_valid():
+            return ConcreteBadResponse(message=serializer.errors)
+
+        email = serializer.validated_data["email"].lower()
+
+        user_queryset = UserModel.objects.filter(email=email, is_active=True)
+        if not user_queryset.exists():
+            return Response(
+                data={
+                    "message": "Wrong email address",
+                    "_errors": ["WRONG_EMAIL_ADDRESS"],
+                },
+                status=HTTP_400_BAD_REQUEST,
+            )
+
+        user = user_queryset.first()
+        secure_codes = SecureConnectCode.objects.filter(
+            user=user, expired=False
+        )
+        for secure_code in secure_codes:
+            # Ensure that the code is not expired
+            ensure_secure_connect_instance_is_not_expired(
+                secure_code, settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS
+            )
+        secure_codes_count = secure_codes.count()
+        if (
+            secure_codes_count
+            >= settings.MAX_SIMULTANEOUS_SECURE_CONNECT_CODES_PER_USER
+        ):
+            return Response(status=HTTP_429_TOO_MANY_REQUESTS)
+        secure_connect_code = SecureConnectCode.objects.create(
+            user=user, expired=False
+        )
+
+        secure_connect_code.send_mail()
+
+        data = {
+            'message_en': 'Code created and email sent',
+            'message_fr': 'Code créé et email envoyé',
+        }
+        return Response(data=data, status=HTTP_201_CREATED)
+
+
 class RetrieveSecureTokenApiView(generics.GenericAPIView):
     """
     This view is used to create a secure token and send an email to the user
@@ -244,13 +296,7 @@ class RetrieveSecureTokenApiView(generics.GenericAPIView):
         # The ResetPasswordSerializer only need an email like this view
         serializer = ResetPasswordSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(
-                data={
-                    "message": serializer.errors,
-                    "_errors": ["INVALID_DATA"],
-                },
-                status=HTTP_400_BAD_REQUEST,
-            )
+            return ConcreteBadResponse(message=serializer.errors)
 
         email = serializer.validated_data["email"].lower()
 
@@ -270,7 +316,9 @@ class RetrieveSecureTokenApiView(generics.GenericAPIView):
             user=user, expired=False
         )
         for secure_token in secure_tokens:
-            expire_secure_token(secure_token)
+            ensure_secure_connect_instance_is_not_expired(
+                secure_token, settings.SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS
+            )
         secure_tokens_count = secure_tokens.count()
         if secure_tokens_count >= settings.MAX_SECURE_CONNECT_TOKENS:
             return Response(status=HTTP_429_TOO_MANY_REQUESTS)
@@ -305,13 +353,7 @@ class GenerateSecureTokenApiView(generics.GenericAPIView):
 
         serializer = ResetPasswordSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(
-                data={
-                    "message": serializer.errors,
-                    "_errors": ["INVALID_DATA"],
-                },
-                status=HTTP_400_BAD_REQUEST,
-            )
+            return ConcreteBadResponse(message=serializer.errors)
 
         email = serializer.validated_data["email"].lower()
 
@@ -331,7 +373,9 @@ class GenerateSecureTokenApiView(generics.GenericAPIView):
             user=user, expired=False
         )
         for secure_token in secure_tokens:
-            expire_secure_token(secure_token)
+            ensure_secure_connect_instance_is_not_expired(
+                secure_token, settings.SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS
+            )
         secure_tokens_count = secure_tokens.count()
         if secure_tokens_count >= settings.MAX_SECURE_CONNECT_TOKENS:
             return Response(status=HTTP_429_TOO_MANY_REQUESTS)
@@ -359,13 +403,8 @@ class SecureLoginApiView(generics.GenericAPIView):
 
         serializer = SecureLoginSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(
-                data={
-                    "message": serializer.errors,
-                    "_errors": ["INVALID_DATA"],
-                },
-                status=HTTP_400_BAD_REQUEST,
-            )
+            return ConcreteBadResponse(message=serializer.errors)
+
         token = serializer.validated_data['token']
         try:
             secure_connect_token = SecureConnectToken.objects.get(value=token)
@@ -383,7 +422,13 @@ class SecureLoginApiView(generics.GenericAPIView):
             )
         user = secure_connect_token.user
 
-        if expire_secure_token(secure_connect_token):
+        if (
+            ensure_secure_connect_instance_is_not_expired(
+                secure_connect_token,
+                settings.SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS,
+            )
+            is False
+        ):
             log_request = base_message + (
                 f"Secure login attempt for user {user.email}, "
                 "but the token has expired"
@@ -429,13 +474,7 @@ class LoginApiView(generics.GenericAPIView):
 
         serializer = AuthLoginSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(
-                data={
-                    'message': serializer.errors,
-                    "_errors": ["INVALID_DATA"],
-                },
-                status=HTTP_400_BAD_REQUEST,
-            )
+            return ConcreteBadResponse(message=serializer.errors)
 
         email = serializer.validated_data["email"].lower()
 
@@ -567,6 +606,81 @@ class LoginApiView(generics.GenericAPIView):
         )
         logger_api_auth.info(log_request)
         return Response(data=serializer.data, status=HTTP_200_OK)
+
+
+class SecureLoginCodeApiView(LoginApiView):
+    """
+    this view is used to login the user with Secure Login
+    with email and code
+    """
+
+    serializer_class = SecureLoginCodeSerializer
+
+    def post(self, request, *args, **kwargs):
+        ip = get_client_ip(request)
+        now = pendulum.now('utc').format(settings.LOGGING['datefmt'])
+        user = self.request.user
+        base_message = f"[{now}|{ip}|{user}|AUTH] "
+
+        serializer = self.serializer_class(data=request.data)
+        if not serializer.is_valid():
+            log_request = base_message + (
+                f"Secure login attempt failed: invalid data"
+                f" - {serializer.errors}"
+            )
+            logger_api_auth.info(log_request)
+            return ConcreteBadResponse(message=serializer.errors)
+
+        email = serializer.validated_data['email']
+        code = serializer.validated_data['code']
+        try:
+            secure_connect_code = SecureConnectCode.objects.get(
+                user__email=email, value=code
+            )
+        except ObjectDoesNotExist:
+            log_request = base_message + (
+                f"Secure login attempt failed: invalid code"
+            )
+            logger_api_auth.info(log_request)
+            return Response(
+                data={
+                    'message': 'Invalid code',
+                    "_errors": ["INVALID_CODE"],
+                },
+                status=HTTP_401_UNAUTHORIZED,
+            )
+        else:
+            user = secure_connect_code.user
+
+        if (
+            ensure_secure_connect_instance_is_not_expired(
+                secure_connect_code,
+                settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS,
+            )
+            is False
+        ):
+            log_request = base_message + (
+                f"Secure login with code attempt for user {user.email}, "
+                "but the token has expired"
+            )
+            logger_api_auth.info(log_request)
+            return Response(
+                data={
+                    "message": "Code has expired",
+                    "_errors": ["CODE_HAS_EXPIRED"],
+                },
+                status=HTTP_403_FORBIDDEN,
+            )
+
+        user_serializer = UserSerializer(
+            instance=user, api_namespace=self.api_namespace
+        )
+        UserModel.objects.filter(pk=user.pk).update(last_login=timezone.now())
+        log_request = base_message + (
+            f"Secure login with code attempt for user {user.email} is successful"
+        )
+        logger_api_auth.info(log_request)
+        return Response(data=user_serializer.data, status=HTTP_200_OK)
 
 
 class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
