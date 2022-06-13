@@ -11,11 +11,10 @@ from itertools import chain
 from binascii import unhexlify
 from datetime import date
 
-from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django_otp.models import Device
 from django_otp.oath import totp
 from django_otp.util import hex_validator, random_hex
@@ -79,7 +78,7 @@ class AuthToken(Token):
 
 
 def default_key():
-    return force_text(random_hex(20))
+    return force_str(random_hex(20))
 
 
 def key_validator(value):
@@ -829,13 +828,10 @@ def make_django_model(meta_model, divider):
                 {'blank': True, 'null': True, 'validators': [validate_file]}
             )
         elif field.f_type == 'JSONField':
-            json_args = args
-            json_args['blank'] = True
-            json_args['encoder'] = None
-            json_args['null'] = False
-            json_args['default'] = dict
-            attrs.update({field_name: JSONField(**json_args)})
-            continue
+            args['blank'] = True
+            args['encoder'] = None
+            args['null'] = False
+            args['default'] = dict
         elif field.f_type in ('CharField', 'TextField'):
             args['null'] = False
             args.setdefault('blank', True)

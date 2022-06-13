@@ -2,7 +2,9 @@
 import os
 import warnings
 
-from django.utils.deprecation import RemovedInNextVersionWarning
+from django.utils.deprecation import (
+    RemovedInNextVersionWarning,
+)
 
 from concrete_datastore.settings.base import *
 from concrete_datastore.settings.utils import load_datamodel
@@ -10,6 +12,7 @@ from concrete_datastore.settings.utils import load_datamodel
 warnings.filterwarnings(action='error')
 warnings.filterwarnings(action='ignore', category=RemovedInNextVersionWarning)
 warnings.filterwarnings(action='ignore', category=DeprecationWarning)
+warnings.filterwarnings(action='ignore', category=PendingDeprecationWarning)
 
 SITE_ID = 1
 PROXY_ENABLED = False

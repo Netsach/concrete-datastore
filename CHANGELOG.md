@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Update django from 2.2 to 3.2 (LTS)
 
 ### Removed
 

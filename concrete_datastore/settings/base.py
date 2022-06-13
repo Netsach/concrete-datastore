@@ -204,7 +204,7 @@ PASSWORD_EXPIRY_TIME = 0  # in days, 0 for no expiration
 API_TOKEN_EXPIRY = 0  # in minutes, 0 for no expiration
 EXPIRY_EXTRA_PERIOD = 0  # in minutes, 0 for no extra period
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_HEADERS = default_headers + (
     'Access-Control-Allow-Headers',
     'Access-Control-Allow-Origin',
@@ -214,8 +214,7 @@ CORS_ALLOW_HEADERS = default_headers + (
     'Content-Type',
     'Cache-Control',
 )
-CORS_ORIGIN_WHITELIST = "*"
-
+CORS_ALLOWED_ORIGINS = []
 
 MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -575,3 +574,5 @@ ENABLE_SWAGGER_UI = True
 ENABLE_SERVE_DATAMODEL = True
 SWAGGER_SPEC_PATH = 'openapi-schema'
 SWAGGER_UI_PATH = 'swagger-ui'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

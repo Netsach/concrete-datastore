@@ -9,7 +9,7 @@ from django.db import models
 from django.core import validators
 from django.http import HttpRequest
 from django.conf import settings
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.core.exceptions import PermissionDenied
 
 from rest_framework import exceptions, serializers
@@ -364,7 +364,7 @@ class AutoSchema(AutoSchemaSuper):
         operation = {}
 
         op_id, operation_ids = self.get_distinct_operation_id(
-            self._get_operation_id(path, method), operation_ids
+            self.get_operation_id(path, method), operation_ids
         )
         operation['operationId'] = op_id
         if from_db is False:
@@ -372,7 +372,7 @@ class AutoSchema(AutoSchemaSuper):
 
         parameters = []
         parameters += self.get_custom_path_parameters(path, method)
-        parameters += self._get_pagination_parameters(path, method)
+        parameters += self.get_pagination_parameters(path, method)
         parameters += self.get_custom_filter_parameters(path, method)
         operation['parameters'] = parameters
 
@@ -384,7 +384,7 @@ class AutoSchema(AutoSchemaSuper):
         return operation, operation_ids
 
     def get_custom_filter_parameters(self, path, method):
-        if not self._allows_filters(path, method) and "/stats" not in path:
+        if not self.allows_filters(path, method) and "/stats" not in path:
             return []
         if getattr(self.view, 'detail', False) is True:
             return []
@@ -472,7 +472,7 @@ class AutoSchema(AutoSchemaSuper):
                     model_field = None
 
                 if model_field is not None and model_field.help_text:
-                    description = force_text(model_field.help_text)
+                    description = force_str(model_field.help_text)
                 elif model_field is not None and model_field.primary_key:
                     description = get_pk_description(model, model_field)
 
@@ -520,7 +520,20 @@ class AutoSchema(AutoSchemaSuper):
                 )
             return {'$ref': f'#/components/schemas/{comp_name}'}
 
-        return super()._map_field(field)
+        # Related fields.
+        if isinstance(field, serializers.ManyRelatedField):
+            return {
+                'type': 'array',
+                'items': {'type': 'string', 'format': 'uid'},
+            }
+
+        if isinstance(field, serializers.PrimaryKeyRelatedField):
+            model = getattr(field.queryset, 'model', None)
+            if model is not None:
+                model_field = model._meta.pk
+                if isinstance(model_field, models.AutoField):
+                    return {'type': 'string', 'format': 'uid'}
+        return super().map_field(field)
 
     def custom_map_serializer(self, serializer, nested=True):
         required = []
@@ -645,7 +658,7 @@ class AutoSchema(AutoSchemaSuper):
                         '$ref': f'#/components/schemas/{component_name}'
                     }
                 }
-                for ct in self.content_types
+                for ct in self.request_media_types
             }
         }
 
@@ -721,7 +734,7 @@ class AutoSchema(AutoSchemaSuper):
                                 )
                             }
                         }
-                        for ct in self.content_types
+                        for ct in self.request_media_types
                     },
                 }
             }
