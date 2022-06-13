@@ -5,14 +5,28 @@
 ### Added
 
 - Add the option that a user cannot register by himself
+- Secure connect with email and code
 
 ### Changed
 
-- nothing changed
+- Update django from 2.2 to 3.2 (LTS)
 
 ### Removed
 
 - nothing removed
+
+## [1.43.0] - 2022-05-18
+
+### Added
+
+- Check if a user is not anonymous before calling `user.is_at_least_staff`
+
+
+## [1.42.0] - 2022-05-17
+
+### Changed
+
+- Fix bandit for python3.9 : Change of the `# nosec` to multiline in the `settings/base.py `
 
 ## [1.41.0] - 2022-02-21
 

@@ -1,7 +1,7 @@
 # coding: utf-8
 from django import forms as django_forms
 from django.contrib.auth import forms
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 from django_otp.forms import OTPAuthenticationFormMixin
 from django.contrib.auth import get_user_model
