@@ -4,6 +4,7 @@
 
 ### Added
 
+- Add the option that a user cannot register by himself
 - Secure connect with email and code
 
 ### Changed

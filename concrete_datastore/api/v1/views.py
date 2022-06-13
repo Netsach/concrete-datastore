@@ -1098,8 +1098,20 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
                 },
                 status=HTTP_400_BAD_REQUEST,
             )
-
         request_user = self.get_request_user()
+
+        if (
+            request_user.is_anonymous
+            and not settings.ENABLE_USERS_SELF_REGISTER
+        ):
+            return Response(
+                data={
+                    "message": "Self register is not allowed",
+                    "_errors": ["NOT_ALLOWED_TO_SELF_REGISTER"],
+                },
+                status=HTTP_400_BAD_REQUEST,
+            )
+
         ip = get_client_ip(request)
         now = pendulum.now('utc').format(settings.LOGGING['datefmt'])
         base_message = f"[{now}|{ip}|{request_user}|AUTH] "

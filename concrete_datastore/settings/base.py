@@ -599,4 +599,6 @@ ENABLE_SERVE_DATAMODEL = True
 SWAGGER_SPEC_PATH = 'openapi-schema'
 SWAGGER_UI_PATH = 'swagger-ui'
 
+ENABLE_USERS_SELF_REGISTER = False
+
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
