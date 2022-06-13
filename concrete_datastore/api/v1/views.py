@@ -129,7 +129,7 @@ URL_TIMESTAMP = (
 
 def get_client_ip(request):
     if 'HTTP_X_FORWARDED_FOR' in request.META:
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        x_forwarded_for = request.headers.get('X-Forwarded-For')
         ip = x_forwarded_for.split(',')[0]
     else:
         ip = request.META.get('REMOTE_ADDR')
@@ -324,7 +324,7 @@ class RetrieveSecureTokenApiView(generics.GenericAPIView):
             return Response(status=HTTP_429_TOO_MANY_REQUESTS)
         token = SecureConnectToken.objects.create(user=user)
         token.url = os.path.join(
-            request.META.get('HTTP_REFERER', '/'),
+            request.headers.get('Referer', '/'),
             '#',
             'secure-connect/login/{}'.format(token.value),
         )
@@ -1053,7 +1053,7 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
         return self.request.user
 
     def get_entity_uid(self, request):
-        return request.META.get("HTTP_X_ENTITY_UID", None)
+        return request.headers.get('X-Entity-Uid', None)
 
     def get_divider(self):
         divider_uid = self.get_entity_uid(self.request)
@@ -1312,8 +1312,8 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
                 '{token}', str(set_password_token.uid)
             ).replace('{email}', user.email)
 
-            referer = request.META.get(
-                'HTTP_REFERER', settings.AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO
+            referer = request.headers.get(
+                'Referer', settings.AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO
             )
 
             email_format = (
@@ -1346,7 +1346,7 @@ class RegisterApiView(SecurityRulesMixin, generics.GenericAPIView):
 
         elif settings.AUTH_CONFIRM_EMAIL_ENABLE is True:
             confirmation = user.get_or_create_confirmation(
-                redirect_to=request.META.get('HTTP_REFERER')
+                redirect_to=request.headers.get('Referer')
             )
 
             if confirmation.link_sent is False:
@@ -1478,8 +1478,8 @@ class ResetPasswordApiView(SecurityRulesMixin, generics.GenericAPIView):
             '{email}', user.email
         )
 
-        referer = request.META.get(
-            'HTTP_REFERER', settings.AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO
+        referer = request.headers.get(
+            'Referer', settings.AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO
         )
 
         link = urljoin(referer, uri)
@@ -1895,8 +1895,8 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
             api_logger = logger_api_safe
         else:
             api_logger = logger_api_unsafe
-            token_in_header = self.request.META.get(
-                "HTTP_AUTHORIZATION", ""
+            token_in_header = self.request.headers.get(
+                'Authorization', ""
             ).split('Token ')[-1]
             auth_token = AuthToken.objects.filter(key=token_in_header)
             # Update the token last action for expiry (QuerySet of 1 token)
@@ -2021,7 +2021,7 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         return self.get_paginated_response(data=None)
 
     def get_entity_uid(self, request):
-        scope_header_uid = request.META.get("HTTP_X_ENTITY_UID", None)
+        scope_header_uid = request.headers.get('X-Entity-Uid', None)
         try:
             uid = uuid.UUID(str(scope_header_uid), version=4)
             if uid.hex == str(scope_header_uid).replace('-', ''):
@@ -2305,12 +2305,15 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
                     request, *args, **kwargs
                 )
             except ProtectedError as e:
-                protected_objects_qs = e.protected_objects
-                related_model = protected_objects_qs.model
+                instance_model_name = instance._meta.model_name
+                protected_objects_list = [
+                    f'{o._meta.model_name} - {str(o.uid)}'
+                    for o in e.protected_objects
+                ]
                 msg = (
                     'Attempting to delete a protected related instance: '
-                    f'related to instance(s) {[str(o.uid) for o in protected_objects_qs]}'
-                    f' of model {related_model.__name__}'
+                    f'{instance_model_name} - {str(instance.uid)} '
+                    f'related to instance(s) {protected_objects_list}'
                 )
                 return Response(
                     status=HTTP_412_PRECONDITION_FAILED,
