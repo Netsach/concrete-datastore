@@ -8,11 +8,17 @@
 
 ### Changed
 
-- Merge migrations in tests to fix the test workflow
+- nothing changed
 
 ### Removed
 
 - nothing removed
+
+## [1.45.0] - 2022-06-13
+
+### Changed
+
+- Merge migrations in tests to fix the test workflow
 
 ## [1.44.0] - 2022-06-13
 
