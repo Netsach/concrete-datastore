@@ -60,11 +60,7 @@ class UserLevelFilteringTestCase(APITestCase):
         self.user_blocked.save()
         url = '/api/v1.1/auth/login/'
         resp = self.client.post(
-            url,
-            {
-                "email": "superuser@netsach.org",
-                "password": "plop",
-            },
+            url, {"email": "superuser@netsach.org", "password": "plop"}
         )
         self.token = resp.data['token']
 
@@ -76,6 +72,22 @@ class UserLevelFilteringTestCase(APITestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data['objects_count'], 1)
+
+        resp = self.client.get(
+            url_user.format('wrong_level'),
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 0)
+
+    def test_exclude_equals(self):
+        url_user = '/api/v1.1/user/?level!={}'
+        resp = self.client.get(
+            url_user.format('manager'),
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 3)
 
         resp = self.client.get(
             url_user.format('wrong_level'),
@@ -99,6 +111,43 @@ class UserLevelFilteringTestCase(APITestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.data['objects_count'], 1)
+
+        resp = self.client.get(
+            url_user.format('blocked'),
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 0)
+
+    def test_exclude_atleast(self):
+        url_user = '/api/v1.1/user/?atleast!={}'
+        resp = self.client.get(
+            url_user.format('manager'),
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 1)
+
+        resp = self.client.get(
+            url_user.format('superuser'),
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 3)
+
+        resp = self.client.get(
+            url_user.format('admin'),
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 2)
+
+        resp = self.client.get(
+            url_user.format('simpleuser'),
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['objects_count'], 0)
 
         resp = self.client.get(
             url_user.format('blocked'),

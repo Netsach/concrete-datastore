@@ -10,6 +10,8 @@
 ![Python](https://img.shields.io/badge/python-3.6-3473A7?logo=python&logoColor=FED646)
 ![Python](https://img.shields.io/badge/python-3.7-3473A7?logo=python&logoColor=FED646)
 ![Python](https://img.shields.io/badge/python-3.8-3473A7?logo=python&logoColor=FED646)
+![Python](https://img.shields.io/badge/python-3.9-3473A7?logo=python&logoColor=FED646)
+
 
 ## Description
 
@@ -60,6 +62,7 @@ Vous pouvez maintenant créer un jeton pour utiliser l'API (ou utiliser le Endpo
 Afin de décrire le schéma de la base de données, le développeur doit écrire un fichier `datamodel` en YAML ou JSON. Ce fichier `datamodel` permet à `concrete-datastore` de gérer la base de données sous-jacente à l'aide de PostgreSQL.
 
 Chaque demande d'API est contrôlée par ce fichier `datamodel` car il agit comme une spécification de ce qui se trouve dans la base de données et de ce qui devrait être autorisé par chaque utilisateur.
+
 
 Vous pouvez créer manuellement le fichier `datamodel` en suivant les exemples et la documentation ou utiliser l'éditeur en ligne [platform.concrete-datastore](https://platform.concrete-datastore.app/)
 

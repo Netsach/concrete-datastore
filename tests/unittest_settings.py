@@ -2,7 +2,9 @@
 import os
 import warnings
 
-from django.utils.deprecation import RemovedInNextVersionWarning
+from django.utils.deprecation import (
+    RemovedInNextVersionWarning,
+)
 
 from concrete_datastore.settings.base import *
 from concrete_datastore.settings.utils import load_datamodel
@@ -10,6 +12,7 @@ from concrete_datastore.settings.utils import load_datamodel
 warnings.filterwarnings(action='error')
 warnings.filterwarnings(action='ignore', category=RemovedInNextVersionWarning)
 warnings.filterwarnings(action='ignore', category=DeprecationWarning)
+warnings.filterwarnings(action='ignore', category=PendingDeprecationWarning)
 
 SITE_ID = 1
 PROXY_ENABLED = False
@@ -22,6 +25,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 PASSWORD_HASHERS = ('django.contrib.auth.hashers.MD5PasswordHasher',)
 
+ENABLE_AUTHENTICATED_USER_THROTTLING = False
+ENABLE_ANONYMOUS_USER_THROTTLING = False
 UNITTEST_ENABLED = True
 DEBUG = True
 TEMPLATE_DEBUG = False
@@ -84,3 +89,5 @@ META_MODEL_DEFINITIONS = load_datamodel(
 DISABLED_MODELS = ("EntityDividerModel",)
 EMAIL_HOST = ''
 API_REGISTER_EMAIL_FILTER = '.*'
+
+ENABLE_USERS_SELF_REGISTER = True

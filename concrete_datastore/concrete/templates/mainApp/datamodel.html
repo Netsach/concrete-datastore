@@ -1,0 +1,143 @@
+{% extends "admin/index.html" %}
+{% load i18n admin_urls static admin_list %}
+{% block content %}
+<h1>Datamodel</h1>
+<div class="module datamodel-content">
+
+    <div class="tab">
+        <button class="tablinks active" onclick="openFormat(event, 'yaml')">YAML</button>
+        <button class="tablinks" onclick="openFormat(event, 'json')">JSON</button>
+    </div>
+    <div class="datamodel-container">
+        <div class="yaml-datamodel tabcontent" id="yaml">
+            <div class="datamodel-buttons">
+                <button class="single-button" onclick="copyToClipboard('yaml')">COPY</button>
+                <a class="single-button" href="{% url 'datamodel' action='download' %}?data-format=yaml">DOWNLOAD</a>
+            </div>
+            <div class="meta-definition">
+                <pre>{{yaml_displayed_content | safe}}</pre>
+            </div>
+        </div>
+        <div class="json-datamodel tabcontent" id="json" style="display: none">
+            <div class="datamodel-buttons">
+                <button class="single-button" onclick="copyToClipboard('json')"><i class="fas fa-camera"></i>COPY</button>
+                <a class="single-button" href="{% url 'datamodel' action='download' %}?data-format=json">DOWNLOAD</a>
+            </div>
+            <div class="meta-definition">
+                <pre>{{json_content}}</pre>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    a:focus{
+        text-decoration: none !important;
+    }
+    .datamodel-content{
+        float: left;
+        width: 100%;
+    }
+    .single-button{
+        text-decoration: none;
+        color: #666 !important;
+        -webkit-writing-mode: horizontal-tb !important;
+        text-rendering: auto;
+        letter-spacing: normal;
+        word-spacing: normal;
+        line-height: normal;
+        text-transform: none;
+        text-indent: 0px;
+        text-shadow: none;
+        display: inline-block;
+        text-align: center;
+        align-items: flex-end;
+        cursor: default;
+        box-sizing: border-box;
+        background-color: #ccc;
+        margin: 0em;
+        height: 20px;
+        padding: 1px 6px;
+        border-width: 2px;
+        border-style: outset;
+        border-color: #ccc #666 #666 #ccc;
+        border-image: initial;
+        margin-left: 0.25rem;
+        display: flex;
+        align-items: center;
+    }
+    .single-button:active{
+        border-color: #666 #ccc #ccc #666;
+    }
+    .datamodel-buttons{
+        display: flex;
+        justify-content: flex-end;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ccc;
+    }
+    .datamodel-container{
+        border: none;
+        padding: 10px;
+        background-color: #f8f8f8;
+    }
+    .meta-definition{
+        height: 500px;
+        max-height: 700px;
+        overflow: auto;
+        resize: vertical;
+    }
+    .tab button {
+        color: #666;
+        background-color: #ccc;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 8px 20px;
+        font-size: 15px;
+    }
+
+    /* Change background color of buttons on hover */
+    .tab button:hover {
+        background-color: #ddd;
+    }
+
+    /* Create an active/current tablink class */
+    .tab button.active {
+        background-color: #f8f8f8;
+        border: none;
+    }
+
+    /* Style the tab */
+    /* Style the tab content */
+
+</style>
+<script>
+    var yamlContent = "{{ yaml_content | escapejs }}"
+    var jsonContent = "{{ json_content | escapejs }}"
+
+    function openFormat(evt, formatName) {
+        let tabcontent = document.getElementsByClassName("tabcontent");
+        for (let content of tabcontent){
+            content.style.display = "none";
+        }
+        let tablinks = document.getElementsByClassName("tablinks");
+        for (let link of tablinks){
+            link.className = link.className.replace(" active", "");
+        }
+        document.getElementById(formatName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+    function copyToClipboard(contentType){
+        let content = yamlContent
+        if (contentType === 'json'){
+            content = jsonContent
+        }
+        navigator.clipboard.writeText(content).then(() => {
+            alert(`Datamodel in ${contentType} copied in clipboard`);
+        }, (err) => {
+            alert(`Error while copying datamodel : ${err}`);
+        });
+
+    }
+
+</script>
+{% endblock %}

@@ -1,7 +1,7 @@
 # coding: utf-8
 import uuid
 from django.test import Client
-from concrete_datastore.concrete.models import User, UserConfirmation
+from concrete_datastore.concrete.models import User, UserConfirmation, Village
 
 
 def create_an_user_and_get_token(options=None, api_version='1'):
@@ -24,3 +24,14 @@ def create_an_user_and_get_token(options=None, api_version='1'):
     resp = Client().post(url, {"email": email, "password": password})
     token = resp.data['token']
     return user, token
+
+
+class TestRegisterBackend:
+    def post_register(self, request, user, *args, **kwargs):
+        #: set the level to manager
+        user.set_level('manager')
+        user.save()
+
+    def pre_register(self, request, *args, **kwargs):
+        #: delete all instances of model Village
+        Village.objects.all().delete()

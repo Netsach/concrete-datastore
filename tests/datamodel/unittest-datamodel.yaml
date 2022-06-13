@@ -142,6 +142,16 @@ manifest:
               allow_empty: true
             description: Nom
         uid: a2ce4b1e-8dae-4267-a0ab-7c38f50fe853
+      - name: AnonymousModel
+        description: AnonymousModel
+        representation_field: name
+        fields:
+          - name: name
+            datatype: char
+            attributes:
+              max_length: 200
+            description: Name of the project
+        uid: 24edd592-16d7-4b51-9d36-add7e17beb24
       - name: Project
         description: Project
         representation_field: name
@@ -504,6 +514,14 @@ manifest:
         lookups:
           - model_uid: d8725b42-82b4-4198-9fe0-1b285caa9897
             model_name: DefaultDivider
+      - model_uid: 24edd592-16d7-4b51-9d36-add7e17beb24
+        model_name: AnonymousModel
+        minimum_levels:
+          create: anonymous
+          delete: anonymous
+          update: anonymous
+          retrieve: anonymous
+        lookups: []
       - model_uid: 3c484e20-96ee-4aa7-ba89-14cee84affe4
         model_name: Category
         minimum_levels:
@@ -685,6 +703,12 @@ manifest:
           - name
           - archived
         export_fields: []
+      - model_uid: 24edd592-16d7-4b51-9d36-add7e17beb24
+        model_name: AnonymousModel
+        search_fields: []
+        filter_fields: []
+        display_fields: []
+        export_fields: []
       - model_uid: 3c484e20-96ee-4aa7-ba89-14cee84affe4
         model_name: Category
         search_fields:
@@ -709,6 +733,7 @@ manifest:
           - name
         filter_fields:
           - name
+          - json_field
         display_fields:
           - name
         export_fields: []

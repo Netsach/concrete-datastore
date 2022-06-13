@@ -68,7 +68,7 @@ class RetrieveTokenTestCase(APITestCase):
         self.assertEqual(resp.data['_errors'], ['INVALID_DATA'])
 
     # Set expiry to 3 days
-    @override_settings(SECURE_CONNECT_EXPIRY_TIME_DAYS=3)
+    @override_settings(SECURE_CONNECT_EXPIRY_TIME_SECONDS=3 * 3600 * 24)
     def test_secure_login_expire_token(self):
         retrieve_url = '/api/v1.1/secure-connect/retrieve-token/'
         login_url = '/api/v1.1/secure-connect/login/'

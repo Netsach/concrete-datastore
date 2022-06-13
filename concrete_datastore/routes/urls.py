@@ -4,7 +4,7 @@ from django.conf import settings
 from django.views.static import serve
 from django.views.generic import TemplateView
 from concrete_datastore.admin.admin import admin_site
-from .views import service_status_view, OpenApiView
+from .views import service_status_view, OpenApiView, DatamodelServer
 
 app_name = 'concrete_datastore.concrete'
 
@@ -30,12 +30,12 @@ swagger_urls = []
 if settings.DEBUG or settings.ENABLE_SWAGGER_UI:
     swagger_urls = [
         re_path(
-            r'openapi-schema\.(?P<spec_format>json|yaml)$',
+            fr'{settings.SWAGGER_SPEC_PATH}\.(?P<spec_format>json|yaml)$',
             OpenApiView.as_view(patterns=[api_v1_1_urls]),
             name='openapi-schema',
         ),
         re_path(
-            r'^swagger-ui/',
+            fr'^{settings.SWAGGER_UI_PATH}/',
             TemplateView.as_view(
                 template_name='mainApp/swagger-ui.html',
                 extra_context={'schema_url': 'openapi-schema'},
@@ -47,6 +47,11 @@ if settings.DEBUG or settings.ENABLE_SWAGGER_UI:
 urlpatterns = [
     re_path(r'^oauth/', include('social_django.urls', namespace='social')),
     re_path(r'^status/$', service_status_view, name='service-status-view'),
+    re_path(
+        r'^datamodel/(?P<action>download|view/?)?$',
+        DatamodelServer.as_view(),
+        name='datamodel',
+    ),
     re_path(
         r'^c/',
         include('concrete_datastore.concrete.urls', namespace='concrete'),

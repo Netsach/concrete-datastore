@@ -4,7 +4,10 @@ from django.urls import re_path
 from rest_framework.routers import SimpleRouter
 
 from concrete_datastore.concrete.meta import list_of_meta
-from concrete_datastore.api.v1.signals import send_email
+from concrete_datastore.api.v1.signals import (
+    send_email_pre_save,
+    send_email_post_save,
+)
 from concrete_datastore.api.v1.views import (
     LoginApiView,
     RegisterApiView,
@@ -14,12 +17,14 @@ from concrete_datastore.api.v1.views import (
     RetrieveSecureTokenApiView,
     SecureLoginApiView,
     GenerateSecureTokenApiView,
+    RetrieveSecureConnectCode,
+    SecureLoginCodeApiView,
 )
 from concrete_datastore.api.v1 import views, DEFAULT_API_NAMESPACE
 
 app_name = 'concrete_datastore.concrete'
 
-if not callable(send_email):
+if not callable(send_email_pre_save) or not callable(send_email_post_save):
     raise ValueError("The method used to send emails should be a callable")
 
 # API Front end
@@ -72,9 +77,19 @@ specific_urlpatterns = [
         name='retrieve-secure-token',
     ),
     re_path(
+        r'secure-connect/retrieve-code/',
+        RetrieveSecureConnectCode.as_view(),
+        name='retrieve-secure-code',
+    ),
+    re_path(
         r'secure-connect/login/',
         SecureLoginApiView.as_view(api_namespace=DEFAULT_API_NAMESPACE),
         name='secure-connect-login',
+    ),
+    re_path(
+        r'secure-connect/login-code/',
+        SecureLoginCodeApiView.as_view(api_namespace=DEFAULT_API_NAMESPACE),
+        name='secure-connect-login-code',
     ),
     re_path(
         r'secure-connect/generate-token',

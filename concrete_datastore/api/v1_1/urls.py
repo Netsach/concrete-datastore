@@ -13,6 +13,8 @@ from concrete_datastore.api.v1.views import (
     RetrieveSecureTokenApiView,
     SecureLoginApiView,
     GenerateSecureTokenApiView,
+    RetrieveSecureConnectCode,
+    SecureLoginCodeApiView,
 )
 from concrete_datastore.api.v1_1.views import (  # pylint:disable=E0611
     ConcreteRoleApiView,
@@ -105,9 +107,19 @@ specific_urlpatterns = [
         name='retrieve-secure-token',
     ),
     re_path(
+        r'secure-connect/retrieve-code/',
+        RetrieveSecureConnectCode.as_view(),
+        name='retrieve-secure-code',
+    ),
+    re_path(
         r'secure-connect/login/',
         SecureLoginApiView.as_view(api_namespace=API_NAMESPACE),
         name='secure-connect-login',
+    ),
+    re_path(
+        r'secure-connect/login-code/',
+        SecureLoginCodeApiView.as_view(api_namespace=API_NAMESPACE),
+        name='secure-connect-login-code',
     ),
     re_path(
         r'secure-connect/generate-token',

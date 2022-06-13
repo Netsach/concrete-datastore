@@ -64,6 +64,11 @@ class SecureLoginSerializer(serializers.Serializer):
     token = serializers.UUIDField()
 
 
+class SecureLoginCodeSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.CharField()
+
+
 class RegisterSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password1 = serializers.CharField(required=False, allow_null=True)
@@ -105,6 +110,10 @@ class ResetPasswordSerializer(serializers.Serializer):
         if value is None:
             return settings.DEFAULT_RESET_PASSWORD_URL_FORMAT
         return value
+
+
+class RetrieveSecureConnectCodeSerializer(serializers.Serializer):
+    email = serializers.EmailField()
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -345,7 +354,7 @@ def make_serializer_class(
         fields = _fields
 
         read_only_fields = (
-            ['created_by', 'admin', 'is_staff']
+            ['uid', 'created_by', 'admin', 'is_staff']
             + fk_read_only_fields
             + [f for f in _all_fields if f.startswith('resource_')]
         )
