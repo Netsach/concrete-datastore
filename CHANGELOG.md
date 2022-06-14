@@ -8,11 +8,17 @@
 
 ### Changed
 
-- Fix mfa login template because of load admin_static removal from django 3
+- nothing changed
 
 ### Removed
 
 - nothing removed
+
+## [1.47.0] - 2022-06-14
+
+### Changed
+
+- Fix mfa login template because of load admin_static removal from django 3
 
 ## [1.46.0] - 2022-06-13
 
