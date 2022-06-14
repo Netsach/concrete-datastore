@@ -61,7 +61,31 @@ ALLOW_MULTIPLE_AUTH_TOKEN_SESSION = True
 
 AUTH_CONFIRM_EMAIL_ENABLE = False
 AUTH_CONFIRM_EMAIL_DEFAULT_REDIRECT_TO = 'https://www.netsach.org'
-AUTH_CONFIRM_EMAIL_MESSAGE_BODY = """
+
+# Since python3.8 bandit changed the way to use the `# nosec` in multiline
+# strings: the following is accepted in python versions prior to 3.8, and is
+# no longer supported since python 3.8:
+#
+# MY_CONST = """
+# password
+# """  # nosec
+#
+# The new right way to use nosec with multiline since python 3.8 is
+#
+# MY_CONST = (  # nosec
+# """
+# password
+# """
+# )
+#
+# Doing so, black will format it back to the first way, so we have to disable
+# black for the following lines.
+# Refer to https://github.com/PyCQA/bandit/issues/658 for more details
+# about the issue.
+
+# fmt:off
+AUTH_CONFIRM_EMAIL_MESSAGE_BODY = (  # nosec
+    """
 <html>
 <body>
 <h3>Welcome to {platform},</h3>
@@ -74,13 +98,11 @@ AUTH_CONFIRM_EMAIL_MESSAGE_BODY = """
 <p>Merci de confirmer votre accès et votre adresse email : {email} en cliquant <a rel="notrack" href='{link}'>ici</a>. Cet email sera utilisé pour se connecter.</p>
 </body>
 </html>
-"""  # nosec
+"""
+)
 
-PASSWORD_CHANGE_TOKEN_EXPIRY_HOURS = 4
-
-SECURE_CONNECT_EXPIRY_TIME_DAYS = 2
-MAX_SECURE_CONNECT_TOKENS = 10
-SECURE_TOKEN_MESSAGE_BODY = """
+SECURE_TOKEN_MESSAGE_BODY = (  # nosec
+    """
 <html>
 <body>
 <h3>Welcome to {platform},</h3>
@@ -93,13 +115,32 @@ SECURE_TOKEN_MESSAGE_BODY = """
 <p>Veuillez cliquer <a rel="notrack" href='{link}'>ici</a> pour vous connecter sur la plateforme.</p>
 </body>
 </html>
-"""  # nosec
-
-DEFAULT_RESET_PASSWORD_URL_FORMAT = (
-    '/#/reset-password/{token}/{email}/'  # nosec
+"""
 )
 
-AUTH_CONFIRM_RESET_PASSWORD_EMAIL_BODY = """
+SECURE_CONNECT_CODE_MESSAGE_BODY = (  # nosec
+    """
+<html>
+<body>
+<h3>Welcome to {platform},</h3>
+<p>Please enter the following confirmation code to authenticate to the platform: <br>
+<strong>{auth_code}</strong><br>
+This code is valid for {min_validity} minutes.
+</p>
+
+<h3>Bienvenue sur {platform},</h3>
+<p>Veuillez entrer le code de confirmation suivant pour vous connecter sur la plateforme: <br>
+<strong>{auth_code}</strong><br>
+Ce code est valable pendant {min_validity} minutes.
+</p>
+
+</body>
+</html>
+"""
+)
+
+AUTH_CONFIRM_RESET_PASSWORD_EMAIL_BODY = (  # nosec
+    """
 <html>
 <body>
 <h3>Reset password</h3>
@@ -111,7 +152,61 @@ Ignore this email if you didn't ask to reset your password.</p><br>
 Veuillez ignorer ce mail si vous n'avez pas demandé à mettre à jour votre mot de passe</p>
 </body>
 </html>
-"""  # nosec
+"""
+)
+
+
+TWO_FACTOR_TOKEN_MSG = (  # nosec
+    """
+<html>
+<body>
+<h3>Verification code - {platform_name}</h3>
+<p>Please enter the following confirmation code to authenticate to the platform: <br>
+<strong>{confirm_code}</strong><br>
+This code is valid for {min_validity} minutes.
+</p>
+
+<h3>Code de vérification - {platform_name}</h3>
+<p>Veuillez entrer le code de confirmation suivant pour vous connecter sur la plateforme: <br>
+<strong>{confirm_code}</strong><br>
+Ce code est valable pendant {min_validity} minutes.
+</p>
+</body>
+</html>
+"""
+)
+
+DEFAULT_REGISTER_EMAIL_FORMAT = (  # nosec
+    """
+<html>
+<body>
+<h3>Set your password</h3>
+<p>Please follow <a rel="notrack" href="{link}">this link</a> to set your password and complete your register process.<p><br>
+
+<h3>Sélectionner votre mot de passe</h3>
+<p>Veuillez suivre <a rel="notrack" href="{link}">ce lien</a> pour choisir votre mot de passe et compléter votre inscription.</p><br>
+</body>
+</html>
+"""
+)
+
+# fmt:on
+
+
+PASSWORD_CHANGE_TOKEN_EXPIRY_HOURS = 4
+SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS = 2 * 3600 * 24  # 2 days
+MAX_SECURE_CONNECT_TOKENS = 10
+
+# Secure connect with code
+SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS = 60 * 10  # 10 minutes
+SECURE_CONNECT_CODE_LENGTH = 8
+MAX_SIMULTANEOUS_SECURE_CONNECT_CODES_PER_USER = 10
+
+
+DEFAULT_RESET_PASSWORD_URL_FORMAT = (
+    '/#/reset-password/{token}/{email}/'  # nosec
+)
+
 
 PLATFORM_NAME = 'Concrete Datastore'
 
@@ -133,7 +228,7 @@ PASSWORD_EXPIRY_TIME = 0  # in days, 0 for no expiration
 API_TOKEN_EXPIRY = 0  # in minutes, 0 for no expiration
 EXPIRY_EXTRA_PERIOD = 0  # in minutes, 0 for no extra period
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_HEADERS = default_headers + (
     'Access-Control-Allow-Headers',
     'Access-Control-Allow-Origin',
@@ -143,8 +238,7 @@ CORS_ALLOW_HEADERS = default_headers + (
     'Content-Type',
     'Cache-Control',
 )
-CORS_ORIGIN_WHITELIST = "*"
-
+CORS_ALLOWED_ORIGINS = []
 
 MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -314,6 +408,15 @@ LOGGING = {
             'class': 'logging.handlers.WatchedFileHandler',
             'filename': get_log_path('auth.log'),
         },
+        'celery_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': get_log_path('celery_scheduling.log'),
+            'when': 'd',
+            'interval': 1,
+            'backupCount': 1,
+            'formatter': 'verbose',
+        },
     },
     'loggers': {
         '': {
@@ -342,7 +445,12 @@ LOGGING = {
             'level': 'WARNING',
         },
         'celery.app.trace': {
-            'handlers': ['console', 'stream'],
+            'handlers': ['celery_file'],
+            'propagate': False,
+            'level': 'INFO',
+        },
+        'celery.worker': {
+            'handlers': ['celery_file'],
             'propagate': False,
             'level': 'INFO',
         },
@@ -440,23 +548,7 @@ MAX_SIMULTANEOUS_SESSIONS = 1
 # 0 for unlimited, only if SESSIONS_NUMBER_CONTROL_ENABLED == True
 
 TWO_FACTOR_CODE_TIMEOUT_SECONDS = 600
-TWO_FACTOR_TOKEN_MSG = """
-<html>
-<body>
-<h3>Verification code - {platform_name}</h3>
-<p>Please enter the following confirmation code to authenticate to the platform: <br>
-<strong>{confirm_code}</strong><br>
-This code is valid for {min_validity} minutes.
-</p>
 
-<h3>Code de vérification - {platform_name}</h3>
-<p>Veuillez entrer le code de confirmation suivant pour vous connecter sur la plateforme: <br>
-<strong>{confirm_code}</strong><br>
-Ce code est valable pendant {min_validity} minutes.
-</p>
-</body>
-</html>
-"""  # nosec
 USE_TWO_FACTOR_AUTH = False
 MFA_RULE_PER_USER = 'concrete_datastore.api.v1.authentication.default_mfa_rule'
 
@@ -479,17 +571,6 @@ REGISTER_EMAIL_SUBJECT = "Account created"
 
 DEFAULT_REGISTER_URL_FORMAT = '/#/set-password/{token}/{email}/'  # nosec
 
-DEFAULT_REGISTER_EMAIL_FORMAT = """
-<html>
-<body>
-<h3>Set your password</h3>
-<p>Please follow <a rel="notrack" href="{link}">this link</a> to set your password and complete your register process.<p><br>
-
-<h3>Sélectionner votre mot de passe</h3>
-<p>Veuillez suivre <a rel="notrack" href="{link}">ce lien</a> pour choisir votre mot de passe et compléter votre inscription.</p><br>
-</body>
-</html>
-"""  # nosec
 
 # Flag to allow a user to reuse a password on change, only applicable if
 # current password is not expired
@@ -521,3 +602,7 @@ ENABLE_DATABASE_LOAD = True
 ENABLE_SERVE_DATAMODEL = True
 SWAGGER_SPEC_PATH = 'openapi-schema'
 SWAGGER_UI_PATH = 'swagger-ui'
+
+ENABLE_USERS_SELF_REGISTER = False
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

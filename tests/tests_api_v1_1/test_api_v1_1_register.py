@@ -560,3 +560,53 @@ class RegisterTestCaseEmailFilter(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['NOT_ENOUGH_CHARS'])
+
+
+@override_settings(ENABLE_USERS_SELF_REGISTER=False)
+class DisableUsersSelfRegisterTestCase(APITestCase):
+    def setUp(self):
+        self.superuser = User.objects.create_user('superuser@netsach.com')
+        self.superuser.set_password('plop')
+        self.superuser.set_level('manager')
+        self.superuser.save()
+
+    def test_register_self_user(self):
+        # Anonymous request to self register
+
+        url = '/api/v1.1/auth/register/'
+        email = "johndoe@netsach.org"
+        resp = self.client.post(
+            url,
+            {
+                "email": email,
+                "password1": "mypassword",
+                "password2": "mypassword",
+            },
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.data['message'], 'Self register is not allowed')
+        self.assertEqual(
+            resp.data['_errors'], ['NOT_ALLOWED_TO_SELF_REGISTER']
+        )
+
+    def test_register_by_manager(self):
+        # Authenticated request (by a manager) to register a user
+        url_login = '/api/v1.1/auth/login/'
+
+        resp = self.client.post(
+            url_login, {"email": "superuser@netsach.com", "password": "plop"}
+        )
+        super_token = resp.data['token']
+
+        url = '/api/v1.1/auth/register/'
+        email = "johndoe@netsach.org"
+        resp = self.client.post(
+            url,
+            {
+                "email": email,
+                "password1": "mypassword",
+                "password2": "mypassword",
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(super_token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)

@@ -170,7 +170,7 @@ class UserAccessPermission(permissions.BasePermission):
                 )
         model = view.model_class
         if model == get_user_model():
-            if not request.user.is_at_least_staff:
+            if request.user.is_anonymous or not request.user.is_at_least_staff:
                 return False
 
         if request.method not in ["OPTIONS", "HEAD"]:
