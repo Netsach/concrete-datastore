@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- add log on email sending failure
 
 ### Removed
 
