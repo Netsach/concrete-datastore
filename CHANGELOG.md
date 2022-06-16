@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Use correct base template for mfa login template
 
 ### Removed
 
