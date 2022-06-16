@@ -87,7 +87,11 @@ def perform_send_email(instance, enable_retrying=True, is_async=False):
                 stop=stop_after_attempt(settings.MAX_RETRIES),
             )
             send_email_retryer(_perform_send_email)
-    except Exception:
+    except Exception as e:
+        logger.info(
+            f'ERROR : Unable to send email {instance.pk} '
+            f'to {instance.receiver.email}, {str(e)}'
+        )
         instance.resource_status = 'send-error'
         instance.resource_message = 'Unable to send email'
         save_instance_if_async(instance=instance, is_async=is_async)

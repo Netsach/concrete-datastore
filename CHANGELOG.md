@@ -8,6 +8,7 @@
 
 ### Changed
 
+- add log on email sending failure
 - Use correct base template for mfa login template
 
 ### Removed
