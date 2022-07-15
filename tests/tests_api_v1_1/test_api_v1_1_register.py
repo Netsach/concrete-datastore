@@ -1,5 +1,6 @@
 # coding: utf-8
 from django.test import override_settings
+from django.conf import settings
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -9,6 +10,7 @@ from concrete_datastore.concrete.models import (
     Email,
     PasswordChangeToken,
     UserConfirmation,
+    Village,
 )
 
 
@@ -446,6 +448,35 @@ class RegisterTestCaseEmailLower(APITestCase):
         )
         self.assertEqual(resp.data.get('email'), email_lower)
 
+    @override_settings(
+        CONCRETE_REGISTER_BACKENDS=['tests.utils.TestRegisterBackend']
+    )
+    def test_register_backends(self):
+        #: Create a Village instance that will be deleted by the backend
+        Village.objects.create()
+        self.assertEqual(Village.objects.count(), 1)
+
+        url = '/api/v1.1/auth/register/'
+        self.assertEqual(User.objects.count(), 0)
+
+        # POST informations to register a new user
+
+        # POST correct informations
+        email = "JoHnDoE@netsach.org"
+        email_lower = "johndoe@netsach.org"
+        resp = self.client.post(
+            url,
+            {
+                "email": email,
+                "password1": "mypassword",
+                "password2": "mypassword",
+            },
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(resp.data.get('email'), email_lower)
+        self.assertEqual(resp.data.get('level'), 'manager')
+        self.assertEqual(Village.objects.count(), 0)
+
 
 @override_settings(
     DEBUG=True, API_REGISTER_EMAIL_FILTER=r'.*@netsach\.(fr|org)'
@@ -529,3 +560,53 @@ class RegisterTestCaseEmailFilter(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('_errors', resp.data)
         self.assertEqual(resp.data['_errors'], ['NOT_ENOUGH_CHARS'])
+
+
+@override_settings(ENABLE_USERS_SELF_REGISTER=False)
+class DisableUsersSelfRegisterTestCase(APITestCase):
+    def setUp(self):
+        self.superuser = User.objects.create_user('superuser@netsach.com')
+        self.superuser.set_password('plop')
+        self.superuser.set_level('manager')
+        self.superuser.save()
+
+    def test_register_self_user(self):
+        # Anonymous request to self register
+
+        url = '/api/v1.1/auth/register/'
+        email = "johndoe@netsach.org"
+        resp = self.client.post(
+            url,
+            {
+                "email": email,
+                "password1": "mypassword",
+                "password2": "mypassword",
+            },
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.data['message'], 'Self register is not allowed')
+        self.assertEqual(
+            resp.data['_errors'], ['NOT_ALLOWED_TO_SELF_REGISTER']
+        )
+
+    def test_register_by_manager(self):
+        # Authenticated request (by a manager) to register a user
+        url_login = '/api/v1.1/auth/login/'
+
+        resp = self.client.post(
+            url_login, {"email": "superuser@netsach.com", "password": "plop"}
+        )
+        super_token = resp.data['token']
+
+        url = '/api/v1.1/auth/register/'
+        email = "johndoe@netsach.org"
+        resp = self.client.post(
+            url,
+            {
+                "email": email,
+                "password1": "mypassword",
+                "password2": "mypassword",
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(super_token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
