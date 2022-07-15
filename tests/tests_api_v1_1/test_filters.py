@@ -88,7 +88,7 @@ class FilterSupportingComparisonBackendTestCase(APITestCase):
         self.assertEqual(resp.data['objects_count'], 1)
         #: Emty sting raises a ValidationError
         resp = self.client.get(
-            '/api/v1/skill/?score__gt=',
+            '/api/v1.1/skill/?score__gt=',
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
         )
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
@@ -334,7 +334,7 @@ class FilterDatesTestClass(APITestCase):
 
         self.user.save()
         UserConfirmation.objects.create(user=self.user, confirmed=True).save()
-        url = '/api/v1/auth/login/'
+        url = '/api/v1.1/auth/login/'
         resp = self.client.post(
             url,
             {
@@ -345,7 +345,7 @@ class FilterDatesTestClass(APITestCase):
         )
         self.token = resp.data['token']
         self.date = pendulum.from_format("2022-2-22", 'YYYY-MM-DD')
-        url_date = '/api/v1/date-utc/'
+        url_date = '/api/v1.1/date-utc/'
         for i in range(10):
             self.client.post(
                 url_date,
@@ -443,7 +443,7 @@ class FilterDatesTestClass(APITestCase):
         start_date = "2022-02-24"
         end_date = "2022-02-25"
 
-        url_date = '/api/v1/date-utc/?datetime__range={},{}'.format(
+        url_date = '/api/v1.1/date-utc/?datetime__range={},{}'.format(
             start_date, end_date
         )
         results = self.client.get(
@@ -473,7 +473,7 @@ class FilterDatesTestClass(APITestCase):
         start_date = "2022-02-25T08:50:00Z"
         end_date = "2022-02-25T09:30:00Z"
 
-        url_date = '/api/v1/date-utc/?datetime__range={},{}'.format(
+        url_date = '/api/v1.1/date-utc/?datetime__range={},{}'.format(
             start_date, end_date
         )
         results = self.client.get(
@@ -497,7 +497,7 @@ class FilterDatesTestClass(APITestCase):
         """
         start_datetime = "2022-02-25T14:00:00Z"
         end_datetime = "2022-02-25T14:00:00Z"
-        url_date = '/api/v1/date-utc/?datetime__range={},{}'.format(
+        url_date = '/api/v1.1/date-utc/?datetime__range={},{}'.format(
             start_datetime, end_datetime
         )
         results = self.client.get(
@@ -526,7 +526,9 @@ class FilterDatesTestClass(APITestCase):
         self.date_utc7
         """
         start_datetime = "2022-02-25T14:00:00Z"
-        url_date = '/api/v1/date-utc/?datetime__gte={}'.format(start_datetime)
+        url_date = '/api/v1.1/date-utc/?datetime__gte={}'.format(
+            start_datetime
+        )
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
@@ -556,7 +558,9 @@ class FilterDatesTestClass(APITestCase):
         """
 
         start_datetime = "2022-02-25T14:00:00.12345Z"
-        url_date = '/api/v1/date-utc/?datetime__gte={}'.format(start_datetime)
+        url_date = '/api/v1.1/date-utc/?datetime__gte={}'.format(
+            start_datetime
+        )
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
@@ -586,7 +590,9 @@ class FilterDatesTestClass(APITestCase):
         """
 
         start_datetime = "2022-02-25T14:00:00.999999Z"
-        url_date = '/api/v1/date-utc/?datetime__gte={}'.format(start_datetime)
+        url_date = '/api/v1.1/date-utc/?datetime__gte={}'.format(
+            start_datetime
+        )
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
@@ -612,7 +618,7 @@ class FilterDatesTestClass(APITestCase):
         self.date_utc7
         """
         start_datetime = "2022-02-25T14:00:00Z"
-        url_date = '/api/v1/date-utc/?datetime__gt={}'.format(start_datetime)
+        url_date = '/api/v1.1/date-utc/?datetime__gt={}'.format(start_datetime)
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
@@ -639,7 +645,7 @@ class FilterDatesTestClass(APITestCase):
         """
 
         start_datetime = "2022-02-25T14:00:00.12345Z"
-        url_date = '/api/v1/date-utc/?datetime__gt={}'.format(start_datetime)
+        url_date = '/api/v1.1/date-utc/?datetime__gt={}'.format(start_datetime)
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
@@ -666,7 +672,7 @@ class FilterDatesTestClass(APITestCase):
         """
 
         start_datetime = "2022-02-25T14:00:00.999999Z"
-        url_date = '/api/v1/date-utc/?datetime__gt={}'.format(start_datetime)
+        url_date = '/api/v1.1/date-utc/?datetime__gt={}'.format(start_datetime)
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
@@ -696,7 +702,9 @@ class FilterDatesTestClass(APITestCase):
         """
 
         start_datetime = "2022-02-25T14:00:00Z"
-        url_date = '/api/v1/date-utc/?datetime__lte={}'.format(start_datetime)
+        url_date = '/api/v1.1/date-utc/?datetime__lte={}'.format(
+            start_datetime
+        )
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
@@ -727,7 +735,7 @@ class FilterDatesTestClass(APITestCase):
         """
 
         datetime = "2022-02-25T14:00:00.12345Z"
-        url_date = '/api/v1/date-utc/?datetime__lte={}'.format(datetime)
+        url_date = '/api/v1.1/date-utc/?datetime__lte={}'.format(datetime)
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
@@ -757,7 +765,7 @@ class FilterDatesTestClass(APITestCase):
         """
 
         datetime = "2022-02-25T14:00:00.999999Z"
-        url_date = '/api/v1/date-utc/?datetime__lte={}'.format(datetime)
+        url_date = '/api/v1.1/date-utc/?datetime__lte={}'.format(datetime)
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
@@ -786,7 +794,7 @@ class FilterDatesTestClass(APITestCase):
         """
 
         start_datetime = "2022-02-25T14:00:00Z"
-        url_date = '/api/v1/date-utc/?datetime__lt={}'.format(start_datetime)
+        url_date = '/api/v1.1/date-utc/?datetime__lt={}'.format(start_datetime)
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
@@ -803,7 +811,7 @@ class FilterDatesTestClass(APITestCase):
         """
 
         start_datetime = "2022-02-25T14:00:00.999999Z"
-        url_date = '/api/v1/date-utc/?datetime__lt={}'.format(start_datetime)
+        url_date = '/api/v1.1/date-utc/?datetime__lt={}'.format(start_datetime)
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
@@ -831,7 +839,7 @@ class FilterDatesTestClass(APITestCase):
         """
 
         start_datetime = "2022-02-25T14:00:00.12345Z"
-        url_date = '/api/v1/date-utc/?datetime__lt={}'.format(start_datetime)
+        url_date = '/api/v1.1/date-utc/?datetime__lt={}'.format(start_datetime)
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
@@ -860,7 +868,7 @@ class FilterDatesTestClass(APITestCase):
         """
 
         start_datetime = "2022-02-25"
-        url_date = '/api/v1/date-utc/?date__range={},'.format(start_datetime)
+        url_date = '/api/v1.1/date-utc/?date__range={},'.format(start_datetime)
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
@@ -894,7 +902,7 @@ class FilterDatesTestClass(APITestCase):
 
         start_datetime = "2022-02-25A"
 
-        url_date = '/api/v1/date-utc/?modification_date__gt={}'.format(
+        url_date = '/api/v1.1/date-utc/?modification_date__gt={}'.format(
             start_datetime
         )
         results = self.client.get(
@@ -918,7 +926,7 @@ class FilterDatesTestClass(APITestCase):
 
         start_datetime = "2022-02-25:14:00:12a"
 
-        url_date = '/api/v1/date-utc/?modification_date__gt={}'.format(
+        url_date = '/api/v1.1/date-utc/?modification_date__gt={}'.format(
             start_datetime
         )
         results = self.client.get(
@@ -933,7 +941,7 @@ class FilterDatesTestClass(APITestCase):
     def test_filter_wrong_date_format(self):
         # FORMAT USED: YYYY/MM/DD
         start_date = self.date.add(days=-1).to_date_string().replace('-', '/')
-        url_date = '/api/v1/date-utc/?date__range={},'.format(start_date)
+        url_date = '/api/v1.1/date-utc/?date__range={},'.format(start_date)
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
@@ -944,9 +952,79 @@ class FilterDatesTestClass(APITestCase):
             "Wrong date format, should be 'yyyy-mm-dd'",
         )
 
+    def test_wrong_date_range_values(self):
+        #: URL with wrong date values
+        url_date_time = (
+            '/api/v1.1/date-utc/?date__range=WRONG_FORMAT1,WRONG_FORMAT2'
+        )
+
+        resp = self.client.get(
+            url_date_time, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            resp.json(),
+            {
+                'message': "Wrong date format, should be 'yyyy-mm-dd'",
+                '_errors': ['INVALID_QUERY'],
+            },
+        )
+
+        #: URL with wrong datetime values
+        url_date_time = (
+            '/api/v1.1/date-utc/?datetime__range=WRONG_FORMAT1,WRONG_FORMAT2'
+        )
+
+        resp = self.client.get(
+            url_date_time, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            resp.json(),
+            {
+                'message': "Wrong date format, should be 'yyyy-mm-dd' or 'yyyy-mm-ddThh:mm:ss[.xxxxxx]Z'",
+                '_errors': ['INVALID_QUERY'],
+            },
+        )
+
+    def test_bad_formatted_range_values(self):
+        start_date = self.date.add(days=-1).to_date_string()
+        start_datetime = format_datetime(self.date.add(days=-1))
+        end_date = self.date.add(days=3).to_date_string()
+
+        #: URL with only one value
+        url_date_time = f'/api/v1.1/date-utc/?datetime__range={start_datetime}'
+
+        resp = self.client.get(
+            url_date_time, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            resp.json(),
+            {
+                "message": "A comma is expected in the value of the filter. Expected values are '<date1>,<date2>', '<date1>,' or ',<date2>'"
+            },
+        )
+
+        #: URL with 3 values (2 commas)
+        url_date = (
+            f'/api/v1.1/date-utc/?datetime__range={start_date},{end_date},'
+        )
+
+        resp = self.client.get(
+            url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertDictEqual(
+            resp.json(),
+            {
+                "message": f'Only two comma-separated values are expected, got 3: [\'{start_date}\', \'{end_date}\', \'\']'
+            },
+        )
+
     def test_filter_7_occurences_microseconds(self):
         start_datetime = "2022-02-25T14:00:00.1234568Z"
-        url_date = '/api/v1/date-utc/?datetime__lt={}'.format(start_datetime)
+        url_date = '/api/v1.1/date-utc/?datetime__lt={}'.format(start_datetime)
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
