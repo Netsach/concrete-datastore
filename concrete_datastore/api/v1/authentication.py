@@ -1,6 +1,6 @@
 # coding: utf-8
 import pendulum
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 
 from rest_framework import authentication
@@ -8,6 +8,7 @@ from rest_framework import exceptions
 
 from concrete_datastore.concrete.models import (  # pylint:disable=E0611
     SecureConnectToken,
+    SecureConnectCode,
     AuthToken,
     Group,
 )
@@ -56,20 +57,22 @@ def api_token_has_expired(token):
     return False
 
 
-def expire_secure_token(token):
-
-    secure_token_can_expire = settings.SECURE_CONNECT_EXPIRY_TIME_DAYS
-    if secure_token_can_expire:
-        now = pendulum.now()
-        secure_token_expired = (
-            now.diff(token.creation_date).in_days()
-            >= settings.SECURE_CONNECT_EXPIRY_TIME_DAYS
+def ensure_secure_connect_instance_is_not_expired(
+    instance, expiration_limit_in_seconds
+):
+    # if the instance is not expired, return True
+    # false otherwise
+    if expiration_limit_in_seconds:
+        now = pendulum.now('utc')
+        secure_connect_instance_expired = (
+            now.diff(instance.creation_date).in_seconds()
+            >= expiration_limit_in_seconds
         )
-        if secure_token_expired:
-            token.expired = True
-            token.save()
-            return True
-    return False
+        if secure_connect_instance_expired:
+            instance.expired = True
+            instance.save()
+            return False
+    return True
 
 
 class TokenExpiryAuthentication(authentication.TokenAuthentication):
@@ -91,7 +94,16 @@ class TokenExpiryAuthentication(authentication.TokenAuthentication):
         for secure_token in SecureConnectToken.objects.filter(
             user=token.user, expired=False
         ):
-            expire_secure_token(secure_token)
+            ensure_secure_connect_instance_is_not_expired(
+                secure_token, settings.SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS
+            )
+        # Check if the secure token is expired and expire in database
+        for secure_code in SecureConnectCode.objects.filter(
+            user=token.user, expired=False
+        ):
+            ensure_secure_connect_instance_is_not_expired(
+                secure_code, settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS
+            )
 
         return (token.user, token)
 
