@@ -115,8 +115,19 @@ def convert_type(string, field_type, close_period=True):
             check_seconds = regex_second.match(str(string))
 
             dt = ensure_pendulum(string)
+            #: If the given value contains microseconds,
+            #: the method convert_type must return the exact value
             if check_microseconds:
                 return format_datetime(dt)
+
+            #: If the given value does not contain microseconds but
+            #: conains a datetime, the method convert_type must
+            #: either return the `start_of` or `end_of` second, depending
+            #: on the argument `close_period`
+            #: Otherwise the return value should be the `start_of` or
+            #: `end_of` day of the given date.
+            #: the variable `time_limit_unit` will contain either
+            #: `"second"` or `"day"`
             elif check_seconds:
                 time_limit_unit = 'second'
             else:
