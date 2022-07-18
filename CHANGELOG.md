@@ -379,4 +379,4 @@
 ### Added
 
 - concrete datastore doc is up to date.
-- - Open the sources.
+- Open the sources.
