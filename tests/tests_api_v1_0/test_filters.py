@@ -419,8 +419,6 @@ class FilterDatesTestClass(APITestCase):
             },
         )
 
-        # Recupere que le self.date_utc2 parce qu'il affiche 1 jour avant la date de fin
-
     def test_filter_range_datetime(self):
         """
         Expected:
@@ -746,8 +744,17 @@ class FilterDatesTestClass(APITestCase):
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
+        pks_set = set([result['uid'] for result in results.data['results']])
         self.assertEqual(len(results.data['results']), 3)
         self.assertEqual(results.status_code, status.HTTP_200_OK)
+        self.assertSetEqual(
+            pks_set,
+            {
+                self.date_utc1_pk,
+                self.date_utc2_pk,
+                self.date_utc3_pk,
+            },
+        )
 
     def test_filter_lt_datetime_microseconds(self):
         """
@@ -839,14 +846,6 @@ class FilterDatesTestClass(APITestCase):
         )
 
     def test_filter_wrong_format_on_creation_date(self):
-        """
-        Expected:
-        self.date_utc3
-        self.date_utc4
-        self.date_utc5
-        self.date_utc6
-        self.date_utc7
-        """
 
         start_datetime = "2022-02-25A"
 
@@ -912,7 +911,7 @@ class FilterDividedModelByDivider(APITestCase):
         self.confirmation = UserConfirmation.objects.create(user=self.user1)
         self.confirmation.confirmed = True
         self.confirmation.save()
-        url = '/api/v1.1/auth/login/'
+        url = '/api/v1/auth/login/'
         resp = self.client.post(
             url, {"email": "usera@netsach.org", "password": "plop"}
         )
@@ -937,9 +936,9 @@ class FilterDividedModelByDivider(APITestCase):
         )
 
     def test_filter_objects_by_divider(self):
-        url_projects = '/api/v1.1/project/'
+        url_projects = '/api/v1/project/'
         # User get only projects from cloisonX
-        url_filter = '/api/v1.1/project/?{}={}'.format(
+        url_filter = '/api/v1/project/?{}={}'.format(
             DIVIDER_MODEL.lower(), str(self.cloisonX.uid)
         )
         resp = self.client.get(
@@ -954,7 +953,7 @@ class FilterDividedModelByDivider(APITestCase):
         self.assertEqual(results[0]['name'], "projet A")
 
         # User get only projects from cloisonY
-        url_filter = '/api/v1.1/project/?{}={}'.format(
+        url_filter = '/api/v1/project/?{}={}'.format(
             DIVIDER_MODEL.lower(), str(self.cloisonY.uid)
         )
         resp = self.client.get(
