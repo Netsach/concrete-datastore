@@ -14,13 +14,6 @@
 
 - nothing removed
 
-## [1.48.0] - 2022-06-16
-
-### Changed
-
-- add log on email sending failure
-- Use correct base template for mfa login template
-
 ## [1.47.0] - 2022-06-14
 
 ### Changed
