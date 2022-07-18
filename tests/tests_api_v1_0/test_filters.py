@@ -317,23 +317,11 @@ class FilterDatesTestClass(APITestCase):
         self.token = resp.data['token']
         self.date = pendulum.from_format("2022-2-22", 'YYYY-MM-DD')
         url_date = '/api/v1/date-utc/'
-        for i in range(10):
-            self.client.post(
-                url_date,
-                data={
-                    "date": self.date.add(days=i).to_date_string(),
-                    "datetime": self.date.add(days=i)
-                    .to_iso8601_string()
-                    .split('+')[0]
-                    + 'Z',
-                },
-                HTTP_AUTHORIZATION="Token {}".format(self.token),
-            )
 
         resp1 = self.client.post(
             url_date,
             data={
-                "date": self.date.add(days=i).to_date_string(),
+                "date": self.date.add(days=1).to_date_string(),
                 "datetime": "2022-02-23T14:00:00.5Z",
             },
             HTTP_AUTHORIZATION="Token {}".format(self.token),
@@ -343,7 +331,7 @@ class FilterDatesTestClass(APITestCase):
         resp2 = self.client.post(
             url_date,
             data={
-                "date": self.date.add(days=i).to_date_string(),
+                "date": self.date.add(days=2).to_date_string(),
                 "datetime": "2022-02-24T08:45:10.55Z",
             },
             HTTP_AUTHORIZATION="Token {}".format(self.token),
@@ -353,7 +341,7 @@ class FilterDatesTestClass(APITestCase):
         resp3 = self.client.post(
             url_date,
             data={
-                "date": self.date.add(days=i).to_date_string(),
+                "date": self.date.add(days=3).to_date_string(),
                 "datetime": "2022-02-25T09:30:00Z",
             },
             HTTP_AUTHORIZATION="Token {}".format(self.token),
@@ -363,7 +351,7 @@ class FilterDatesTestClass(APITestCase):
         resp4 = self.client.post(
             url_date,
             data={
-                "date": self.date.add(days=i).to_date_string(),
+                "date": self.date.add(days=3).to_date_string(),
                 "datetime": "2022-02-25T14:00:00.12345Z",
             },
             HTTP_AUTHORIZATION="Token {}".format(self.token),
@@ -373,7 +361,7 @@ class FilterDatesTestClass(APITestCase):
         resp5 = self.client.post(
             url_date,
             data={
-                "date": self.date.add(days=i).to_date_string(),
+                "date": self.date.add(days=3).to_date_string(),
                 "datetime": "2022-02-25T14:00:00.999999Z",
             },
             HTTP_AUTHORIZATION="Token {}".format(self.token),
@@ -383,7 +371,7 @@ class FilterDatesTestClass(APITestCase):
         resp6 = self.client.post(
             url_date,
             data={
-                "date": self.date.add(days=i).to_date_string(),
+                "date": self.date.add(days=4).to_date_string(),
                 "datetime": "2022-02-26T14:00:00Z",
             },
             HTTP_AUTHORIZATION="Token {}".format(self.token),
@@ -393,15 +381,12 @@ class FilterDatesTestClass(APITestCase):
         resp7 = self.client.post(
             url_date,
             data={
-                "date": self.date.add(days=i).to_date_string(),
+                "date": self.date.add(days=4).to_date_string(),
                 "datetime": "2022-02-26T14:00:03Z",
             },
             HTTP_AUTHORIZATION="Token {}".format(self.token),
         )
         self.date_utc7_pk = resp7.data['uid']
-
-    def tearDown(self):
-        pass
 
     def test_filter_range_date(self):
         """

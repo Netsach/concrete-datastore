@@ -115,30 +115,28 @@ def convert_type(string, field_type, close_period=True):
             check_seconds = regex_second.match(str(string))
 
             dt = ensure_pendulum(string)
-            if not check_microseconds and not check_seconds:
-                if close_period:
-                    dt = dt.end_of('day')
-                else:
-                    dt = dt.start_of('day')
+            if check_microseconds:
+                return format_datetime(dt)
             elif check_seconds:
-                if close_period:
-                    dt = dt.end_of('second')
-                else:
-                    dt = dt.start_of('second')
-
+                time_limit_unit = 'second'
+            else:
+                time_limit_unit = 'day'
+            if close_period is True:
+                dt = dt.end_of(time_limit_unit)
+            else:
+                dt = dt.start_of(time_limit_unit)
             return format_datetime(dt)
+
         if field_type == 'DateField':
             # Expected YYYY-MM-DD
             dt = ensure_pendulum(string)
             # Deactivated by lco, a date is a date, no time in it
-            # f close_period:
+            # if close_period:
             #     dt.end_of('day')
             return dt.to_date_string()
     elif field_type in ('DecimalField', 'FloatField'):
         return float(string)
     else:
-        return int(string)
-
         return int(string)
 
 
