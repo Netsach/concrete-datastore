@@ -622,15 +622,15 @@ CREATE_SUPERUSER_EMAIL_MESSAGE_BODY = (  # nosec
 
 RESET_PASSWORD_EMAIL_MESSAGE_BODY = (  # nosec
     '''
-            Welcome to Concrete <a href="{admin_url}">{hostname}</a><br>
-                <br>
-                You have requested a new password.
-                You can now connect to your concrete instance with the following
-                credentials :<br>
-                email {email}<br>
-                password {password}<br>
-                <br>
-                Please change your password as you connect for the first time.
+    Welcome to Concrete <a href="{admin_url}">{hostname}</a><br>
+    <br>
+    You have requested a new password.
+    You can now connect to your concrete instance with the following
+    credentials :<br>
+    email {email}<br>
+    password {password}<br>
+    <br>
+    Please change your password as you connect for the first time.
 '''
 )
 # fmt:on
