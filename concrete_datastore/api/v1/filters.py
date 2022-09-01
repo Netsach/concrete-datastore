@@ -456,7 +456,11 @@ class FilterSupportingOrBackend(
             filter_field_type = get_filter_field_type(
                 queryset.model, bare_param.replace('__in', '')
             )
-            if filter_field_type in ('UUIDField', 'ForeignKey'):
+            if filter_field_type in (
+                'UUIDField',
+                'ForeignKey',
+                'ManyToManyField',
+            ):
                 for value in values:
                     if not ensure_uuid_valid(value):
                         message = f"'{value}' is not a valid UUID"

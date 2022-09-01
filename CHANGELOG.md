@@ -5,6 +5,11 @@
 ### Added
 
 - Command management `reset_password`
+- Management command to get database connection string, could be used with pg_dump (`pg_dump --dbname=$CONNECTION_STRING`) see [https://www.postgresql.org/docs/14/libpq-connect.html](documentation)
+
+```bash
+/usr/bin/pg_dump --dbname=`python3 manage.py db_connection_string` | bzip2 --fast > backup.sql.bzip2
+```
 
 ### Changed
 
@@ -13,6 +18,38 @@
 ### Removed
 
 - nothing removed
+
+## [1.48.0] - 2022-06-16
+
+### Changed
+
+- add log on email sending failure
+- Use correct base template for mfa login template
+
+## [1.47.0] - 2022-06-14
+
+### Changed
+
+- Fix mfa login template because of load admin_static removal from django 3
+
+## [1.46.0] - 2022-06-13
+
+## [1.45.0] - 2022-06-13
+
+### Changed
+
+- Merge migrations in tests to fix the test workflow
+
+## [1.44.0] - 2022-06-13
+
+### Added
+
+- Add the option that a user cannot register by himself
+- Secure connect with email and code
+
+### Changed
+
+- Update django from 2.2 to 3.2 (LTS)
 
 ## [1.43.0] - 2022-05-18
 

@@ -1,34 +1,34 @@
-# Frequently Asked Questions
+# Questions fréquemment posées
 
-When you try out the `concrete-datastore` yourself, you might stumble across one of the following issues. We try to keep the list up to date. If you can not make it work or you find other impediments, please don't hesitate to contact us. We will try to find a solution and include it here.
+Lorsque vous essayez vous-même `concrete-datastore`, vous pouvez rencontrer l'un des problèmes suivants. Nous essayons de tenir la liste à jour. Si vous ne pouvez pas le faire fonctionner ou si vous rencontrez d'autres obstacles, n'hésitez pas à nous contacter. Nous allons essayer de trouver une solution et de l'inclure ici.
 
-## Table of Contents
+## Table des matières
 
 <!-- MarkdownTOC autolink="true" -->
 
-- [I do not have Docker installed](#i-do-not-have-docker-installed)
-- [I do not have *virtualenv* installed](#i-do-not-have-virtualenv-installed)
-- [I can not pip install: UNKNOWN error](#i-can-not-pip-install-unknown-error)
-- [Running the migration scripts throws an error: role does not exists](#running-the-migration-scripts-throws-an-error-role-does-not-exists)
-- [Troubleshooting Docker](#troubleshooting-docker)
-- [How do I quit my virtualenv session?](#how-do-i-quit-my-virtualenv-session)
-- [Is GDAL installed ?](#is-gdal-installed-)
+- [Je n'ai pas installé Docker](#je-n'ai-pas-installé-Docker)
+- [Je n'ai pas *virtualenv* installé](#je-n'ai-pas-virtualenv-installé)
+- [Je n'arrive pas à installer pip : erreur INCONNUE](#je-n'arrive-pas-à-installer-pip-erreur-inconnue)
+- [L'exécution des scripts de migration génère une erreur : le rôle n'existe pas](#running-the-migration-scripts-throws-an-error-role-does-not-exists)
+- [Dépannage Docker](#dépannage-docker)
+- [Comment quitter ma session virtualenv ?](#comment-quitter-ma-session-virtualenv)
+- [GDAL est-il installé ?](#gdal-est-il-installé)
 <!-- /MarkdownTOC -->
 
 
-## I do not have Docker installed
-If you do not already have an PostgreSQL server running and you want to use docker, you need to download and install it. Please see the [official page](https://docs.docker.com/get-docker/) for more information.
+## Je n'ai pas installé Docker
+Si vous n'avez pas encore de serveur PostgreSQL en cours d'exécution et que vous souhaitez utiliser docker, vous devez le télécharger et l'installer. Veuillez consulter la [page officielle](https://docs.docker.com/get-docker/) pour plus d'informations.
 
-## I do not have *virtualenv* installed
-*virtualenv* is a useful tool that enables you to create isolated Python environments. Simply install it with *pip*:
+## Je n'ai pas *virtualenv* installé
+*virtualenv* est un outil utile qui vous permet de créer des environnements Python isolés. Installez-le simplement avec *pip*:
 
 ``` shell
 pip install virtualenv
 ```
 
-## I can not pip install: UNKNOWN error
+## Je n'arrive pas à installer pip : erreur INCONNUE
 
-When running the `pip install -e ".[full]"` you might see the following (wrong) output:
+Lors de l'exécution de `pip install -e ".[full]"`, vous pouvez voir la sortie suivante (erronée) :
 
 ``` shell
 UNKNOWN 0.0.0 does not provide the extra 'full'
@@ -40,69 +40,73 @@ Installing collected packages: UNKNOWN
 Successfully installed UNKNOWN
 ```
 
-This is not expected. To solve this, please upgrade *pip* and the *setuptools* as follows:
+Ceci n'est pas l'attendu. Pour résoudre ce problème, veuillez mettre à jour *pip* et les *setuptools* comme indiqué ici :
 
 ```shell
 pip install --upgrade pip
 pip install setuptools --upgrade
 ```
 
-## Running the migration scripts throws an error: role does not exists
-If you get an error like the following:
+## L'exécution des scripts de migration génère une erreur : le rôle n'existe pas
+Si vous obtenez une erreur comme celle-ci :
 ``` shell
 django.db.utils.OperationalError: FATAL:  role "user-concrete-datastore" does not exist
 ```
 
-You used the wrong run command for docker. The container might not even be started, or it crashed right after the launch. This is due to the fact that a database name, username and password is required. If you are just trying out the `concrete-datastore`, use the following default settings:
+Vous avez utilisé la mauvaise commande d'exécution pour docker. Le conteneur peut même ne pas être démarré, ou il s'est écrasé juste après le lancement. Cela est dû au fait qu'un nom de base de données, un nom d'utilisateur et un mot de passe sont requis. Si vous essayez juste le `concrete-datastore`, utilisez les paramètres par défaut suivants :
 
 ```shell
 docker run --name postgres-concrete-datastore -e POSTGRES_DB=db-concrete-datastore -e POSTGRES_USER=user-concrete-datastore -e POSTGRES_PASSWORD=pwd-concrete-datastore -d -p 5432:5432 postgres
 ```
 
-Afterwards, you should be able to run the following commands.
+Ensuite, vous devriez pouvoir exécuter les commandes suivantes.
 
-## Troubleshooting Docker
-To see all containers, use:
+## Dépannage Docker
+Pour voir tous les conteneurs, utilisez :
 
 ```shell
 docker ps -a
 ```
 
-To show only the running containers, use:
+Pour afficher uniquement les conteneurs en cours d'exécution, utilisez :
 ```shell
 docker ps
 ```
 
-If a container did not start, or you suspect problems, check the logs:
+Si un conteneur n'a pas démarré ou si vous soupçonnez des problèmes, consultez les journaux :
 
 ```shell
 docker container logs <container_id>
 ```
 
-To stop and remove a running container, use:
+Pour arrêter et supprimer un conteneur en cours d'exécution, utilisez :
 ```shell
 docker kill <container_id>
 docker rm <container_id>
 ```
 
-## How do I quit my virtualenv session?
-If you are done working with the virtual environment, just deactivate it by running:
+## Comment quitter ma session virtualenv ?
+Si vous avez fini de travailler avec l'environnement virtuel, il suffit de le désactiver en exécutant :
 
 ``` shell
 deactivate
 ```
 
-## Is GDAL installed ?
-### For MacOS
-If your terminal prints an error like : ```Could not find the GDAL library ... is GDAL installed``` try to run ```brew install gdal``` in your shell. (N.B : this command requires to have Xcode installed on your Mac)
-If this doesn't fix your issue, try :
+## GDAL est-il installé ?
+### Pour MacOS
+Si votre terminal affiche une erreur du type : ```Could not find the GDAL library ... is GDAL installed``` essayez d'exécuter ```brew install gdal``` dans votre shell. (N.B : cette commande nécessite d'avoir Xcode installé sur votre Mac)
+Si cela ne résout pas votre problème, essayez :
 ```shell
 brew install PostgreSQL
 brew install postgis
 ```
 
-### For Linux
-If your terminal prints an error like : ```Could not find the GDAL library ... is GDAL installed``` try to run in your terminal :
+### Pour Linux
+Si votre terminal affiche une erreur du type : ```Could not find the GDAL library ... is GDAL installed``` essayez d'exécuter dans votre terminal :
 ```shell
 sudo apt-get install gdal-bin
 ``` 
+
+## Version Anglaise
+
+Vous pouvez retrouver la version Anglaise [ici](FAQS-en.md).

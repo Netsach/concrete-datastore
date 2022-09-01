@@ -33,8 +33,9 @@ class WebAppViewsTestCase(TestCase):
 
         response = service_status_view('test')
         self.assertDictEqual(
-            response._headers,
-            {'content-type': ('Content-Type', 'application/json')},
+            dict(response.headers),
+            {'Content-Type': 'application/json'},
+            msg=repr(response.headers),
         )
         self.assertEqual(
             json.loads(response._container[0]).get('version'),
