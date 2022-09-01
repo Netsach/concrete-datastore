@@ -35,7 +35,18 @@ class Command(BaseCommand):
             email_instance = EmailModel(
                 created_by=user,
                 subject='Access to Concrete Instance',
-                body=settings.CREATION_SUPERUSER_EMAIL_BODY.format(
+                body='''
+                Welcome to Concrete <a href="{admin_url}">{hostname}</a><br>
+                <br>
+                You can now connect to your concrete instance with the following
+                credentials :<br>
+
+                email {email}<br>
+                password {password}<br>
+                <br>
+                Please change your password as you connect for the first time.
+
+            '''.format(
                     hostname=settings.HOSTNAME,
                     admin_url=admin_url,
                     email=email,

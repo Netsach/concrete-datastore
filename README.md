@@ -1,6 +1,5 @@
 # README
-
-## Code Quality
+## Qualité du code
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Netsach/concrete-datastore/Check%20Bandit?label=security)
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Netsach/concrete-datastore/Check%20Black?label=black)
@@ -16,15 +15,15 @@
 
 ## Description
 
-`concrete-datastore` is a highly versatile HTTP REST Datastore based on the web framework [Django](https://djangoproject.com/).
+`concrete-datastore` est un Datastore HTTP REST très polyvalent basé sur le framework Web [Django](https://djangoproject.com/).
 
-It is used mainly as a HTTP database server for single page web application (SPA).
+Il est principalement utilisé comme serveur de base de données HTTP pour une application Web monopage (AWM).
 
-As opposed to a classic database server such as PostgreSQL or MySQL where queries are performed using SQL language, each operation is performed using plain HTTP requests. `concrete-datastore` abstracts the database layer.
+Contrairement à un serveur de base de données classique tel que PostgreSQL ou MySQL où les requêtes sont effectuées à l'aide du langage SQL, chaque opération est effectuée à l'aide de requêtes HTTP simples.
 
-`concrete-datastore` can be seen as a NoSQL server or as a Firebase alternative.
+`concrete-datastore` peut être considéré comme un serveur NoSQL ou comme une alternative à Firebase.
 
-## Quick start
+## Démarrage rapide
 
 ![Term sheet sample](https://concrete-datastore.netsach.org/en/latest/assets/mini-term-sample.svg)
 
@@ -43,33 +42,38 @@ concrete-datastore createsuperuser
 concrete-datastore runserver
 ```
 
-Now browse to [http://127.0.0.1:8000/concrete-datastore-admin/](http://127.0.0.1:8000/concrete-datastore-admin/)
+Naviguez maintenant jusqu'à [http://127.0.0.1:8000/concrete-datastore-admin/](http://127.0.0.1:8000/concrete-datastore-admin/)
 
-You can now create a token to use the API (or use the login endpoint).
+Vous pouvez maintenant créer un jeton pour utiliser l'API (ou utiliser le Endpoint d'authentification).
 
-## Features
+## Fonctionnalités
 
-`concrete-datastore` comes with a lot of built-in features such as:
+`concrete-datastore` est livré avec de nombreuses fonctionnalités intégrées telles que :
 
-- User and permission management
-- Automatically generated backoffice for administrators
-- Fully REST API using JSON as serialization format
-- Simple statistics generation
-- Email sending capabilities from the API
+- Gestion des utilisateurs et des autorisations
+- Backoffice généré automatiquement pour les administrateurs
+- API entièrement REST utilisant JSON comme format de sérialisation
+- Génération de statistiques simples
+- Capacités d'envoi d'e-mails à partir de l'API
 - ...
 
-## How does it work ?
+## Comment ça marche ?
 
-In order to describe the database schema, the developer has to write a `datamodel` file in YAML or JSON. This `datamodel` file allows `concrete-datastore` to manage the underlying database using PostgreSQL.
+Afin de décrire le schéma de la base de données, le développeur doit écrire un fichier `datamodel` en YAML ou JSON. Ce fichier `datamodel` permet à `concrete-datastore` de gérer la base de données sous-jacente à l'aide de PostgreSQL.
 
-Each API requests is controlled by this `datamodel` file as it acts as a specification of what is in the database and what should be allowed per user.
+Chaque demande d'API est contrôlée par ce fichier `datamodel` car il agit comme une spécification de ce qui se trouve dans la base de données et de ce qui devrait être autorisé par chaque utilisateur.
 
-You can create manually the `datamodel` file following the examples and the documentation or use the online editor [concrete-datastore.com](https://concrete-datastore.com/)
+
+Vous pouvez créer manuellement le fichier `datamodel` en suivant les exemples et la documentation ou utiliser l'éditeur en ligne [platform.concrete-datastore](https://platform.concrete-datastore.app/)
 
 ## F.A.Q
 
-If you have questions, they may have already been answered in the [FAQS.md](FAQS.md)
+Si vous avez des questions, elles ont peut-être déjà été répondues dans le [FAQS.md](FAQS.md)
 
-## Official documentation
+## Documentation officielle
 
-See the [official documentation](http://concrete-datastore.netsach.org/)
+Voir la [documentation officielle](http://concrete-datastore.netsach.org/)
+
+## Version Anglaise
+
+Vous pouvez retrouver la version Anglaise [ici](README-en.md)

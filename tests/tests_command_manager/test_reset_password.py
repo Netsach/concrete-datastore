@@ -13,7 +13,7 @@ class ResetPasswordCommandManagementTests(TestCase):
         self.user.save()
 
     def test_reset_password_user(self):
-        self.assertEqual(self.user.check_password("plop"), True)
+        self.assertTrue(self.user.check_password("plop"))
         call_command('reset_password', self.user.email)
         email_sent = Email.objects.get(created_by=self.user)
         self.user.refresh_from_db()
@@ -23,7 +23,7 @@ class ResetPasswordCommandManagementTests(TestCase):
         self.assertEqual(
             "Reset password to Concrete Instance", email_sent.subject
         )
-        self.assertEqual(self.user.check_password("plop"), False)
+        self.assertFalse(self.user.check_password("plop"))
 
     def test_reset_password_email_does_not_exist(self):
         email = "anonymous@netsach.org"
