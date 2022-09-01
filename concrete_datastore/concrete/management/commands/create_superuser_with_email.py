@@ -1,10 +1,13 @@
 # coding: utf-8
-import random
-import string
+
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
+from concrete_datastore.concrete.management.reset_password import (
+    generate_random_password,
+    get_admin_url,
+)
 
 
 class Command(BaseCommand):
@@ -23,36 +26,16 @@ class Command(BaseCommand):
         user, created = UserModel.objects.get_or_create(email=email)
 
         if created:
-            password = ''.join(
-                random.choice(string.ascii_letters + string.digits)  # nosec
-                for _ in range(24)
-            )
+            password = generate_random_password()
             user.set_password(password)
             user.set_level('superuser')
             user.save()
 
-            port = ''
-            if int(settings.PORT) not in (80, 443):
-                port = ':{}'.format(settings.PORT)
-
-            admin_url = '{}://{}{}/concrete-datastore-admin/'.format(
-                settings.SCHEME, settings.HOSTNAME, port
-            )
+            admin_url = get_admin_url()
             email_instance = EmailModel(
                 created_by=user,
                 subject='Access to Concrete Instance',
-                body='''
-                Welcome to Concrete <a href="{admin_url}">{hostname}</a><br>
-                <br>
-                You can now connect to your concrete instance with the following
-                credentials :<br>
-
-                email {email}<br>
-                password {password}<br>
-                <br>
-                Please change your password as you connect for the first time.
-
-            '''.format(
+                body=settings.CREATION_SUPERUSER_EMAIL_BODY.format(
                     hostname=settings.HOSTNAME,
                     admin_url=admin_url,
                     email=email,

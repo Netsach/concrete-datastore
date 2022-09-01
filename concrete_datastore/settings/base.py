@@ -575,3 +575,31 @@ ENABLE_SWAGGER_UI = True
 ENABLE_SERVE_DATAMODEL = True
 SWAGGER_SPEC_PATH = 'openapi-schema'
 SWAGGER_UI_PATH = 'swagger-ui'
+
+RESET_PASSWORD_EMAIL_BODY = '''
+            Welcome to Concrete <a href="{admin_url}">{hostname}</a><br>
+                <br>
+                You have requested a new password.
+                You can now connect to your concrete instance with the following
+                credentials :<br>
+
+                email {email}<br>
+                password {password}<br>
+                <br>
+                Please change your password as you connect for the first time.
+
+        '''
+
+CREATION_SUPERUSER_EMAIL_BODY = '''
+            Welcome to Concrete <a href="{admin_url}">{hostname}</a><br>
+                <br>
+                You have created a new superuser.
+                You can now connect to your concrete instance with the following
+                credentials :<br>
+
+                email {email}<br>
+                password {password}<br>
+                <br>
+                Please change your password as you connect for the first time.
+
+        '''

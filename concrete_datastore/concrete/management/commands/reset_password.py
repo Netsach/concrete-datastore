@@ -9,6 +9,23 @@ from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 
 
+def generate_random_password(
+    length=24, chars=string.ascii_letters + string.digits
+):
+    return ''.join(random.choice(chars) for _ in range(length))
+
+
+def get_admin_url():
+    port = ''
+    if int(settings.PORT) not in (80, 443):
+        port = ':{}'.format(settings.PORT)
+
+    admin_url = '{}://{}{}/concrete-datastore-admin/'.format(
+        settings.SCHEME, settings.HOSTNAME, port
+    )
+    return admin_url
+
+
 class Command(BaseCommand):
     help = 'Reset password'
 
@@ -26,37 +43,15 @@ class Command(BaseCommand):
         except UserModel.DoesNotExist:
             raise CommandError(f"This email: {email} does not exist")
 
-        password = ''.join(
-            random.choice(string.ascii_letters + string.digits)  # nosec
-            for _ in range(24)
-        )
+        password = generate_random_password()
         user.set_password(password)
         user.save()
 
-        port = ''
-        if int(settings.PORT) not in (80, 443):
-            port = ':{}'.format(settings.PORT)
-
-        admin_url = '{}://{}{}/concrete-datastore-admin/'.format(
-            settings.SCHEME, settings.HOSTNAME, port
-        )
-
+        admin_url = get_admin_url()
         email_instance = EmailModel(
             created_by=user,
             subject='Reset password to Concrete Instance',
-            body='''
-            Welcome to Concrete <a href="{admin_url}">{hostname}</a><br>
-                <br>
-                You have requested a new password.
-                You can now connect to your concrete instance with the following
-                credentials :<br>
-
-                email {email}<br>
-                password {password}<br>
-                <br>
-                Please change your password as you connect for the first time.
-
-        '''.format(
+            body=settings.RESET_PASSWORD_EMAIL_BODY.format(
                 hostname=settings.HOSTNAME,
                 admin_url=admin_url,
                 email=email,
