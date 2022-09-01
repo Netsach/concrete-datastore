@@ -51,7 +51,7 @@ class Command(BaseCommand):
         email_instance = EmailModel(
             created_by=user,
             subject='Reset password to Concrete Instance',
-            body=settings.RESET_PASSWORD_EMAIL_BODY.format(
+            body=settings.RESET_PASSWORD_EMAIL_MESSAGE_BODY.format(
                 hostname=settings.HOSTNAME,
                 admin_url=admin_url,
                 email=email,

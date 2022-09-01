@@ -4,7 +4,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
-from concrete_datastore.concrete.management.reset_password import (
+from concrete_datastore.concrete.management.commands.reset_password import (
     generate_random_password,
     get_admin_url,
 )
@@ -35,18 +35,7 @@ class Command(BaseCommand):
             email_instance = EmailModel(
                 created_by=user,
                 subject='Access to Concrete Instance',
-                body='''
-                Welcome to Concrete <a href="{admin_url}">{hostname}</a><br>
-                <br>
-                You can now connect to your concrete instance with the following
-                credentials :<br>
-
-                email {email}<br>
-                password {password}<br>
-                <br>
-                Please change your password as you connect for the first time.
-
-            '''.format(
+                body=settings.CREATE_SUPERUSER_EMAIL_MESSAGE_BODY.format(
                     hostname=settings.HOSTNAME,
                     admin_url=admin_url,
                     email=email,
