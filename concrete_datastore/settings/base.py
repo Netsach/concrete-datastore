@@ -190,6 +190,36 @@ DEFAULT_REGISTER_EMAIL_FORMAT = (  # nosec
 """
 )
 
+CREATE_SUPERUSER_EMAIL_MESSAGE_BODY = (  # nosec
+    '''
+Welcome to Concrete <a href="{admin_url}">{hostname}</a><br>
+<br>
+You have created a new superuser.
+You can now connect to your concrete instance with the following
+credentials :<br>
+
+email {email}<br>
+password {password}<br>
+<br>
+Please change your password as you connect for the first time.
+
+'''
+)
+
+RESET_PASSWORD_EMAIL_MESSAGE_BODY = (  # nosec
+    '''
+Welcome to Concrete <a href="{admin_url}">{hostname}</a><br>
+<br>
+You have requested a new password.
+You can now connect to your concrete instance with the following
+credentials :<br>
+email {email}<br>
+password {password}<br>
+<br>
+Please change your password as you connect for the first time.
+'''
+)
+
 # fmt:on
 
 
@@ -602,35 +632,3 @@ SWAGGER_UI_PATH = 'swagger-ui'
 ENABLE_USERS_SELF_REGISTER = False
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
-
-# fmt:off
-CREATE_SUPERUSER_EMAIL_MESSAGE_BODY = (  # nosec
-    '''
-    Welcome to Concrete <a href="{admin_url}">{hostname}</a><br>
-    <br>
-    You have created a new superuser.
-    You can now connect to your concrete instance with the following
-    credentials :<br>
-
-    email {email}<br>
-    password {password}<br>
-    <br>
-    Please change your password as you connect for the first time.
-
-'''
-)
-
-RESET_PASSWORD_EMAIL_MESSAGE_BODY = (  # nosec
-    '''
-    Welcome to Concrete <a href="{admin_url}">{hostname}</a><br>
-    <br>
-    You have requested a new password.
-    You can now connect to your concrete instance with the following
-    credentials :<br>
-    email {email}<br>
-    password {password}<br>
-    <br>
-    Please change your password as you connect for the first time.
-'''
-)
-# fmt:on
