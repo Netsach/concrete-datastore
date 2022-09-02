@@ -14,6 +14,16 @@
 
 - nothing removed
 
+## [1.49.0] - 2022-09-01
+
+### Added
+
+- Management command to get database connection string, could be used with pg_dump (`pg_dump --dbname=$CONNECTION_STRING`) see [https://www.postgresql.org/docs/14/libpq-connect.html](documentation)
+
+```bash
+/usr/bin/pg_dump --dbname=`python3 manage.py db_connection_string` | bzip2 --fast > backup.sql.bzip2
+```
+
 ## [1.48.0] - 2022-06-16
 
 ### Changed
