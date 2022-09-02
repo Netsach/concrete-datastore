@@ -29,9 +29,7 @@ TYPES_VALUES_MAP = {
 }
 
 JSON_FILTER_PATTERN = r'^\"(?P<str>.*)\"$|(?P<int>^\d+$)|(?P<float>^\d+\.\d+([e][+-]?\d+)?$)|(?P<bool>^true$|^false$)|(?P<null>^null$|^none$)'
-REGEX_DATETIME_MICROSECOND = (
-    "^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})Z$"
-)
+REGEX_DATETIME_MICROSECOND = "^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{1,6}Z$"
 REGEX_DATETIME_SECOND = "^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$"
 
 
