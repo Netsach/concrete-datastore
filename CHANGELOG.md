@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- In the response headers, add the datetime that server received a request, and the datetime that the server sends the response
 
 ### Changed
 

@@ -252,6 +252,7 @@ MIDDLEWARE = [
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'concrete_datastore.authentication.oauth2_utils.SocialCustomAuthExceptionMiddleware',
     'concrete_datastore.concrete.middleware.OTPCustomMiddleware',
+    'concrete_datastore.concrete.middleware.DateTimeLoggerMiddleware',
 ]
 
 TEMPLATES = [
