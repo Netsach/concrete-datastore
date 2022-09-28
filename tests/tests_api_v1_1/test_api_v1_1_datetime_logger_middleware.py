@@ -7,7 +7,6 @@ from django.test import override_settings
 from concrete_datastore.concrete.models import User, UserConfirmation
 
 
-@override_settings(DEBUG=True)
 class DateTimeLoggerMiddleware(APITestCase):
     def setUp(self):
         # Create a user
