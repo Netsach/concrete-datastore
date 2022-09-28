@@ -29,8 +29,10 @@ class DateTimeLoggerMiddleware(APITestCase):
         resp_headers = resp.headers
         self.assertIn('DateTime-Received', resp_headers)
         self.assertIn('DateTime-Sent', resp_headers)
+        self.assertIn('Processing-Time', resp_headers)
         datetime_received = resp_headers['DateTime-Received']
         datetime_sent = resp_headers['DateTime-Sent']
+        processing_time = resp_headers['Processing-Time']
         #: Check if the dates have the right format
         date_time_regex = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$'
         self.assertIsNotNone(re.match(date_time_regex, datetime_received))
@@ -38,6 +40,7 @@ class DateTimeLoggerMiddleware(APITestCase):
         datetime_received_instance = pendulum.parse(datetime_received)
         datetime_sent_instance = pendulum.parse(datetime_sent)
         self.assertTrue(datetime_received_instance <= datetime_sent_instance)
+        self.assertTrue(float(processing_time) >= 0)
 
     def test_datetime_logger_on_rest_api_view(self):
         url = '/api/v1.1/group/'
@@ -46,8 +49,10 @@ class DateTimeLoggerMiddleware(APITestCase):
         resp_headers = resp.headers
         self.assertIn('DateTime-Received', resp_headers)
         self.assertIn('DateTime-Sent', resp_headers)
+        self.assertIn('Processing-Time', resp_headers)
         datetime_received = resp_headers['DateTime-Received']
         datetime_sent = resp_headers['DateTime-Sent']
+        processing_time = resp_headers['Processing-Time']
         #: Check if the dates have the right format
         date_time_regex = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$'
         self.assertIsNotNone(re.match(date_time_regex, datetime_received))
@@ -55,3 +60,4 @@ class DateTimeLoggerMiddleware(APITestCase):
         datetime_received_instance = pendulum.parse(datetime_received)
         datetime_sent_instance = pendulum.parse(datetime_sent)
         self.assertTrue(datetime_received_instance <= datetime_sent_instance)
+        self.assertTrue(float(processing_time) >= 0)
