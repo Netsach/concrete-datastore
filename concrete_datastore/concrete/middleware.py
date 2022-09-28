@@ -32,6 +32,6 @@ class DateTimeLoggerMiddleware:
         date_sent = pendulum.now('utc')
         response['DateTime-Received'] = format_datetime(date_received)
         response['DateTime-Sent'] = format_datetime(date_sent)
-        period_seconds = (date_sent - date_received).total_seconds()
-        response['Processing-Time'] = round(period_seconds, 3)
+        processing_period = date_sent - date_received
+        response['Processing-Time'] = processing_period.total_seconds()
         return response

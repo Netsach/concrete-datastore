@@ -40,7 +40,7 @@ class DateTimeLoggerMiddleware(APITestCase):
         datetime_received_instance = pendulum.parse(datetime_received)
         datetime_sent_instance = pendulum.parse(datetime_sent)
         self.assertTrue(datetime_received_instance <= datetime_sent_instance)
-        self.assertTrue(float(processing_time) >= 0)
+        self.assertTrue(float(processing_time) > 0)
 
     def test_datetime_logger_on_rest_api_view(self):
         url = '/api/v1.1/group/'
@@ -60,4 +60,4 @@ class DateTimeLoggerMiddleware(APITestCase):
         datetime_received_instance = pendulum.parse(datetime_received)
         datetime_sent_instance = pendulum.parse(datetime_sent)
         self.assertTrue(datetime_received_instance <= datetime_sent_instance)
-        self.assertTrue(float(processing_time) >= 0)
+        self.assertTrue(float(processing_time) > 0)
