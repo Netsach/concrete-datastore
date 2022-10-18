@@ -371,3 +371,28 @@ class CRUDTestCase(APITestCase):
         )
         self.assertIsInstance(str(proj), str)
         self.assertNotEqual(str(proj), "")
+
+    def test_create_with_trailing_space(self):
+        project_name_to_post = "project 1 "  #: name with space at the end
+        url_projects = '/api/v1.1/project/'
+
+        self.assertEqual(Project.objects.count(), 0)
+
+        resp = self.client.post(
+            url_projects,
+            {
+                "name": project_name_to_post,
+                "description": "description",
+                "skills": [],
+                "members": [],
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(
+            resp.status_code, status.HTTP_201_CREATED, msg=resp.content
+        )
+
+        self.assertEqual(Project.objects.count(), 1)
+        project = Project.objects.first()
+
+        self.assertEqual(project.name, project_name_to_post)
