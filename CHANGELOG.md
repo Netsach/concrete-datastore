@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Add possibility to load and dump data with superuser access
 
 ### Changed
 

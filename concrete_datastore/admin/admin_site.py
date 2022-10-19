@@ -157,6 +157,12 @@ def get_admin_site():
         def index(self, request, extra_context=None, *args, **kwargs):
             if extra_context is None:
                 extra_context = {}
+            extra_context.update(
+                {
+                    'enable_db_dump': settings.ENABLE_DATABASE_DUMP,
+                    'enable_db_load': settings.ENABLE_DATABASE_LOAD,
+                }
+            )
             extra_context[
                 'display_datamodel'
             ] = settings.ENABLE_SERVE_DATAMODEL

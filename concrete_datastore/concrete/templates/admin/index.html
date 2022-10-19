@@ -1,17 +1,83 @@
 {% extends "admin/index.html" %}
 {% load i18n admin_urls static admin_list %}
+{% block extrahead %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style type="text/css">
+    .custom-btn{
+        cursor: pointer;
+        background-color: #79aec8;
+        border: none;
+        color: #fff;
+        padding: 7px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+    .loader {
+        border: 16px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 16px solid #132452;
+        width: 120px;
+        height: 120px;
+        animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+{% endblock %}
 {% block content %}
+<div id="loading-component" style="display: none;text-align: center;">
+    <h1>Loading data</h1>
+    <div class="loader" style="margin: 0 auto;"></div>
+</div>
 <div id="content-main"class="module">
-{% if display_datamodel %}
-<a href="{% url 'datamodel' action='view' %}">> Show datamodel</a>
-<br>
-<br>
-{% endif %}
-{% if use_core_automation %}
-<button class="btn btn-primary" style="background: #79aec8;padding: 10px 15px;border: none;border-radius: 4px;color: #fff;cursor: pointer;" onclick="window.location.href='{{target_admin_view}}';">Go to {{target_admin_view_name}}</button>
-<br>
-<br>
-{% endif %}
+    {% if use_core_automation %}
+        <p class="custom-btn" onclick="window.location.href='{{target_admin_view}}';">Go to {{target_admin_view_name}}</p>
+    {% endif %}
+    {% if display_datamodel %}
+        <p><a href="{% url 'datamodel' action='view' %}"><u>Show datamodel</u></a></p>
+    {% endif %}
+    {% if enable_db_dump %}
+        <p><a href="{% url 'concrete:dump_data' %}" onclick="showWaitingDiv()"><u>Show JSON database dump</u></a></p>
+        <br>
+        <p onclick="donwloadDump()" href="{% url 'concrete:dump_data' %}?download=true" class="custom-btn"><i class="fa fa-download" style="padding: 0px 15px"></i>Download a database dump file</p>
+    {% endif %}
+    {% if enable_db_load %}
+
+        <div class="inputfile-box" style="position: relative; height: 3rem">
+            <form action="{% url 'concrete:load_data' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+              <input type="file" name="file" id="file" class="inputfile" onchange="submitAndWait(this.form)" style="display: none;">
+              <label for="file">
+                <p class="custom-btn"><i class="fa fa-upload" style="padding: 0px 15px"></i>Select a dump file to load into the database
+                </p>
+              </label>
+            </form>
+        </div>
+
+        <script type="text/javascript">
+            function showWaitingDiv() {
+                // Show waiting component
+                document.getElementById('loading-component').style.display = "block";
+                // Hide other contents
+                document.getElementById('content-main').style.display = "none";
+                document.getElementById('content-related').style.display = "none";
+            };
+            function submitAndWait(form) {
+                form.submit();
+                showWaitingDiv();
+            };
+            function donwloadDump() {
+                document.location.href="{% url 'concrete:dump_data' %}?download=true";
+                alert('Your download will begin soon')
+            }
+        </script>
+        <br>
+    {% endif %}
+
 {% if app_list %}
     {% for models_group in app_list %}
         <div class="app-{{ models_group.app_label }} module">

@@ -1,7 +1,7 @@
 # coding: utf-8
-from importlib import import_module
 import yaml
 import json
+import datetime
 from django.conf import settings
 from django.http import (
     HttpResponse,
@@ -15,6 +15,7 @@ from django.views.generic import TemplateView
 from rest_framework.views import APIView
 from rest_framework import authentication
 from rest_framework.renderers import OpenAPIRenderer
+from concrete_datastore.api.v1.datetime import format_datetime
 from concrete_datastore.api.v1.authentication import (
     TokenExpiryAuthentication,
     URLTokenExpiryAuthentication,
@@ -70,9 +71,20 @@ class DatamodelServer(APIView, TemplateView):
     )
 
     def _get_datamodel_format(self, data_format='yaml'):
+        def default_dumper(value):
+            #: Default dumper for json because the DateTime and Date objects
+            #: are not json serializable
+            if type(value) == datetime.date:
+                return value.isoformat()
+            if type(value) == datetime.datetime:
+                return format_datetime(value)
+            return str(value)
+
         datamodel_content_json = settings.META_MODEL_DEFINITIONS
         if data_format == 'json':
-            return json.dumps(datamodel_content_json, indent=4)
+            return json.dumps(
+                datamodel_content_json, indent=4, default=default_dumper
+            )
         return yaml.dump(datamodel_content_json, allow_unicode=True)
 
     def get(self, request, *args, **kwargs):
@@ -103,12 +115,14 @@ class DatamodelServer(APIView, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        datamodel_content_json = settings.META_MODEL_DEFINITIONS
-        context['json_content'] = json.dumps(datamodel_content_json, indent=2)
+        datamodel_content_json = self._get_datamodel_format(data_format='json')
         datamodel_content_yml = self._get_datamodel_format()
-        content = DatamodelYamlToHtml(datamodel_content_json, indent=2)
+        content = DatamodelYamlToHtml(
+            settings.META_MODEL_DEFINITIONS, indent=2
+        )
         context['yaml_displayed_content'] = content.render_yaml()
         context['yaml_content'] = datamodel_content_yml
+        context['json_content'] = datamodel_content_json
         return context
 
 

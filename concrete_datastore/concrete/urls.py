@@ -1,10 +1,13 @@
 # coding: utf-8
 from django.urls import re_path
+from django.conf import settings
 
 from concrete_datastore.concrete.views import email_confirmation_view
 from concrete_datastore.concrete.views import unsubscribe_notifications_view
 from concrete_datastore.concrete.views import (
     unsubscribe_notifications_result_view,
+    dump_data,
+    load_data,
 )
 
 app_name = 'concrete_datastore.concrete'
@@ -26,3 +29,8 @@ urlpatterns = [
         name='unsubscribe_notifications_result',
     ),
 ]
+
+if settings.ENABLE_DATABASE_DUMP:
+    urlpatterns.append(re_path(r'dump-data', dump_data, name="dump_data"))
+if settings.ENABLE_DATABASE_LOAD:
+    urlpatterns.append(re_path(r'load-data', load_data, name="load_data"))
