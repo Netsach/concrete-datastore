@@ -4,12 +4,20 @@
 
 ### Added
 
+- Command management `reset_password`
+- Management command to get database connection string, could be used with pg_dump (`pg_dump --dbname=$CONNECTION_STRING`) see [https://www.postgresql.org/docs/14/libpq-connect.html](documentation)
+
+```bash
+/usr/bin/pg_dump --dbname=`python3 manage.py db_connection_string` | bzip2 --fast > backup.sql.bzip2
+```
 - nothing added
 
 ### Changed
 
+- Command management `check_superuser_with_email`: Now we check if any users exists not only superuser
 - The datetimefomat accept two formats `yyyy-mm-ddTHH-mm-ssZ` and `yyyy-mm-ddTHH-mm-ss.SSSSSSZ`
 - Disable trimmimng the leading and trailing whitespaces within CharField and TextField serializers.
+
 
 ### Removed
 
