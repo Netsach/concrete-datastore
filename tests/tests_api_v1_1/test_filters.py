@@ -938,7 +938,6 @@ class FilterDatesTestClass(APITestCase):
         results = self.client.get(
             url_date, HTTP_AUTHORIZATION="Token {}".format(self.token)
         )
-        print(results.data)
         self.assertEqual(results.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(
             results.data['message'],

@@ -103,50 +103,49 @@ def convert_type(string, field_type, close_period=True):
     if string == '':
         message = "Attempting to convert an empty string to a date format"
         raise ValidationError({"message": message})
-    if field_type in ('DateTimeField', 'DateField'):
-        if field_type == 'DateTimeField':
-            # Expected format YYYY-MM-DD HH:MM[:ss[.uuuuuu]][TZ]
-            regex_ms = re.compile(REGEX_DATETIME_MICROSECOND)
-            regex_second = re.compile(REGEX_DATETIME_SECOND)
+    if field_type == 'DateTimeField':
+        # Expected format YYYY-MM-DD HH:MM[:ss[.uuuuuu]][TZ]
+        regex_ms = re.compile(REGEX_DATETIME_MICROSECOND)
+        regex_second = re.compile(REGEX_DATETIME_SECOND)
 
-            check_microseconds = regex_ms.match(str(string))
-            check_seconds = regex_second.match(str(string))
+        check_microseconds = regex_ms.match(str(string))
+        check_seconds = regex_second.match(str(string))
 
-            dt = ensure_pendulum(string)
-            #: If the given value contains microseconds,
-            #: the method convert_type must return the exact value
-            if check_microseconds:
-                return format_datetime(dt)
-
-            #: If the given value does not contain microseconds but
-            #: conains a datetime, the method convert_type must
-            #: either return the `start_of` or `end_of` second, depending
-            #: on the argument `close_period`
-            #: Otherwise the return value should be the `start_of` or
-            #: `end_of` day of the given date.
-            #: the variable `time_limit_unit` will contain either
-            #: `"second"` or `"day"`
-            elif check_seconds:
-                time_limit_unit = 'second'
-            else:
-                time_limit_unit = 'day'
-            if close_period is True:
-                dt = dt.end_of(time_limit_unit)
-            else:
-                dt = dt.start_of(time_limit_unit)
+        dt = ensure_pendulum(string)
+        #: If the given value contains microseconds,
+        #: the method convert_type must return the exact value
+        if check_microseconds:
             return format_datetime(dt)
 
-        if field_type == 'DateField':
-            # Expected YYYY-MM-DD
-            dt = ensure_pendulum(string)
-            # Deactivated by lco, a date is a date, no time in it
-            # if close_period:
-            #     dt.end_of('day')
-            return dt.to_date_string()
-    elif field_type in ('DecimalField', 'FloatField'):
+        #: If the given value does not contain microseconds but
+        #: conains a datetime, the method convert_type must
+        #: either return the `start_of` or `end_of` second, depending
+        #: on the argument `close_period`
+        #: Otherwise the return value should be the `start_of` or
+        #: `end_of` day of the given date.
+        #: the variable `time_limit_unit` will contain either
+        #: `"second"` or `"day"`
+        if check_seconds:
+            time_limit_unit = 'second'
+        else:
+            time_limit_unit = 'day'
+        if close_period is True:
+            dt = dt.end_of(time_limit_unit)
+        else:
+            dt = dt.start_of(time_limit_unit)
+        return format_datetime(dt)
+
+    if field_type == 'DateField':
+        # Expected YYYY-MM-DD
+        dt = ensure_pendulum(string)
+        # Deactivated by lco, a date is a date, no time in it
+        # if close_period:
+        #     dt.end_of('day')
+        return dt.to_date_string()
+    if field_type in ('DecimalField', 'FloatField'):
         return float(string)
-    else:
-        return int(string)
+    #: Otherwise, the field is an IntegerField
+    return int(string)
 
 
 class CustomShemaOperationParameters:
