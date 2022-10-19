@@ -1,7 +1,7 @@
 # coding: utf-8
 import pendulum
 
-api_format = 'YYYY-MM-DDTHH:mm:ss\Z'
+api_format = 'YYYY-MM-DDTHH:mm:ss.SSSSSS\Z'
 
 
 def format_datetime(dt):

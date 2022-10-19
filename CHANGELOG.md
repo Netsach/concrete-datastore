@@ -8,6 +8,7 @@
 
 ### Changed
 
+- The datetimefomat accept two formats `yyyy-mm-ddTHH-mm-ssZ` and `yyyy-mm-ddTHH-mm-ss.SSSSSSZ`
 - Disable trimmimng the leading and trailing whitespaces within CharField and TextField serializers.
 
 ### Removed
