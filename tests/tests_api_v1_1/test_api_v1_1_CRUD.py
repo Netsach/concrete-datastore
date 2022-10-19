@@ -373,7 +373,7 @@ class CRUDTestCase(APITestCase):
         self.assertNotEqual(str(proj), "")
 
     def test_create_with_trailing_space(self):
-        project_name_to_post = "project 1 "  #: name with space at the end
+        project_name_to_post = "  project 1 "  #: name with whitespaces
         url_projects = '/api/v1.1/project/'
 
         self.assertEqual(Project.objects.count(), 0)
