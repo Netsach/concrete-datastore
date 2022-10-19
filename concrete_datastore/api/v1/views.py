@@ -1960,8 +1960,10 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         def check_date_format(date_type, param_values):
             date_format = 'yyyy-mm-dd'
             date_regex = r'^\d{4}-\d{2}-\d{2}$'
-            date_time_format = 'yyyy-mm-ddThh:mm:ssZ'
-            date_time_regex = r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$'
+            date_time_format = 'yyyy-mm-ddThh:mm:ss[.xxxxxx]Z'
+            date_time_regex = (
+                r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?Z$'
+            )
 
             for param in param_values:
                 if param == '':
@@ -2004,9 +2006,15 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         for query_param in request.GET:
             param_values_list = request.GET[query_param].split(',')
             param = self._get_bare_field_name(query_param)
-            if param not in self.fields:
+            if param not in self.fields + [
+                'creation_date',
+                'modification_date',
+            ]:
                 continue
-            if param not in self.filterset_fields:
+            if param not in self.filterset_fields + (
+                'creation_date',
+                'modification_date',
+            ):
                 return Response(
                     data={
                         'message': 'filter against {} is not allowed'.format(

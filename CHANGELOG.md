@@ -15,6 +15,9 @@
 ### Changed
 
 - Command management `check_superuser_with_email`: Now we check if any users exists not only superuser
+- The datetimefomat accept two formats `yyyy-mm-ddTHH-mm-ssZ` and `yyyy-mm-ddTHH-mm-ss.SSSSSSZ`
+- Disable trimmimng the leading and trailing whitespaces within CharField and TextField serializers.
+
 
 ### Removed
 
