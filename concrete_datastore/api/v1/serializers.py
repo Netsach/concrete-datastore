@@ -292,6 +292,19 @@ def make_custom_serializer_fields(
     return custom_fields_attrs.keys(), custom_fields_attrs
 
 
+def get_field_extra_kwargs(field):
+    extra_kwargs = {'required': is_field_required(field)}
+    #: All char and text fields must be trimmed, except the choice fields.
+    #: Choice field is a DRF model serializer field is generated automatically
+    #: when encountering a Django CharField having a "choices" argument.
+    #: ChoiceFields do not accept the argument "trim_whitespace".
+    is_char = field.f_type in ('CharField', 'TextField')
+    is_choice_field = 'choices' in field.f_args
+    if is_char and not is_choice_field:
+        extra_kwargs.update(trim_whitespace=False)
+    return extra_kwargs
+
+
 def make_serializer_class(
     meta_model,
     api_namespace=DEFAULT_API_NAMESPACE,
@@ -359,8 +372,7 @@ def make_serializer_class(
             + [f for f in _all_fields if f.startswith('resource_')]
         )
         extra_kwargs = {
-            name: {'required': is_field_required(field)}
-            for name, field in enum_fields
+            name: get_field_extra_kwargs(field) for name, field in enum_fields
         }
 
         # TODO: DEACTIVATED by LCO on 06/11/18

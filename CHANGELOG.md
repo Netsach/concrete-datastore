@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Disable trimmimng the leading and trailing whitespaces within CharField and TextField serializers.
 
 ### Removed
 
