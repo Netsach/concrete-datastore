@@ -348,6 +348,7 @@ class TwoFactorLoginView(generics.GenericAPIView):
                 status=HTTP_401_UNAUTHORIZED,
             )
         expire_temporary_tokens(user)
+        # print(serializer.validated_data["token"])
         temp_token = user.temporary_tokens.filter(
             key=serializer.validated_data["token"]
         ).first()
@@ -373,6 +374,8 @@ class TwoFactorLoginView(generics.GenericAPIView):
                 },
                 status=HTTP_401_UNAUTHORIZED,
             )
+        if user.totp_device is not None:
+            email_device = user.totp_device
         email_device = user.emaildevice_set.filter(confirmed=True).first()
 
         verified = email_device.verify_token(

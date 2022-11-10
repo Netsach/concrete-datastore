@@ -6,7 +6,7 @@ import string
 import uuid
 import sys
 import os
-
+import pyotp
 from collections import defaultdict
 from itertools import chain
 from binascii import unhexlify
@@ -40,6 +40,8 @@ from concrete_datastore.concrete.constants import (
     LIST_USER_LEVEL,
     HANDELED_MODELISATION_VERSIONS,
     TYPE_EQ,
+    MFA_OTP,
+    MFA_EMAIL,
 )
 
 # Since a lot of models are meta-declared, deactivate pylint no-member here
@@ -119,6 +121,12 @@ class EmailDevice(Device):
         null=True,
         on_delete=models.PROTECT,
     )
+    mfa_mode = models.CharField(
+        choices=((MFA_OTP, 'Otp'), (MFA_EMAIL, 'Email')),
+        default=MFA_EMAIL,
+        max_length=250,
+    )
+    secret_key = models.CharField(max_length=250, default=pyotp.random_base32)
 
     @property
     def id(self):
@@ -154,6 +162,9 @@ class EmailDevice(Device):
         return token
 
     def verify_token(self, token):
+        if self.mfa_mode == MFA_OTP:
+            totp_checker = pyotp.TOTP(self.secret_key)
+            return totp_checker.verify(token)
         try:
             token = int(token)
         except Exception:
@@ -610,6 +621,12 @@ class HasPermissionAbstractUser(models.Model):
             password_has_expiry
             and now.diff(last_password_modification).in_days() >= expiry
         )
+
+    @property
+    def totp_device(self):
+        return self.emaildevice_set.filter(
+            mfa_mode=MFA_OTP, confirmed=True
+        ).first()
 
 
 class PasswordChangeToken(models.Model):

@@ -23,7 +23,9 @@ from concrete_datastore.api.v1.validators import (
     get_field_validator,
     is_field_required,
 )
+from concrete_datastore.concrete.constants import MFA_OTP, MFA_EMAIL
 from concrete_datastore.concrete.meta import meta_registered
+from concrete_datastore.authentication.mfa import is_mfa_enabled
 from concrete_datastore.concrete.meta import get_meta_definition_by_model_name
 from concrete_datastore.api.v1 import DEFAULT_API_NAMESPACE
 from concrete_datastore.api.v1.exceptions import (
@@ -120,6 +122,7 @@ class UserSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
     token = serializers.SerializerMethodField()
     is_verified = serializers.SerializerMethodField()
+    mfa_mode = serializers.SerializerMethodField()
     password = serializers.CharField(write_only=True, required=False)
     email = serializers.EmailField(required=True)
     level = serializers.CharField()
@@ -164,13 +167,17 @@ class UserSerializer(serializers.ModelSerializer):
         return build_absolute_uri(uri)
 
     def get_is_verified(self, obj):
-        module_name, func_name = settings.MFA_RULE_PER_USER.rsplit('.', 1)
-        module = import_module(module_name)
-        use_mfa_rule = getattr(module, func_name)
-        if use_mfa_rule(user=obj) is False:
+        if is_mfa_enabled(user=obj) is False and obj.totp_device is None:
             return True
 
         return self.context.get('is_verified', False)
+
+    def get_mfa_mode(self, obj):
+        if obj.totp_device is not None:
+            return MFA_OTP
+        if is_mfa_enabled(user=obj) is True:
+            return MFA_EMAIL
+        return None
 
     def manage_session_token(self, obj):
         key = self._get_token_key(user=obj)
@@ -210,10 +217,7 @@ class UserSerializer(serializers.ModelSerializer):
     def get_token(self, obj):
         #: If the user has not the minimum level for two factor
         #: Return the final token
-        module_name, func_name = settings.MFA_RULE_PER_USER.rsplit('.', 1)
-        module = import_module(module_name)
-        use_mfa_rule = getattr(module, func_name)
-        if use_mfa_rule(user=obj):
+        if is_mfa_enabled(user=obj):
             #: With two factor auth enable
             #: return the token if identity has been validated
             is_verified = self.context.get('is_verified', False)

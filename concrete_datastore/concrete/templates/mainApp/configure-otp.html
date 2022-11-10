@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Configure OTP</title>
+</head>
+<body>
+    {% if user_is_authenticated %}
+        <img src="data:image/svg+xml;base64,{{base64_qrcode_img}}">
+    {% else %}
+        <form class="login-form" method="post" novalidate id="form">
+            {% csrf_token %}
+
+
+
+            {% if form.non_field_errors %}
+                <div class="uk-alert-warning" uk-alert>
+                    <a class="uk-alert-close" uk-close></a>
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+
+            <fieldset class="uk-fieldset">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="vertical-align: baseline;">
+                            <legend class="uk-legend">{{ form.email.label_tag }}</legend>
+                        </td>
+                        <td>
+                            <input
+                                {% if form.email.errors %}
+                                    class="uk-input uk-width-1 uk-form-danger"
+                                {% else %}
+                                    class="uk-input uk-width-1"
+                                {% endif %}
+                                type="email"
+                                name="{{ form.email.name }}"
+                                autocapitalize="off"
+                                id="{{ form.email.id_for_label }}"
+                                {% if form.email.value != None %}value="{{ form.email.value|stringformat:'s' }}"{% endif %}
+                                {% if form.email.field.required %}required{% endif %}
+                            >
+                            {% if form.email.errors %}
+                                {% for error in form.email.errors %}
+                                    <div class="uk-alert-warning" uk-alert style="padding: 6px 8px;font-size: 12px;">{{error}}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: baseline;">
+                            <legend class="uk-legend">{{ form.password.label_tag }}</legend>
+                        </td>
+                        <td>
+                            <input
+                                {% if form.password.errors %}
+                                    class="uk-input uk-form-danger"
+                                {% else %}
+                                    class="uk-input"
+                                {% endif %}
+                                type="password"
+                                name="{{ form.password.name }}"
+                                id="{{ form.password.id_for_label }}"
+                                {% if form.password.value != None %}value="{{ form.password.value|stringformat:'s' }}"{% endif %}
+                                {% if form.password.field.required %}required{% endif %}
+                            >
+                            {% if form.password.errors %}
+                                {% for error in form.password.errors %}
+                                    <div class="uk-alert-warning" uk-alert style="padding: 6px 8px;font-size: 12px;">{{error}}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            <br><br>
+            </fieldset>
+            <button type="submit" class="uk-button uk-button-primary">Se connecter</button>
+        </form>
+    {% endif %}
+</body>
+</html>

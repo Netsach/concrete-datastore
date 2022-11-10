@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 from django_otp.forms import OTPAuthenticationFormMixin
 from django.contrib.auth import get_user_model
+from concrete_datastore.concrete.constants import MFA_EMAIL
 
 
 class MyAuthForm(forms.AuthenticationForm):
@@ -50,14 +51,16 @@ class OTPAuthenticationForm(MyAuthForm, OTPAuthenticationFormMixin):
         return self.cleaned_data
 
     def _handle_challenge(self, device):
-        try:
-            device.generate_challenge()
-        except Exception as e:
-            # pylint: disable=no-member
-            raise django_forms.ValidationError(
-                self.otp_error_messages['challenge_exception'].format(e),
-                code='challenge_exception',
-            )
+        if device.mfa_mode == MFA_EMAIL:
+            try:
+
+                device.generate_challenge()
+            except Exception as e:
+                # pylint: disable=no-member
+                raise django_forms.ValidationError(
+                    self.otp_error_messages['challenge_exception'].format(e),
+                    code='challenge_exception',
+                )
 
         #:  If the challenge is successfully generated and in order to show
         #:  the appropriate message, a `ValidationError` must be raised.
