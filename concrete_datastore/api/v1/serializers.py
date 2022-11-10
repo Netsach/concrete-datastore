@@ -148,6 +148,7 @@ class UserSerializer(serializers.ModelSerializer):
             'is_verified',
             'groups',
             'external_auth',
+            'mfa_mode',
             "{}s".format(DIVIDER_MODEL.lower()),
         )
 
