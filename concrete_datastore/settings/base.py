@@ -652,3 +652,7 @@ OTP_TOTP_THROTTLE_FACTOR = 1
 #: The number of time steps in the past or future to allow. This will allow the
 #: use of expired token(s). Set to 0 to reject expired tokens
 OTP_TOTP_TOLERANCE = 1
+
+#: The TOTP issuer used for the QR-Code. Leave to None to use the same value
+#: as PLATFORM_NAME
+OTP_TOTP_ISSUER = None
