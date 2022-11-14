@@ -136,12 +136,6 @@ class EmailDevice(ThrottlingMixin, Device):
     step = models.PositiveSmallIntegerField(
         default=30, help_text="The time step in seconds."
     )
-    key = models.CharField(
-        max_length=80,
-        validators=[key_validator],
-        default=default_key,
-        help_text="A hex-encoded secret key of up to 40 bytes.",
-    )
     t0 = models.BigIntegerField(
         default=0, help_text="The Unix time at which to begin counting steps."
     )

@@ -375,7 +375,8 @@ class TwoFactorLoginView(generics.GenericAPIView):
             )
         if user.totp_device is not None:
             email_device = user.totp_device
-        email_device = user.emaildevice_set.filter(confirmed=True).first()
+        else:
+            email_device = user.emaildevice_set.filter(confirmed=True).first()
 
         verified = email_device.verify_token(
             token=serializer.validated_data["verification_code"]
