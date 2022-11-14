@@ -348,7 +348,6 @@ class TwoFactorLoginView(generics.GenericAPIView):
                 status=HTTP_401_UNAUTHORIZED,
             )
         expire_temporary_tokens(user)
-        # print(serializer.validated_data["token"])
         temp_token = user.temporary_tokens.filter(
             key=serializer.validated_data["token"]
         ).first()

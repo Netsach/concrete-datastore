@@ -56,7 +56,7 @@ urlpatterns = [
     re_path(
         r'^auth/configure-otp/',
         ConfigureOTPView.as_view(),
-        name='configure-opt',
+        name='configure-otp',
     ),
     re_path(r'^oauth/', include('social_django.urls', namespace='social')),
     re_path(r'^status/$', service_status_view, name='service-status-view'),

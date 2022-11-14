@@ -11,6 +11,7 @@ from concrete_datastore.concrete.models import (
     ConcreteRole,
     AuthToken,
     ConcretePermission,
+    EmailDevice,
 )
 from concrete_datastore.concrete.models import (
     divider,
@@ -193,3 +194,39 @@ class ConcreteRoleAdmin(SaveModelMixin, admin.ModelAdmin):
         'created_by',
     ]
     filter_horizontal = ['users']
+
+
+@admin.register(EmailDevice, site=admin_site)
+class EmailDeviceAdmin(SaveModelMixin, admin.ModelAdmin):
+    list_display = [
+        'uid',
+        'user',
+        'mfa_mode',
+        'confirmed',
+        'creation_date',
+        'modification_date',
+    ]
+    search_fields = ['user__email']
+    readonly_fields = [
+        'uid',
+        'user',
+        'key',
+        'creation_date',
+        'modification_date',
+        'created_by',
+    ]
+    date_hierarchy = 'creation_date'
+
+    fields = [
+        'uid',
+        'user',
+        'key',
+        'mfa_mode',
+        'digits',
+        'step',
+        't0',
+        'drift',
+        'creation_date',
+        'modification_date',
+    ]
+    list_filter = ['mfa_mode', 'confirmed']

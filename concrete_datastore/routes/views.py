@@ -1,5 +1,4 @@
 # coding: utf-8
-from importlib import import_module
 import yaml
 import json
 from django.conf import settings
@@ -9,15 +8,11 @@ from django.http import (
     HttpResponseForbidden,
     StreamingHttpResponse,
 )
-import pyotp
 import base64
 import qrcode
 import qrcode.image.svg
 
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView, FormView
-from django import forms as django_forms
-from django.utils.translation import ugettext_lazy as _
+from django.views.generic import TemplateView
 
 from rest_framework.views import APIView
 from rest_framework import authentication
@@ -27,9 +22,10 @@ from concrete_datastore.api.v1.authentication import (
     URLTokenExpiryAuthentication,
 )
 import concrete_datastore
-from concrete_datastore.concrete.models import User
+from django.contrib.auth import get_user_model
 from concrete_datastore.interfaces.yaml_renderer import DatamodelYamlToHtml
 from concrete_datastore.concrete.constants import MFA_OTP
+from concrete_datastore.routes.forms import ConfigureOTPLoginForm
 from concrete_datastore.interfaces.openapi_schema_generator import (
     SchemaGenerator,
 )
@@ -158,104 +154,35 @@ class OpenApiView(APIView):
         return JsonResponse(schema)
 
 
-class LoginForm(django_forms.Form):
-    email = django_forms.EmailField(label=_("Email"), max_length=254)
-    password = django_forms.CharField(label=_("Password"), max_length=254)
-
-    def clean(self):
-        cleaned_data = super().clean()
-        email = cleaned_data.get("email")
-        password = cleaned_data.get("password")
-
-        print('1', email)
-        user = User.objects.filter(email=email).first()
-        print('2', user)
-        if user is None:
-            self.add_error('email', 'Wrong auth credentials')
-            return
-        if user.check_password(password) is False:
-            self.add_error('email', 'Wrong auth credentials')
-            return
-
-
 class ConfigureOTPView(TemplateView):
     template_name = 'mainApp/configure-otp.html'
-    form_class = LoginForm
+    form_class = ConfigureOTPLoginForm
     success_url = '.'
 
-    user = None
-
     def post(self, request, *args, **kwargs):
+        User = get_user_model()
         context = self.get_context_data()
         form = context['form']
         if form.is_valid():
-            print('yes done')
             email = form.cleaned_data['email']
             user = User.objects.get(email=email)
             context['user_is_authenticated'] = True
-            # if user_is_authenticated is True:
             device, _ = user.emaildevice_set.get_or_create(
                 mfa_mode=MFA_OTP, confirmed=True
             )
-            user_oauth_uri = pyotp.totp.TOTP(
-                device.secret_key
-            ).provisioning_uri(name=user.email, issuer_name='Local TOTP')
-
-            qr = qrcode.QRCode(image_factory=qrcode.image.svg.SvgPathImage)
-            qr.add_data(user_oauth_uri)
-            qr.make(fit=True)
-
-            img = qr.make_image()
+            img = qrcode.make(
+                device.config_url, image_factory=qrcode.image.svg.SvgImage
+            )
 
             base64_qrcode_img_bytes = base64.b64encode(img.to_string())
             base64_qrcode_img = base64_qrcode_img_bytes.decode('utf-8')
             context['base64_qrcode_img'] = base64_qrcode_img
-            # save your model
-            # redirect
 
         return super().render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super(ConfigureOTPView, self).get_context_data(**kwargs)
-
-        form = LoginForm(self.request.POST or None)  # instance= None
-
+        form = ConfigureOTPLoginForm(self.request.POST or None)
         context["form"] = form
-        # context["latest_article"] = latest_article
-
+        context["platform_name"] = settings.PLATFORM_NAME
         return context
-
-    # def get_context_data(self, **kwargs):
-    #     context = super(ConfigureOTPView, self).get_context_data(**kwargs)
-    #     self.user = self.request.user
-    #     context['user_is_authenticated'] = True
-    #     # if user_is_authenticated is True:
-    #     device, _ = self.user.emaildevice_set.get_or_create(
-    #         mfa_mode=MFA_OTP, confirmed=True
-    #     )
-    #     user_oauth_uri = pyotp.totp.TOTP(device.secret_key).provisioning_uri(
-    #         name=self.user.email, issuer_name='Local TOTP'
-    #     )
-
-    #     qr = qrcode.QRCode(image_factory=qrcode.image.svg.SvgPathImage)
-    #     qr.add_data(user_oauth_uri)
-    #     qr.make(fit=True)
-
-    #     img = qr.make_image()
-
-    #     base64_qrcode_img_bytes = base64.b64encode(img.to_string())
-    #     base64_qrcode_img = base64_qrcode_img_bytes.decode('utf-8')
-    #     context['base64_qrcode_img'] = base64_qrcode_img
-    #     # context["testing_out"] = "this is a new context var"
-    #     return context
-
-    # def form_valid(self, form):
-    #     if form.is_valid():
-    #         email = form.cleaned_data['email']
-    #         self.user = User.objects.get(email=email)
-    #         print('3', self.user)
-    #     # This method is called when valid form data has been POSTed.
-    #     # It should return an HttpResponse.
-    #     # form.send_email()
-    #     # print "form is valid"
-    #     return super(ConfigureOTPView, self).form_valid(form)

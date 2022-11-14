@@ -168,7 +168,7 @@ class UserSerializer(serializers.ModelSerializer):
         return build_absolute_uri(uri)
 
     def get_is_verified(self, obj):
-        if is_mfa_enabled(user=obj) is False and obj.totp_device is None:
+        if is_mfa_enabled(user=obj) is False:
             return True
 
         return self.context.get('is_verified', False)

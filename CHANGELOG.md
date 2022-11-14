@@ -4,6 +4,8 @@
 
 ### Added
 
+- Enbale MFA with TOTP. The user authentifies to an url that will display a qrcode. This qrcode is to be used by an OPT application to generate the code.
+- Add the model EmailDevice to the admin models
 - Management command `get_stats_models_count` to list all the models in the datamodel with their number of instances. Supportes ordering by model name and instances count both ascending and descending
 - Command management `reset_password`
 - Management command to get database connection string, could be used with pg_dump (`pg_dump --dbname=$CONNECTION_STRING`) see [https://www.postgresql.org/docs/14/libpq-connect.html](documentation)

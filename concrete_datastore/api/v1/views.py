@@ -605,7 +605,6 @@ class LoginApiView(generics.GenericAPIView):
                 api_namespace=self.api_namespace,
                 context={'is_verified': False},
             )
-            print(serializer.data)
             return Response(data=serializer.data, status=HTTP_200_OK)
 
         serializer = UserSerializer(
