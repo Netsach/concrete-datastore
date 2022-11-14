@@ -178,7 +178,7 @@ class UserSerializer(serializers.ModelSerializer):
             return MFA_OTP
         if is_mfa_enabled(user=obj) is True:
             return MFA_EMAIL
-        return None
+        return ''
 
     def manage_session_token(self, obj):
         key = self._get_token_key(user=obj)
