@@ -4,6 +4,7 @@
 
 ### Added
 
+- Management command `get_stats_models_count` to list all the models in the datamodel with their number of instances. Supports ordering by model name and instances count both ascending and descending
 - Command management `reset_password`
 - Management command to get database connection string, could be used with pg_dump (`pg_dump --dbname=$CONNECTION_STRING`) see [https://www.postgresql.org/docs/14/libpq-connect.html](documentation)
 
