@@ -224,7 +224,7 @@ SEND_OTP_CONFIGURE_LINK = (  # nosec
     '''
 You requested to activate the MFA with OTP for your account on {platform}.
 <br>
-Please reach the following link to configure you favorite otp application :
+Please reach the following link to configure you favorite OTP application :
 <br>
 {link}
 '''

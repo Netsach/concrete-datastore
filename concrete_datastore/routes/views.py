@@ -1,6 +1,10 @@
 # coding: utf-8
 import yaml
 import json
+import base64
+import qrcode
+import qrcode.image.svg
+
 from django.conf import settings
 from django.http import (
     HttpResponse,
@@ -8,11 +12,8 @@ from django.http import (
     HttpResponseForbidden,
     StreamingHttpResponse,
 )
-import base64
-import qrcode
-import qrcode.image.svg
-
 from django.views.generic import TemplateView
+from django.contrib.auth import get_user_model
 
 from rest_framework.views import APIView
 from rest_framework import authentication
@@ -21,8 +22,8 @@ from concrete_datastore.api.v1.authentication import (
     TokenExpiryAuthentication,
     URLTokenExpiryAuthentication,
 )
+
 import concrete_datastore
-from django.contrib.auth import get_user_model
 from concrete_datastore.interfaces.yaml_renderer import DatamodelYamlToHtml
 from concrete_datastore.concrete.constants import MFA_OTP
 from concrete_datastore.routes.forms import ConfigureOTPLoginForm

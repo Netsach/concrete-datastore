@@ -58,10 +58,8 @@ class OTPAuthenticationForm(MyAuthForm, OTPAuthenticationFormMixin):
         if device.mfa_mode == MFA_EMAIL:
             challenge_message_name = 'challenge_message_email'
             try:
-
                 device.generate_challenge()
             except Exception as e:
-                # pylint: disable=no-member
                 raise django_forms.ValidationError(
                     self.otp_error_messages['challenge_exception'].format(e),
                     code='challenge_exception',
