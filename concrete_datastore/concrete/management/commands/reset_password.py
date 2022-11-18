@@ -12,7 +12,7 @@ from django.core.management.base import CommandError
 def generate_random_password(
     length=24, chars=string.ascii_letters + string.digits
 ):
-    return ''.join(random.choice(chars) for _ in range(length))
+    return ''.join(random.choice(chars) for _ in range(length))  # nosec
 
 
 def get_admin_url():

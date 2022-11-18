@@ -6,6 +6,20 @@
 
 - Enable MFA with TOTP. The user authenticates to an url that will display a qrcode. This qrcode is to be used by an OTP application to generate the code.
 - Add the model EmailDevice to the admin models
+- nothing added
+
+### Changed
+
+- nothing changed
+
+### Removed
+
+- nothing removed
+
+## [1.50.0] - 2022-11-17
+
+### Added
+
 - Management command `get_stats_models_count` to list all the models in the datamodel with their number of instances. Supports ordering by model name and instances count both ascending and descending
 - Command management `reset_password`
 - Management command to get database connection string, could be used with pg_dump (`pg_dump --dbname=$CONNECTION_STRING`) see [https://www.postgresql.org/docs/14/libpq-connect.html](documentation)
@@ -21,10 +35,6 @@
 - The datetimefomat accept two formats `yyyy-mm-ddTHH-mm-ssZ` and `yyyy-mm-ddTHH-mm-ss.SSSSSSZ`
 - Disable trimmimng the leading and trailing whitespaces within CharField and TextField serializers.
 
-
-### Removed
-
-- nothing removed
 
 ## [1.49.0] - 2022-09-01
 
