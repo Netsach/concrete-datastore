@@ -52,7 +52,6 @@ if settings.DEBUG or settings.ENABLE_SWAGGER_UI:
 
 
 urlpatterns = [
-    # re_path(r'^accounts/login/', auth_views.LoginView.as_view()),
     re_path(
         r'^auth/configure-otp/',
         ConfigureOTPView.as_view(),
