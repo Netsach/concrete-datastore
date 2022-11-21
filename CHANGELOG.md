@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Doc MFA authentication 
 
 ### Changed
 
