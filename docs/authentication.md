@@ -531,3 +531,109 @@ If a user (with the sufficient permissions) attempts to change another user's pa
 
 **Code** : `403 FORBIDDEN`
 
+### Authentication MFA
+
+This is multiple factors authentication.
+
+The **setting** `USE_TWO_FACTOR_AUTH` must be `True`
+
+First step works with a template
+
+**URL** : `auth/configure-otp/`
+
+**Login form credentials**:
+- `email`
+- `password` 
+
+- It will return you a QR code 
+
+- You have to scan it with OTP application  
+
+- You will get a code with 6 numbers (verification_code)
+
+- Then, make request Login 
+- You will get a token
+
+**URL** : `/api/v1.1/auth/login/`
+**Method** : `POST`
+
+
+```json
+{
+    "email": "johndoe@test.fr",
+    "password": "password"
+}
+```
+
+ Finally, make request
+
+ **URL** : `/api/v1.1/auth/two-factor/login/`
+**Method** : `POST`
+**Credentials**:
+- `email` (email user)
+- `token` (token retrieved with login)
+- `verification_code`(code retrieded with OTP app)
+
+```json
+{
+    "email": "johndoe@test.fr",
+    "token": "eb14f4a951119b1150221976162de477c18802ba",
+    "verification_code": "550550"
+}
+```
+
+**Exemple expected response**
+
+**Code** : `200 OK`
+
+```json
+{
+    "uid": "d1894ee4-269b-491e-aa33-232c52cd1352",
+    "email": "johndoe@test.fr",
+    "url": "http://127.0.0.1/api/v1.1/account/me/",
+    "token": "595cfd2126f78c6b4b56ca7c221b0054271301f1",
+    "first_name": "",
+    "last_name": "",
+    "level": "superuser",
+    "is_verified": true,
+    "groups": [],
+    "external_auth": false,
+    "mfa_mode": "MFA_OTP",
+    "defaultdividers": []
+}
+```
+
+**Code** : `401 Unauthorized`
+
+If `token` is invalid
+
+```json
+{
+    "message": "MFA temporary token invalid",
+    "_errors": [
+        "MFA_TEMP_TOKEN_INVALID"
+    ]
+}
+```
+
+If `token` is expired
+
+```json
+{
+    "message": "MFA temporary token expired",
+    "_errors": [
+        "MFA_TEMP_TOKEN_EXPIRED"
+    ]
+}
+```
+
+If `verification_code` is expired or invalid 
+
+```json
+{
+    "message": "Wrong verification code",
+    "_errors": [
+        "WRONG_VERIFICATION_CODE"
+    ]
+}
+```
