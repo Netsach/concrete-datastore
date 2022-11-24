@@ -181,9 +181,7 @@ class EmailDevice(ThrottlingMixin, Device):
             getattr(settings, 'OTP_TOTP_ISSUER', None)
             or settings.PLATFORM_NAME
         )
-        if callable(issuer):
-            issuer = issuer(self)
-        if isinstance(issuer, str) and (issuer != ''):
+        if issuer:
             issuer = issuer.replace(':', '')
             label = '{}:{}'.format(issuer, label)
             urlencoded_params += '&issuer={}'.format(
