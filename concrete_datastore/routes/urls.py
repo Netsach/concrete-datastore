@@ -3,8 +3,14 @@ from django.urls import re_path, include
 from django.conf import settings
 from django.views.static import serve
 from django.views.generic import TemplateView
+from django.contrib.auth import views as auth_views
 from concrete_datastore.admin.admin import admin_site
-from .views import service_status_view, OpenApiView, DatamodelServer
+from .views import (
+    service_status_view,
+    OpenApiView,
+    DatamodelServer,
+    ConfigureOTPView,
+)
 
 app_name = 'concrete_datastore.concrete'
 
@@ -44,7 +50,13 @@ if settings.DEBUG or settings.ENABLE_SWAGGER_UI:
         ),
     ]
 
+
 urlpatterns = [
+    re_path(
+        r'^auth/configure-otp/',
+        ConfigureOTPView.as_view(),
+        name='configure-otp',
+    ),
     re_path(r'^oauth/', include('social_django.urls', namespace='social')),
     re_path(r'^status/$', service_status_view, name='service-status-view'),
     re_path(

@@ -67,3 +67,6 @@ EMPTY_VALUES_MAP = {
     'TextField': {'empty_value': '', 'field_type': str},
     'CharField': {'empty_value': '', 'field_type': str},
 }
+
+MFA_OTP = "MFA_OTP"
+MFA_EMAIL = "MFA_EMAIL"

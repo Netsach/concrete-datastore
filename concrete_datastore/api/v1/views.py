@@ -41,6 +41,7 @@ from rest_framework.status import (
 )
 from rest_framework import authentication, permissions, generics, viewsets
 
+from concrete_datastore.authentication.mfa import is_mfa_enabled
 from concrete_datastore.concrete.models import (  # pylint:disable=E0611
     AuthToken,
     DeletedModel,
@@ -98,6 +99,7 @@ from concrete_datastore.api.v1.authentication import (
     URLTokenExpiryAuthentication,
 )
 from concrete_datastore.concrete.automation.signals import user_logged_in
+from concrete_datastore.concrete.constants import MFA_OTP
 from concrete_datastore.concrete.meta import list_of_meta
 from concrete_datastore.concrete.meta import meta_models, meta_registered
 from concrete_datastore.api.v1 import DEFAULT_API_NAMESPACE
@@ -577,23 +579,31 @@ class LoginApiView(generics.GenericAPIView):
         )
 
         UserModel.objects.filter(pk=user.pk).update(last_login=timezone.now())
-        module_name, func_name = settings.MFA_RULE_PER_USER.rsplit('.', 1)
-        module = import_module(module_name)
-        use_mfa_rule = getattr(module, func_name)
-        if use_mfa_rule(user=user):
-            email_device = user.emaildevice_set.filter(confirmed=True).first()
-            if not email_device:
-                email_device = user.emaildevice_set.create(
-                    email=user.email, name='User default email', confirmed=True
+        if is_mfa_enabled(user=user):
+            #: First check if the user has an OTP Mfa device
+            email_device = user.totp_device
+            if email_device is None:
+                email_device = user.emaildevice_set.filter(
+                    confirmed=True
+                ).first()
+                if not email_device:
+                    email_device = user.emaildevice_set.create(
+                        email=user.email,
+                        name='User default email',
+                        confirmed=True,
+                    )
+                email_device.generate_challenge()
+                logger_api_auth.info(
+                    base_message + f"Send MFA code to user {user.email}"
                 )
-            email_device.generate_challenge()
+            #: Deactivate other email devices for the user
+            user.emaildevice_set.exclude(pk=email_device.pk).update(
+                confirmed=False
+            )
             serializer = UserSerializer(
                 instance=user,
                 api_namespace=self.api_namespace,
                 context={'is_verified': False},
-            )
-            logger_api_auth.info(
-                base_message + f"Send MFA code to user {user.email}"
             )
             return Response(data=serializer.data, status=HTTP_200_OK)
 
@@ -643,10 +653,7 @@ class SecureLoginCodeApiView(LoginApiView):
             )
             logger_api_auth.info(log_request)
             return Response(
-                data={
-                    'message': 'Invalid code',
-                    "_errors": ["INVALID_CODE"],
-                },
+                data={'message': 'Invalid code', "_errors": ["INVALID_CODE"]},
                 status=HTTP_401_UNAUTHORIZED,
             )
         else:

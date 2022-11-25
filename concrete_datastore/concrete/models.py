@@ -1,12 +1,14 @@
 # coding: utf-8
 import pendulum
+import time
 import binascii
 import logging
 import string
 import uuid
 import sys
 import os
-
+from base64 import b32encode
+from urllib.parse import quote, urlencode
 from collections import defaultdict
 from itertools import chain
 from binascii import unhexlify
@@ -16,8 +18,8 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.encoding import force_str
-from django_otp.models import Device
-from django_otp.oath import totp
+from django_otp.models import Device, ThrottlingMixin
+from django_otp.oath import totp, TOTP
 from django_otp.util import hex_validator, random_hex
 from django.utils import timezone
 from django.conf import settings
@@ -40,6 +42,8 @@ from concrete_datastore.concrete.constants import (
     LIST_USER_LEVEL,
     HANDELED_MODELISATION_VERSIONS,
     TYPE_EQ,
+    MFA_OTP,
+    MFA_EMAIL,
 )
 
 # Since a lot of models are meta-declared, deactivate pylint no-member here
@@ -86,7 +90,7 @@ def key_validator(value):
     return hex_validator()(value)
 
 
-class EmailDevice(Device):
+class EmailDevice(ThrottlingMixin, Device):
     """
     A :class:`~django_otp.models.Device` that delivers a token to the user's
     registered email address (``user.email``). This is intended for
@@ -119,6 +123,30 @@ class EmailDevice(Device):
         null=True,
         on_delete=models.PROTECT,
     )
+    mfa_mode = models.CharField(
+        choices=((MFA_OTP, 'Otp'), (MFA_EMAIL, 'Email')),
+        default=MFA_EMAIL,
+        max_length=250,
+    )
+    digits = models.PositiveSmallIntegerField(
+        choices=[(6, 6), (8, 8)],
+        default=6,
+        help_text="The number of digits to expect in a token.",
+    )
+    step = models.PositiveSmallIntegerField(
+        default=30, help_text="The time step in seconds."
+    )
+    t0 = models.BigIntegerField(
+        default=0, help_text="The Unix time at which to begin counting steps."
+    )
+    drift = models.SmallIntegerField(
+        default=0,
+        help_text="The number of time steps the prover is known to deviate from our clock.",
+    )
+    last_t = models.BigIntegerField(
+        default=-1,
+        help_text="The t value of the latest verified token. The next token must be at a higher time step.",
+    )
 
     @property
     def id(self):
@@ -127,6 +155,42 @@ class EmailDevice(Device):
     @property
     def bin_key(self):
         return unhexlify(self.key.encode())
+
+    def get_throttle_factor(self):
+        return getattr(settings, 'OTP_TOTP_THROTTLE_FACTOR', 1)
+
+    @property
+    def config_url(self):
+        """
+        A URL for configuring Google Authenticator or similar.
+
+        See https://github.com/google/google-authenticator/wiki/Key-Uri-Format.
+        The issuer is taken from :setting:`OTP_TOTP_ISSUER`, if available.
+
+        """
+        label = str(self.user.get_username())
+        params = {
+            'secret': b32encode(self.bin_key),
+            'algorithm': 'SHA1',
+            'digits': self.digits,
+            'period': self.step,
+        }
+        urlencoded_params = urlencode(params)
+
+        issuer = (
+            getattr(settings, 'OTP_TOTP_ISSUER', None)
+            or settings.PLATFORM_NAME
+        )
+        if issuer:
+            issuer = issuer.replace(':', '')
+            label = '{}:{}'.format(issuer, label)
+            urlencoded_params += '&issuer={}'.format(
+                quote(issuer)
+            )  # encode issuer as per RFC 3986, not quote_plus
+
+        url = 'otpauth://totp/{}?{}'.format(quote(label), urlencoded_params)
+
+        return url
 
     def generate_challenge(self):
         code_timeout = settings.TWO_FACTOR_CODE_TIMEOUT_SECONDS
@@ -154,6 +218,11 @@ class EmailDevice(Device):
         return token
 
     def verify_token(self, token):
+        if self.mfa_mode == MFA_OTP:
+            return self._verify_otp_token(token)
+        return self._verify_email_token(token)
+
+    def _verify_email_token(self, token):
         try:
             token = int(token)
         except Exception:
@@ -168,6 +237,37 @@ class EmailDevice(Device):
                 == token
                 for drift in [0, -1]
             )
+
+        return verified
+
+    def _verify_otp_token(self, token):
+        OTP_TOTP_SYNC = getattr(settings, 'OTP_TOTP_SYNC', True)
+        OTP_TOTP_TOLERANCE = getattr(settings, 'OTP_TOTP_TOLERANCE', 1)
+
+        verify_allowed, _ = self.verify_is_allowed()
+        if not verify_allowed:
+            return False
+
+        try:
+            token = int(token)
+        except Exception:
+            verified = False
+        else:
+            key = self.bin_key
+
+            totp = TOTP(key, self.step, self.t0, self.digits, self.drift)
+            totp.time = time.time()
+
+            verified = totp.verify(token, OTP_TOTP_TOLERANCE, self.last_t + 1)
+            if verified:
+                self.last_t = totp.t()
+                if OTP_TOTP_SYNC:
+                    self.drift = totp.drift
+                self.throttle_reset(commit=False)
+                self.save()
+
+        if not verified:
+            self.throttle_increment(commit=True)
 
         return verified
 
@@ -610,6 +710,12 @@ class HasPermissionAbstractUser(models.Model):
             password_has_expiry
             and now.diff(last_password_modification).in_days() >= expiry
         )
+
+    @property
+    def totp_device(self):
+        return self.emaildevice_set.filter(
+            mfa_mode=MFA_OTP, confirmed=True
+        ).first()
 
 
 class PasswordChangeToken(models.Model):

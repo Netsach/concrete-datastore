@@ -11,7 +11,7 @@ from concrete_datastore.admin.admin_form import (
     OTPAuthenticationForm,
 )
 
-EXTRA_MODEL_OBJECT_NAMES = ('Email',)
+EXTRA_MODEL_OBJECT_NAMES = ('Email', 'EmailDevice')
 AUTH_MODEL_OBJECT_NAMES = (
     'User',
     'Group',

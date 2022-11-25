@@ -220,6 +220,17 @@ Please change your password as you connect for the first time.
 '''
 )
 
+SEND_OTP_CONFIGURE_LINK = (  # nosec
+    '''
+You requested to activate the MFA with OTP for your account on {platform}.
+<br>
+Please reach the following link to configure you favorite OTP application :
+<br>
+{link}
+'''
+)
+
+
 # fmt:on
 
 
@@ -632,3 +643,16 @@ SWAGGER_UI_PATH = 'swagger-ui'
 ENABLE_USERS_SELF_REGISTER = False
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+#: This controls the rate of throttling. The sequence of 1, 2, 4, 8… seconds
+#: is multiplied by this factor to define the delay imposed after 1, 2, 3, 4…
+#: successive failures. Set to 0 to disable throttling completely.
+OTP_TOTP_THROTTLE_FACTOR = 1
+
+#: The number of time steps in the past or future to allow. This will allow the
+#: use of expired token(s). Set to 0 to reject expired tokens
+OTP_TOTP_TOLERANCE = 1
+
+#: The TOTP issuer used for the QR-Code. Leave to None to use the same value
+#: as PLATFORM_NAME
+OTP_TOTP_ISSUER = None

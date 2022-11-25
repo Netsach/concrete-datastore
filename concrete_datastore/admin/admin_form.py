@@ -1,10 +1,11 @@
 # coding: utf-8
 from django import forms as django_forms
 from django.contrib.auth import forms
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext_lazy, gettext_lazy as _
 from django.contrib.auth.models import User
 from django_otp.forms import OTPAuthenticationFormMixin
 from django.contrib.auth import get_user_model
+from concrete_datastore.concrete.constants import MFA_EMAIL
 
 
 class MyAuthForm(forms.AuthenticationForm):
@@ -18,13 +19,16 @@ class OTPAuthenticationForm(MyAuthForm, OTPAuthenticationFormMixin):
     otp_error_messages = {
         'token_required': _('Please enter your OTP token.'),
         'challenge_exception': _('Error generating challenge: {0}'),
-        'challenge_message': _(
+        'challenge_message_email': _(
             'Enter the two authentication code you received by email'
+        ),
+        'challenge_message_otp': _(
+            'Enter the two-factor authentication code from a configured OTP application'
         ),
         'invalid_token': _(
             'Invalid token. Please make sure you have entered it correctly.'
         ),
-        'n_failed_attempts': _(
+        'n_failed_attempts': ngettext_lazy(
             "Verification temporarily disabled because of %(failure_count)d failed attempt, please try again soon.",
             "Verification temporarily disabled because of %(failure_count)d failed attempts, please try again soon.",
             "failure_count",
@@ -50,21 +54,23 @@ class OTPAuthenticationForm(MyAuthForm, OTPAuthenticationFormMixin):
         return self.cleaned_data
 
     def _handle_challenge(self, device):
-        try:
-            device.generate_challenge()
-        except Exception as e:
-            # pylint: disable=no-member
-            raise django_forms.ValidationError(
-                self.otp_error_messages['challenge_exception'].format(e),
-                code='challenge_exception',
-            )
+        challenge_message_name = 'challenge_message_otp'
+        if device.mfa_mode == MFA_EMAIL:
+            challenge_message_name = 'challenge_message_email'
+            try:
+                device.generate_challenge()
+            except Exception as e:
+                raise django_forms.ValidationError(
+                    self.otp_error_messages['challenge_exception'].format(e),
+                    code='challenge_exception',
+                )
 
         #:  If the challenge is successfully generated and in order to show
         #:  the appropriate message, a `ValidationError` must be raised.
         #:  *NB* This validation error does not mean that an error occured
         raise django_forms.ValidationError(
-            self.otp_error_messages['challenge_message'],
-            code='challenge_message',
+            self.otp_error_messages[challenge_message_name],
+            code=challenge_message_name,
         )
 
     def clean_otp(self, user):
