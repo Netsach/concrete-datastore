@@ -4,6 +4,8 @@
 
 ### Added
 
+
+- Doc MFA authentication 
 - Enable MFA with TOTP. The user authenticates to an url that will display a qrcode. This qrcode is to be used by an OTP application to generate the code.
 - Add the model EmailDevice to the admin models
 
