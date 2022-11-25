@@ -4,10 +4,7 @@
 
 ### Added
 
-
-- Doc MFA authentication 
-- Enable MFA with TOTP. The user authenticates to an url that will display a qrcode. This qrcode is to be used by an OTP application to generate the code.
-- Add the model EmailDevice to the admin models
+- nothing added
 
 ### Changed
 
@@ -16,6 +13,15 @@
 ### Removed
 
 - nothing removed
+
+## [1.51.0] - 2022-11-25
+
+### Added
+
+
+- Doc MFA authentication 
+- Enable MFA with TOTP. The user authenticates to an url that will display a qrcode. This qrcode is to be used by an OTP application to generate the code.
+- Add the model EmailDevice to the admin models
 
 ## [1.50.0] - 2022-11-17
 
