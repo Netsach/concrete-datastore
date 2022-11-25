@@ -1,0 +1,62 @@
+{% extends "admin/index.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block sidebar %}
+{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name">Configure OTP Authentication for {{platform_name}}</h1>
+{% endblock %}
+
+{% block content %}
+    {% if user_is_authenticated %}
+        <h1>Please use an OTP application to scan the following QR Code</h1>
+        <div style="background-color: white; display: inline-block">
+            <img src="data:image/svg+xml;base64,{{base64_qrcode_img}}">
+        </div>
+    {% else %}
+        <form class="login-form" method="post" novalidate id="form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    <p class="errornote">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="vertical-align: baseline;">
+                            <legend>{{ form.email.label_tag }}</legend>
+                        </td>
+                        <td>
+                            <input
+                                type="email"
+                                name="{{ form.email.name }}"
+                                autocapitalize="off"
+                                id="{{ form.email.id_for_label }}"
+                                {% if form.email.value != None %}value="{{ form.email.value|stringformat:'s' }}"{% endif %}
+                                {% if form.email.field.required %}required{% endif %}
+                            >
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: baseline;">
+                            <legend>{{ form.password.label_tag }}</legend>
+                        </td>
+                        <td>
+                            <input
+                                type="password"
+                                name="{{ form.password.name }}"
+                                id="{{ form.password.id_for_label }}"
+                                {% if form.password.value != None %}value="{{ form.password.value|stringformat:'s' }}"{% endif %}
+                                {% if form.password.field.required %}required{% endif %}
+                            >
+                        </td>
+                    </tr>
+                </table>
+                <br><br>
+            <div class="submit-row">
+                <input type="submit" value="Log in">
+            </div>
+        </form>
+    {% endif %}
+{% endblock %}

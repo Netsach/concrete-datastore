@@ -373,7 +373,10 @@ class TwoFactorLoginView(generics.GenericAPIView):
                 },
                 status=HTTP_401_UNAUTHORIZED,
             )
-        email_device = user.emaildevice_set.filter(confirmed=True).first()
+        if user.totp_device is not None:
+            email_device = user.totp_device
+        else:
+            email_device = user.emaildevice_set.filter(confirmed=True).first()
 
         verified = email_device.verify_token(
             token=serializer.validated_data["verification_code"]
