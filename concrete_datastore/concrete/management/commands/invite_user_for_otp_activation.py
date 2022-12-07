@@ -30,7 +30,7 @@ class Command(BaseCommand):
         configure_otp_url = urljoin(base_url, reverse('configure-otp'))
         email_instance = EmailModel(
             created_by=user,
-            subject='Access to Concrete Instance',
+            subject=settings.OTP_CONFIGURE_EMAIL_SUBJECT,
             body=settings.SEND_OTP_CONFIGURE_LINK.format(
                 platform=settings.PLATFORM_NAME, link=configure_otp_url
             ),

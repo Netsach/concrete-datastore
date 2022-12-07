@@ -230,8 +230,8 @@ Please reach the following link to configure you favorite OTP application :
 '''
 )
 
-
 # fmt:on
+OTP_CONFIGURE_EMAIL_SUBJECT = 'MFA Configuration'
 
 
 PASSWORD_CHANGE_TOKEN_EXPIRY_HOURS = 4

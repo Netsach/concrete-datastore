@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Setting to change email subject for otp activation
 
 ### Removed
 
