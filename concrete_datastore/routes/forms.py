@@ -15,6 +15,7 @@ class ConfigureOTPLoginForm(forms.Form):
     or create it if it does not exist and generate a challenge.
     Then verify the code with the same device when the user is authenticated
     """
+
     otp_error_messages = {
         'token_required': _('Please enter your OTP token.'),
         'challenge_exception': _('Error generating challenge: {0}'),
@@ -40,13 +41,8 @@ class ConfigureOTPLoginForm(forms.Form):
     password = forms.CharField(label="Password", max_length=254)
 
     otp_token = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={'autocomplete': 'off'}),
+        required=False, widget=forms.TextInput(attrs={'autocomplete': 'off'})
     )
-
-    # This is a placeholder field that allows us to detect when the user clicks
-    # the otp_challenge submit button.
-    otp_challenge = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
         self.user_cache = None
@@ -56,6 +52,7 @@ class ConfigureOTPLoginForm(forms.Form):
         cleaned_data = super().clean()
         email = cleaned_data.get("email")
         password = cleaned_data.get("password")
+        otp_token = cleaned_data.get("otp_token")
         User = get_user_model()
         self.user_cache = User.objects.filter(email=email).first()
         if self.user_cache is None:
@@ -66,7 +63,13 @@ class ConfigureOTPLoginForm(forms.Form):
             mfa_mode=MFA_OTP, confirmed=True
         ).first()
         if otp_device:
+            #: Clear user cache to reset the form
+            self.user_cache = None
             raise ValidationError('OTP authentication already configured')
+        if not otp_token:
+            device = self._chosen_device(self.user_cache)
+            self._handle_challenge(device)
+        return cleaned_data
 
     def _handle_challenge(self, device):
         challenge_message_name = 'challenge_message_otp'
@@ -87,35 +90,6 @@ class ConfigureOTPLoginForm(forms.Form):
             self.otp_error_messages[challenge_message_name],
             code=challenge_message_name,
         )
-
-    def clean_otp(self, user):
-        if user is None:
-            return
-
-        device = self._chosen_device(user)
-        token = self.cleaned_data.get('otp_token')
-        username = self.cleaned_data.get('username')
-        password = self.cleaned_data.get('password')
-
-        user.otp_device = None
-        try:
-            if token:
-                user.otp_device = self._verify_token(user, token, device)
-                user._is_verified = True
-                user.save()
-            elif username and password:
-                self._handle_challenge(device)
-            else:
-                #: If no username or no password are given, the user
-                #: would be None, so this case should never occur,
-                #: but we keep it in case it happens
-                raise forms.ValidationError(  # pragma: no cover
-                    self.otp_error_messages['token_required'],
-                    code='token_required',
-                )
-        finally:
-            if user.otp_device is None:
-                self._update_form(user)
 
     def _chosen_device(self, user):
         device = user.emaildevice_set.filter(confirmed=True).last()

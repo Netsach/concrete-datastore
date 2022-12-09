@@ -9,6 +9,7 @@
 ### Changed
 
 - Setting to change email subject for otp activation
+- Use Email MFA in order to activate OTP MFA to add more security
 
 ### Removed
 
