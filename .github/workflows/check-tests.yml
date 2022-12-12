@@ -44,7 +44,7 @@ jobs:
         codecov
 
   tests-python36:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     strategy:
       max-parallel: 2
       matrix:
