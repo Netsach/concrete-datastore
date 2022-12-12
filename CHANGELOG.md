@@ -8,6 +8,7 @@
 
 ### Changed
 
+- Management command to invite a user to register a TOTP device now supports a list of emails
 - Setting to change email subject for otp activation
 - Use Email MFA in order to activate OTP MFA to add more security
 
