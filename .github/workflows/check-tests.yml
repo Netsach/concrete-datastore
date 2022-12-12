@@ -43,7 +43,7 @@ jobs:
       run: |
         codecov
 
-  tests-python3.6:
+  tests-python36:
     runs-on: ubuntu-22.04
     strategy:
       max-parallel: 2
