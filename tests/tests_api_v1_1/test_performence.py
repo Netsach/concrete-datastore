@@ -1,6 +1,5 @@
 # coding: utf-8
 from rest_framework.test import APITestCase
-from rest_framework import status
 from concrete_datastore.concrete.models import (
     User,
     UserConfirmation,
@@ -17,7 +16,7 @@ logger = logging.getLogger('concrete-datastore')
 
 
 @override_settings(DEBUG=True)
-class PermissionTestCase(APITestCase):
+class PerformanceTestCase(APITestCase):
     def setUp(self):
         # User A
         # self.divider = DefaultDivider.objects.create(name='divider')
@@ -43,7 +42,7 @@ class PermissionTestCase(APITestCase):
 
         self.url = '/api/v1.1/village/'
 
-    def test_retrieve_permission_for_simple(self):
+    def test_performance_one_object(self):
         village1 = Village.objects.create(name='v1')
         village1.can_admin_groups.set([self.group_can_admin.uid])
         village1.can_admin_groups.set([self.group_can_admin.uid])
@@ -81,7 +80,7 @@ class PermissionTestCase(APITestCase):
         DEFAULT_PAGE_SIZE=20000,
         REST_FRAMEWORK={'PAGE_SIZE': 20000, 'PAGINATE_BY': 20000},
     )
-    def test_retrieve_for_simple(self):
+    def test_performance_ten_thousand_object(self):
         for i in range(10000):
             village = Village.objects.create(name=f'vil-{i}')
             village.can_view_users.set([self.admin])
