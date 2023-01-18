@@ -1,9 +1,9 @@
 ## Code Quality
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Netsach/concrete-datastore/Check%20Bandit?label=security)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Netsach/concrete-datastore/Check%20Black?label=black)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Netsach/concrete-datastore/Lint?label=lint)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Netsach/concrete-datastore/Tests?label=tests)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Netsach/concrete-datastore/check-bandit.yml?branch=master&label=security)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Netsach/concrete-datastore/check-black.yml?branch=master&label=black)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Netsach/concrete-datastore/check-lint.yml?branch=master&label=lint)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Netsach/concrete-datastore/check-tests.yml?branch=master&label=tests)
 ![Codecov](https://img.shields.io/codecov/c/github/Netsach/concrete-datastore?logo=codecov)
 ![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)
 ![Python](https://img.shields.io/badge/python-3.6-3473A7?logo=python&logoColor=FED646)
