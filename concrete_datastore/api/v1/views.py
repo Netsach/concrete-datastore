@@ -59,8 +59,7 @@ from concrete_datastore.api.v1.throttling import (
 from concrete_datastore.api.v1.permissions import (
     UserAtLeastAuthenticatedPermission,
     UserAccessPermission,
-    filter_queryset_by_permissions,
-    filter_queryset_by_divider,
+    filter_queryset_by_permissions_and_scope,
 )
 from concrete_datastore.api.v1.responses import ConcreteBadResponse
 from concrete_datastore.api.v1.pagination import ExtendedPagination
@@ -2122,16 +2121,11 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
             user_filters.update(public=True)
             return UserModel.objects.filter(**user_filters)
 
-        queryset = filter_queryset_by_permissions(
+        queryset = filter_queryset_by_permissions_and_scope(
             queryset=self.model_class.objects.all(),
             user=self.request.user,
             divider=divider,
         )
-
-        if divider is not None:
-            queryset = filter_queryset_by_divider(
-                queryset=queryset, user=self.request.user, divider=divider
-            )
 
         if self.request.method in permissions.SAFE_METHODS:
             rel_fields = self.rel_single_fields + self.rel_iterable_fields

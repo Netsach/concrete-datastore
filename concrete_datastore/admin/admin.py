@@ -12,6 +12,7 @@ from concrete_datastore.concrete.models import (
     AuthToken,
     ConcretePermission,
     EmailDevice,
+    InstancePermission,
 )
 from concrete_datastore.concrete.models import (
     divider,
@@ -230,3 +231,34 @@ class EmailDeviceAdmin(SaveModelMixin, admin.ModelAdmin):
         'modification_date',
     ]
     list_filter = ['mfa_mode', 'confirmed']
+
+
+@admin.register(InstancePermission, site=admin_site)
+class InstancePermissionAdmin(SaveModelMixin, admin.ModelAdmin):
+    list_display = [
+        'uid',
+        'user',
+        'model_name',
+        'creation_date',
+        'modification_date',
+    ]
+    search_fields = ['user__email']
+    readonly_fields = [
+        'uid',
+        'user',
+        'model_name',
+        'creation_date',
+        'modification_date',
+    ]
+    date_hierarchy = 'creation_date'
+
+    fields = [
+        'uid',
+        'user',
+        'model_name',
+        'read_instance_uids',
+        'write_instance_uids',
+        'creation_date',
+        'modification_date',
+    ]
+    list_filter = ['model_name']

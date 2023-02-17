@@ -745,6 +745,53 @@ class DeletedModel(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
 
 
+class InstancePermission(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4)
+
+    model_name = models.CharField(max_length=255, default='', db_index=True)
+
+    read_instance_uids = models.JSONField(default=list)
+
+    write_instance_uids = models.JSONField(default=list)
+
+    user = models.ForeignKey(
+        'concrete.User',
+        related_name="instance_permissions",
+        on_delete=models.PROTECT,
+    )
+
+    modification_date = models.DateTimeField(auto_now=True)
+
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+
+class SystemVersion(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4)
+
+    app_name = models.CharField(max_length=255, db_index=True)
+
+    is_latest = models.BooleanField(default=True)
+
+    modification_date = models.DateTimeField(auto_now=True)
+
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        #: If the field is_latest is True, update the other instacne with
+        #: the same app_name to is_latest = False
+        if self.is_latest is False:
+            return super().save(*args, **kwargs)
+        exclude_filters = {}
+        if self.uid:
+            #: The instance exists, and should be exluded from the queryset
+            exclude_filters = {'pk': self.uid}
+
+        SystemVersion.objects.filter(app_name=self.app_name).exclude(
+            **exclude_filters
+        ).update(is_latest=False)
+        return super().save(*args, **kwargs)
+
+
 class UserManager(BaseUserManager):
     """Define a model manager for User model with no username field."""
 

@@ -2,9 +2,7 @@
 import os
 import warnings
 
-from django.utils.deprecation import (
-    RemovedInNextVersionWarning,
-)
+from django.utils.deprecation import RemovedInNextVersionWarning
 
 from concrete_datastore.settings.base import *
 from concrete_datastore.settings.utils import load_datamodel
@@ -91,3 +89,5 @@ EMAIL_HOST = ''
 API_REGISTER_EMAIL_FILTER = '.*'
 
 ENABLE_USERS_SELF_REGISTER = True
+
+CELERY_ALWAYS_EAGER = True

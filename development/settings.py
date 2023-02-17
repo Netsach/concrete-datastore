@@ -2,6 +2,8 @@
 import os
 from concrete_datastore.settings.base import *
 from concrete_datastore.settings.utils import load_datamodel
+from plugin_concrete_olaf.celery_scheduling_settings import *
+
 
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__)) + '/'
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media/')
@@ -82,3 +84,39 @@ EMAIL_REPLY_TO = os.environ.get("EMAIL_REPLY_TO", SERVER_EMAIL)
 
 
 API_REGISTER_EMAIL_FILTER = r'.*'
+
+USE_TWO_FACTOR_AUTH = False
+
+MFA_RULE_PER_USER = "plugin_concrete_olaf.mfa.mfa_rule.mfa_olaf_rule"
+
+ROOT_URLCONF = "plugin_concrete_olaf.urls"
+
+ENABLE_AUTHENTICATED_USER_THROTTLING = False
+ENABLE_ANONYMOUS_USER_THROTTLING = False
+
+SAM_API_TOKEN = "4423ed09d86b754ae3a569b465fc6c6d1d126d73"
+SAM_API_URL = "http://preprod-api-sam-database-occam.globecast.nms/api/v1.1/"
+
+POD_API_TOKEN = "21881c5bc361ca1f5e91efa268f73b4d2f2b36e0"
+POD_API_URL = "http://localhost:8001/api/v1.1/"
+
+INSTALLED_PLUGINS = {"plugin_concrete_olaf": "1.0.0"}
+
+try:
+    import celery_once
+
+    try:
+        CELERY_ONCE_TIMEOUT = CELERY_ONCE_TIMEOUT
+    except NameError:
+        CELERY_ONCE_TIMEOUT = 20 * 60
+    ONCE = {
+        'backend': 'celery_once.backends.Redis',
+        'settings': {
+            'url': BROKER_URL,
+            'default_timeout': CELERY_ONCE_TIMEOUT,
+        },
+    }
+except ImportError:
+    pass
+
+# END of generated settings
