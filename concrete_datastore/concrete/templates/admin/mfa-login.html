@@ -79,7 +79,7 @@
   </div>
   {% if form.get_user %}
   <div class="form-row">
-    {% if not form.this_is_the_login_form.errors %}{{ form.otp_token.errors }}{% endif %}
+    {% if not form.otp_token.errors %}{{ form.otp_token.errors }}{% endif %}
     <label for="id_otp_token" class="required">{% trans 'OTP Token:' %}</label> {{ form.otp_token }}
   </div>
   {% endif %}

@@ -222,6 +222,7 @@ class EmailDeviceAdmin(SaveModelMixin, admin.ModelAdmin):
         'uid',
         'user',
         'key',
+        'confirmed',
         'mfa_mode',
         'digits',
         'step',

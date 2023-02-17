@@ -23,7 +23,25 @@
                 {% endfor %}
             {% endif %}
                 <table style="width: 100%;">
-                    <tr>
+                    {% if form.get_user %}
+                    <tr class="form-row">
+                        <td style="vertical-align: baseline;">
+                            <legend>Code</legend>
+                        </td>
+                        <td>
+                            <input
+                                type="string"
+                                name="{{ form.otp_token.name }}"
+                                id="{{ form.otp_token.id_for_label }}"
+                                {% if form.otp_token.value != None %}value="{{ form.otp_token.value|stringformat:'s' }}"{% endif %}
+                                {% if form.otp_token.field.required %}required{% endif %}
+                            >
+                            <input hidden type="email" name="{{ form.email.name }}" value="{{ form.email.value }}">
+                            <input hidden type="password" name="{{ form.password.name }}" value="{{ form.password.value }}">
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr class="form-row">
                         <td style="vertical-align: baseline;">
                             <legend>{{ form.email.label_tag }}</legend>
                         </td>
@@ -33,12 +51,11 @@
                                 name="{{ form.email.name }}"
                                 autocapitalize="off"
                                 id="{{ form.email.id_for_label }}"
-                                {% if form.email.value != None %}value="{{ form.email.value|stringformat:'s' }}"{% endif %}
                                 {% if form.email.field.required %}required{% endif %}
                             >
                         </td>
                     </tr>
-                    <tr>
+                    <tr class="form-row">
                         <td style="vertical-align: baseline;">
                             <legend>{{ form.password.label_tag }}</legend>
                         </td>
@@ -47,15 +64,18 @@
                                 type="password"
                                 name="{{ form.password.name }}"
                                 id="{{ form.password.id_for_label }}"
-                                {% if form.password.value != None %}value="{{ form.password.value|stringformat:'s' }}"{% endif %}
                                 {% if form.password.field.required %}required{% endif %}
                             >
                         </td>
                     </tr>
+                    {%endif%}
                 </table>
                 <br><br>
             <div class="submit-row">
                 <input type="submit" value="Log in">
+                {% if form.get_user %}
+                <input type=button name="otp_challenge" value="{% trans 'Request a new code' %}" onclick="location.href='{{ request.get_full_path }}';"/>
+                {% endif %}
             </div>
         </form>
     {% endif %}

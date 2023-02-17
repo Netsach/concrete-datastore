@@ -103,11 +103,14 @@ class OTPAuthenticationForm(MyAuthForm, OTPAuthenticationFormMixin):
                 self._update_form(user)
 
     def _chosen_device(self, user):
-        device = user.emaildevice_set.filter(confirmed=True).last()
-        if not device:
+        device = user.totp_device
+        if device is None:
+            device = user.emaildevice_set.filter(confirmed=True).first()
+        if device is None:
             device = user.emaildevice_set.create(
                 email=user.email, name='User default email', confirmed=True
             )
+        user.emaildevice_set.exclude(pk=device.pk).delete()
 
         return device
 

@@ -595,10 +595,8 @@ class LoginApiView(generics.GenericAPIView):
                 logger_api_auth.info(
                     base_message + f"Send MFA code to user {user.email}"
                 )
-            #: Deactivate other email devices for the user
-            user.emaildevice_set.exclude(pk=email_device.pk).update(
-                confirmed=False
-            )
+            #: Delete other email devices for the user
+            user.emaildevice_set.exclude(pk=email_device.pk).delete()
             serializer = UserSerializer(
                 instance=user,
                 api_namespace=self.api_namespace,
