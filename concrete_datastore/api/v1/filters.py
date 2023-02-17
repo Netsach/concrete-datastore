@@ -440,7 +440,6 @@ class FilterSupportingOrBackend(
     BaseFilterBackend, CustomShemaOperationParameters
 ):
     def get_schema_operation_parameters(self, view):
-
         params = [
             {
                 'name': f'{field_name}__in{neg}',

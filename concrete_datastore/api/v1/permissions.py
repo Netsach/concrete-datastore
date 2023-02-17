@@ -560,7 +560,10 @@ def update_instance_permission_uids(
     for uid in all_uids:
         uid_str = str(uid)
         #: Handle read instance uids
-        read_permission_changed, read_instance_uids = add_or_remove_element_into_list(
+        (
+            read_permission_changed,
+            read_instance_uids,
+        ) = add_or_remove_element_into_list(
             elt=uid_str,
             current_list=read_instance_uids,
             check_list=new_read_instance_uids,
@@ -568,7 +571,10 @@ def update_instance_permission_uids(
         )
 
         #: Handle write instance uids
-        write_permission_changed, write_instance_uids = add_or_remove_element_into_list(
+        (
+            write_permission_changed,
+            write_instance_uids,
+        ) = add_or_remove_element_into_list(
             elt=uid_str,
             current_list=write_instance_uids,
             check_list=new_write_instance_uids,
@@ -603,7 +609,10 @@ def create_or_update_instance_permission_per_user(
         return
     model_name = instances_qs.model.__name__
     user_groups_pks = user.concrete_groups.values_list('pk', flat=True)
-    read_instances_uids, write_instances_uids = get_read_write_permission_users(
+    (
+        read_instances_uids,
+        write_instances_uids,
+    ) = get_read_write_permission_users(
         user=user,
         instances_qs=instances_qs,
         user_groups_pks=user_groups_pks,
