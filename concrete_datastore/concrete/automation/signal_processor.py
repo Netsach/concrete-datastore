@@ -4,7 +4,12 @@ import os
 import logging
 from django.conf import settings
 from django.dispatch import receiver
-from django.db.models.signals import pre_delete, post_save, m2m_changed
+from django.db.models.signals import (
+    pre_delete,
+    post_save,
+    m2m_changed,
+    pre_save,
+)
 from django.contrib.auth import get_user_model
 import concrete_datastore.concrete.models
 from concrete_datastore.concrete.models import DIVIDER_MODEL
@@ -14,6 +19,9 @@ from concrete_datastore.concrete.automation.tasks import (
     on_create_instance_async,
     on_view_admin_groups_changed_async,
     on_view_admin_users_changed_async,
+)
+from concrete_datastore.api.v1.permissions import (
+    check_instance_permissions_per_user,
 )
 from concrete_datastore.api.v1.views import (
     remove_instances_user_tracked_fields,
@@ -75,8 +83,24 @@ def on_pre_delete(sender, instance, **kwargs):
                 continue
 
 
+@receiver(pre_save, sender=get_user_model())
+def on_pre_save(sender, instance, *args, **kwargs):
+    if instance.level in ('blocked', 'superuser', 'admin'):
+        return
+    try:
+        prev_instance = get_user_model().objects.get(pk=instance.pk)
+    except get_user_model().DoesNotExist:
+        return
+    if prev_instance.level == instance.level:
+        return
+    check_instance_permissions_per_user(instance)
+
+
 @receiver(post_save, sender=get_user_model())
-def on_post_save(sender, instance, **kwargs):
+def on_post_save(sender, instance, created, **kwargs):
+    if created is True and instance.level in ('simpleuser', 'manager'):
+        check_instance_permissions_per_user(instance)
+
     if instance.level == 'blocked':
         divider_manager = getattr(
             instance, '{}s'.format(DIVIDER_MODEL.lower())

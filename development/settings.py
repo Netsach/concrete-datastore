@@ -2,7 +2,6 @@
 import os
 from concrete_datastore.settings.base import *
 from concrete_datastore.settings.utils import load_datamodel
-from plugin_concrete_olaf.celery_scheduling_settings import *
 
 
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__)) + '/'
@@ -85,4 +84,4 @@ EMAIL_REPLY_TO = os.environ.get("EMAIL_REPLY_TO", SERVER_EMAIL)
 
 API_REGISTER_EMAIL_FILTER = r'.*'
 
-USE_TWO_FACTOR_AUTH = True
+USE_TWO_FACTOR_AUTH = False

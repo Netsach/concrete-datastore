@@ -9,6 +9,9 @@ from django.contrib.auth import get_user_model
 
 from rest_framework.exceptions import APIException
 from rest_framework import permissions, status
+
+import concrete_datastore.concrete.models
+from concrete_datastore.concrete.meta import meta_models
 from concrete_datastore.concrete.models import (
     ConcretePermission,
     InstancePermission,
@@ -655,3 +658,22 @@ def update_created_by_permissions(instance, user):
         for field_name, field_value in defaults.items():
             getattr(permission_instance, field_name).extend(field_value)
         permission_instance.save()
+
+
+def check_instance_permissions_per_user(user):
+    #: Checks the user permissions for all instances of the platform
+    for meta_model in meta_models:
+        model_name = meta_model.get_model_name()
+        if model_name in ('User', 'Group', 'Email'):
+            continue
+        concrete_model = getattr(
+            concrete_datastore.concrete.models, model_name
+        )
+        queryset = concrete_model.objects.all()
+        logger.debug(
+            f'Checking permission for user {user} on {queryset.count()} '
+            f'instances of model {model_name}'
+        )
+        create_or_update_instance_permission_per_user(
+            user=user, instances_qs=queryset
+        )

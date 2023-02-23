@@ -13,6 +13,7 @@ from concrete_datastore.concrete.models import (
     ConcretePermission,
     EmailDevice,
     InstancePermission,
+    SystemVersion,
 )
 from concrete_datastore.concrete.models import (
     divider,
@@ -263,3 +264,39 @@ class InstancePermissionAdmin(SaveModelMixin, admin.ModelAdmin):
         'modification_date',
     ]
     list_filter = ['model_name']
+
+
+@admin.register(SystemVersion, site=admin_site)
+class SystemVersionAdmin(SaveModelMixin, admin.ModelAdmin):
+    @admin.action(description='Set selected versions as the latest versions')
+    def set_is_latest_to_true(self, request, queryset):
+        queryset.update(is_latest=True)
+
+    @admin.action(description='Set selected versions as earlier versions')
+    def set_is_latest_to_false(self, request, queryset):
+        queryset.update(is_latest=False)
+
+    list_display = [
+        'uid',
+        'app_name',
+        'version',
+        'is_latest',
+        'creation_date',
+        'modification_date',
+    ]
+    search_fields = ['app_name']
+    readonly_fields = ['uid', 'creation_date', 'modification_date']
+    date_hierarchy = 'creation_date'
+
+    fields = [
+        'uid',
+        'user',
+        'model_name',
+        'read_instance_uids',
+        'write_instance_uids',
+        'creation_date',
+        'modification_date',
+    ]
+    list_filter = ['app_name', 'is_latest']
+
+    actions = ['set_is_latest_to_true', 'set_is_latest_to_false']

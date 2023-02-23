@@ -2,7 +2,6 @@
 from django.test import TestCase
 from concrete_datastore.concrete.models import (
     User,
-    UserConfirmation,
     Group,
     DefaultDivider,
     Category,
@@ -16,10 +15,7 @@ class CommunPermissionInstanceTestCase(TestCase):
             email='simple@netsach.org', password='simple'
         )
 
-        self.confirmation = UserConfirmation.objects.create(user=self.simple)
-        self.confirmation.confirmed = True
         self.simple.set_level('simple', commit=True)
-        self.confirmation.save()
         url = '/api/v1/auth/login/'
         resp = self.client.post(
             url, {"email": "simple@netsach.org", "password": "simple"}
@@ -30,10 +26,7 @@ class CommunPermissionInstanceTestCase(TestCase):
             email='manager@netsach.org', password='manager'
         )
 
-        self.confirmation = UserConfirmation.objects.create(user=self.manager)
-        self.confirmation.confirmed = True
         self.manager.set_level('manager', commit=True)
-        self.confirmation.save()
         url = '/api/v1/auth/login/'
         resp = self.client.post(
             url, {"email": "manager@netsach.org", "password": "manager"}
@@ -44,10 +37,7 @@ class CommunPermissionInstanceTestCase(TestCase):
             email='admin@netsach.org', password='admin'
         )
 
-        self.confirmation = UserConfirmation.objects.create(user=self.admin)
-        self.confirmation.confirmed = True
         self.admin.set_level('admin', commit=True)
-        self.confirmation.save()
         url = '/api/v1/auth/login/'
         resp = self.client.post(
             url, {"email": "admin@netsach.org", "password": "admin"}
