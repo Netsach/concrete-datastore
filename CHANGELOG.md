@@ -5,6 +5,7 @@
 ### Added
 
 - Add model InstancePermission to determine read and write permissions for a user
+- InstancePermission are bulk created or bulk updated
 
 ### Changed
 

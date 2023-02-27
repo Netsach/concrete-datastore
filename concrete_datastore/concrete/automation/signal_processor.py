@@ -19,9 +19,7 @@ from concrete_datastore.concrete.automation.tasks import (
     on_create_instance_async,
     on_view_admin_groups_changed_async,
     on_view_admin_users_changed_async,
-)
-from concrete_datastore.api.v1.permissions import (
-    check_instance_permissions_per_user,
+    check_all_user_permissions_async,
 )
 from concrete_datastore.api.v1.views import (
     remove_instances_user_tracked_fields,
@@ -93,14 +91,13 @@ def on_pre_save(sender, instance, *args, **kwargs):
         return
     if prev_instance.level == instance.level:
         return
-    check_instance_permissions_per_user(instance)
+    check_all_user_permissions_async.apply_async(
+        kwargs={'user_pk': instance.pk, 'new_level': instance.level}
+    )
 
 
 @receiver(post_save, sender=get_user_model())
 def on_post_save(sender, instance, created, **kwargs):
-    if created is True and instance.level in ('simpleuser', 'manager'):
-        check_instance_permissions_per_user(instance)
-
     if instance.level == 'blocked':
         divider_manager = getattr(
             instance, '{}s'.format(DIVIDER_MODEL.lower())
@@ -252,6 +249,7 @@ for meta_model in meta_models:
             return
         if action not in ('post_add', 'post_remove', 'pre_clear'):
             return
+
         model_name = instance._meta.model.__name__
         on_view_admin_users_changed_async.apply_async(
             kwargs={

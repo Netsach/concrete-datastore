@@ -656,3 +656,5 @@ OTP_TOTP_TOLERANCE = 1
 #: The TOTP issuer used for the QR-Code. Leave to None to use the same value
 #: as PLATFORM_NAME
 OTP_TOTP_ISSUER = None
+
+BATCH_SIZE_FOR_BULK_OPERATIONS = 1000

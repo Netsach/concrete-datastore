@@ -29,6 +29,10 @@ class CommunPermissionInstanceTestCase(TestCase):
         self.assertTrue(datamodel_version.is_latest)
 
     def test_with_users(self):
+        #: in this test, we will create users and a Project. We are gonna
+        #: set the can_view_users of this project and the delete the
+        #: InstancePermissions. We are going to check that the init_app
+        #: command creates the right instance permissions
         self.assertEqual(InstancePermission.objects.count(), 0)
         simple = User.objects.create(email="simple@netsach.org")
         manager = User.objects.create(email="manager@netsach.org")
@@ -44,7 +48,10 @@ class CommunPermissionInstanceTestCase(TestCase):
         self.assertEqual(InstancePermission.objects.count(), 0)
 
         #: Create a project
-        Project.objects.create()
+        p = Project.objects.create()
+        p.can_view_users.set({simple.pk, manager.pk, admin.pk})
+        self.assertEqual(InstancePermission.objects.count(), 2)
+        InstancePermission.objects.all().delete()
         self.assertEqual(InstancePermission.objects.count(), 0)
         call_command('init_app')
         #: We expect 2 InstancePermissions: simple + manager
@@ -63,11 +70,4 @@ class CommunPermissionInstanceTestCase(TestCase):
         self.assertEqual(InstancePermission.objects.count(), 3)
         self.assertEqual(
             InstancePermission.objects.filter(user_id=admin.pk).count(), 1
-        )
-
-        #: If we create a new simpleUser, we expect a new InstancePermission
-        simple2 = User.objects.create(email="simple2@netsach.org")
-        self.assertEqual(InstancePermission.objects.count(), 4)
-        self.assertEqual(
-            InstancePermission.objects.filter(user_id=simple2.pk).count(), 1
         )

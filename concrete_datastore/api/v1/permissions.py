@@ -428,7 +428,10 @@ def get_read_write_permission_users(
     include_admin_groups=True,
     include_view_users=True,
     include_admin_users=True,
+    user_level=None,
 ):
+    if user_level is None:
+        user_level = user.level
     user_id = user.pk
     created_by_qs = instances_qs.filter(created_by_id=user_id).values_list(
         'pk', flat=True
@@ -457,7 +460,7 @@ def get_read_write_permission_users(
     #: A manager has write permissions on his scope
     model_name = instances_qs.model.__name__
     if (
-        (user.is_at_least_staff is True)
+        (user_level == 'manager')
         and (model_name not in UNDIVIDED_MODEL)
         and (include_divider is True)
     ):
@@ -594,7 +597,8 @@ def update_instance_permission_uids(
             f'Updating permissions for {perm_instance.user.email} on '
             f'instance <{all_uids.model.__name__}>'
         )
-        perm_instance.save()
+        return perm_instance
+        # perm_instance.save()
 
 
 def create_or_update_instance_permission_per_user(
@@ -605,11 +609,14 @@ def create_or_update_instance_permission_per_user(
     include_admin_groups=True,
     include_view_users=True,
     include_admin_users=True,
+    user_level=None,
 ):
     if instances_qs.exists() is False:
-        return
-    if user.is_at_least_admin:
-        return
+        return None, False
+    if user_level is None:
+        user_level = user.level
+    if user_level in ('superuser', 'admin'):
+        return None, False
     model_name = instances_qs.model.__name__
     user_groups_pks = user.concrete_groups.values_list('pk', flat=True)
     (
@@ -624,17 +631,24 @@ def create_or_update_instance_permission_per_user(
         include_admin_groups=include_admin_groups,
         include_view_users=include_view_users,
         include_admin_users=include_admin_users,
+        user_level=user_level,
     )
-    perm_instance, _ = InstancePermission.objects.get_or_create(
-        user=user, model_name=model_name
-    )
+    should_create = False
+    try:
+        perm_instance = InstancePermission.objects.get(
+            user=user, model_name=model_name
+        )
+    except InstancePermission.DoesNotExist:
+        perm_instance = InstancePermission(user=user, model_name=model_name)
+        should_create = True
 
-    update_instance_permission_uids(
+    perm_instance = update_instance_permission_uids(
         perm_instance=perm_instance,
         new_read_instance_uids=read_instances_uids,
         new_write_instance_uids=write_instances_uids,
         all_uids=instances_qs.values_list('pk', flat=True),
     )
+    return perm_instance, should_create
 
 
 def update_created_by_permissions(instance, user):
@@ -660,8 +674,14 @@ def update_created_by_permissions(instance, user):
         permission_instance.save()
 
 
-def check_instance_permissions_per_user(user):
+def check_instance_permissions_per_user(user, user_level=None):
+    if user_level is None:
+        user_level = user.level
+    if user_level in ('superuser', 'admin'):
+        return [], []
     #: Checks the user permissions for all instances of the platform
+    instances_to_create = []
+    instances_to_update = []
     for meta_model in meta_models:
         model_name = meta_model.get_model_name()
         if model_name in ('User', 'Group', 'Email'):
@@ -674,6 +694,33 @@ def check_instance_permissions_per_user(user):
             f'Checking permission for user {user} on {queryset.count()} '
             f'instances of model {model_name}'
         )
-        create_or_update_instance_permission_per_user(
-            user=user, instances_qs=queryset
+        instance, should_create = create_or_update_instance_permission_per_user(
+            user=user, instances_qs=queryset, user_level=user_level
         )
+        if instance is None:
+            continue
+        if should_create is True:
+            instances_to_create.append(instance)
+        else:
+            instances_to_update.append(instance)
+    return instances_to_create, instances_to_update
+
+
+def bulk_create_permission_instances(instances):
+    if not instances:
+        return
+    logger.info(f'Creating {len(instances)} Permission objects')
+    InstancePermission.objects.bulk_create(
+        objs=instances, batch_size=settings.BATCH_SIZE_FOR_BULK_OPERATIONS
+    )
+
+
+def bulk_update_permission_instances(instances):
+    if not instances:
+        return
+    logger.debug(f'Updating {len(instances)} Permission objects')
+    InstancePermission.objects.bulk_update(
+        objs=instances,
+        fields=['read_instance_uids', 'write_instance_uids'],
+        batch_size=settings.BATCH_SIZE_FOR_BULK_OPERATIONS,
+    )
