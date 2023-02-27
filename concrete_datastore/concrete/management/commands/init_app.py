@@ -89,9 +89,10 @@ def setup_versions_and_permissions():
         for user in get_user_model().objects.filter(
             is_active=True, admin=False, is_superuser=False
         ):
-            partial_instances_to_create, partial_instances_to_update = check_instance_permissions_per_user(
-                user=user
-            )
+            (
+                partial_instances_to_create,
+                partial_instances_to_update,
+            ) = check_instance_permissions_per_user(user=user)
             instances_to_create.extend(partial_instances_to_create)
             instances_to_update.extend(partial_instances_to_update)
 

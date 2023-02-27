@@ -39,9 +39,10 @@ DIVIDER_MODEL_LOWER = DIVIDER_MODEL.lower()
 @app.task
 def check_all_user_permissions_async(user_pk, new_level=None):
     user = get_user_model().objects.get(pk=user_pk)
-    instances_to_create, instances_to_update = check_instance_permissions_per_user(
-        user=user, user_level=new_level
-    )
+    (
+        instances_to_create,
+        instances_to_update,
+    ) = check_instance_permissions_per_user(user=user, user_level=new_level)
     bulk_create_permission_instances(instances_to_create)
     bulk_update_permission_instances(instances_to_update)
 
@@ -62,7 +63,10 @@ def on_update_divider_async(pk_set, instance_uid, include_divider):
         related_divider_field_name = f'divider_{related_name}s'
         for divider_pk in pk_set:
             divider_instance = divider_model.objects.get(pk=divider_pk)
-            instance, should_create = create_or_update_instance_permission_per_user(
+            (
+                instance,
+                should_create,
+            ) = create_or_update_instance_permission_per_user(
                 user=get_user_model().objects.get(pk=instance_uid),
                 instances_qs=getattr(
                     divider_instance, related_divider_field_name
@@ -104,7 +108,10 @@ def on_update_group_members_async(
             administrable_qs = getattr(instance, group_admin_field_name).all()
             for user_pk in pk_set:
                 user = user_model.objects.get(pk=user_pk)
-                perm_instance, should_create = create_or_update_instance_permission_per_user(
+                (
+                    perm_instance,
+                    should_create,
+                ) = create_or_update_instance_permission_per_user(
                     user=user,
                     instances_qs=viewable_qs | administrable_qs,
                     include_admin_groups=include_pks,
@@ -128,7 +135,10 @@ def on_update_group_members_async(
             instances_qs = concrete_model.objects.filter(
                 Q(can_admin_groups__in=pk_set) | Q(can_view_groups__in=pk_set)
             )
-            perm_instance, should_create = create_or_update_instance_permission_per_user(
+            (
+                perm_instance,
+                should_create,
+            ) = create_or_update_instance_permission_per_user(
                 user=instance,
                 instances_qs=instances_qs,
                 include_view_users=include_pks,
@@ -166,7 +176,10 @@ def on_create_instance_async(user_pk, model_name, instance_pk):
     ):
         if user.is_at_least_admin:
             continue
-        instance, should_create = create_or_update_instance_permission_per_user(
+        (
+            instance,
+            should_create,
+        ) = create_or_update_instance_permission_per_user(
             user=user, instances_qs=model.objects.filter(pk=instance_pk)
         )
         if instance is None:
@@ -193,7 +206,10 @@ def on_view_admin_groups_changed_async(
     instances_to_create = []
     instances_to_update = []
     for user in user_model.objects.filter(pk__in=users_ids):
-        instance, should_create = create_or_update_instance_permission_per_user(
+        (
+            instance,
+            should_create,
+        ) = create_or_update_instance_permission_per_user(
             user=user,
             instances_qs=model.objects.filter(pk=instance_pk),
             include_view_groups=include_view_groups,
@@ -218,7 +234,10 @@ def on_view_admin_users_changed_async(
     instances_to_create = []
     instances_to_update = []
     for user in user_model.objects.filter(pk__in=pk_set):
-        instance, should_create = create_or_update_instance_permission_per_user(
+        (
+            instance,
+            should_create,
+        ) = create_or_update_instance_permission_per_user(
             user=user,
             instances_qs=model.objects.filter(pk=instance_pk),
             include_admin_users=include_admin_users,

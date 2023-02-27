@@ -694,7 +694,10 @@ def check_instance_permissions_per_user(user, user_level=None):
             f'Checking permission for user {user} on {queryset.count()} '
             f'instances of model {model_name}'
         )
-        instance, should_create = create_or_update_instance_permission_per_user(
+        (
+            instance,
+            should_create,
+        ) = create_or_update_instance_permission_per_user(
             user=user, instances_qs=queryset, user_level=user_level
         )
         if instance is None:
