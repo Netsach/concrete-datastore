@@ -7,6 +7,7 @@ from concrete_datastore.concrete.constants import MFA_OTP, MFA_EMAIL
 
 
 class ConfigureOTPLoginForm(forms.Form):
+
     otp_error_messages = {
         'token_required': _('Please enter your OTP token.'),
         'challenge_exception': _('Error generating challenge: {0}'),

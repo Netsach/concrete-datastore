@@ -71,6 +71,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+
         url_patterns_dict = {
             'v1': (api_v1_urls,),
             'v1.1': (api_v1_1_urls,),

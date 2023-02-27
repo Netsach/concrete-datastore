@@ -236,6 +236,7 @@ class UserSerializer(serializers.ModelSerializer):
 def make_related_serializer_class(
     target_model_name, many, nested=False, api_namespace=DEFAULT_API_NAMESPACE
 ):
+
     if target_model_name not in meta_registered:
         raise ValueError(f'Related to unknown model {target_model_name}')
 
@@ -257,9 +258,11 @@ def make_custom_serializer_fields(
 
     for model_name, SERIALIZER_SETTINGS in SERIALIZERS_SETTINGS.items():
         if meta_model.get_model_name() == model_name:
+
             CUSTOM_FIELDS = SERIALIZER_SETTINGS.get('CUSTOM_FIELDS', {})
 
             for field_name, field_args in CUSTOM_FIELDS.items():
+
                 if 'type' not in field_args:
                     raise ValueError(
                         'CONCRETE improperly configured : custom field '
@@ -267,6 +270,7 @@ def make_custom_serializer_fields(
                     )
 
                 if field_args['type'] == 'RelatedModelSerializer':
+
                     if 'to' not in field_args:
                         raise ValueError(
                             'CONCRETE improperly configured : custom field '
@@ -358,6 +362,7 @@ def make_serializer_class(
     # TODO: rajouter les <name>_uid dans _fields
     fk_read_only_fields = []
     for name, field in enum_fields:
+
         if field.type.startswith("rel_"):
             _fields += ['{}_uid'.format(name)]
             fk_read_only_fields += [name]
@@ -388,6 +393,7 @@ def make_serializer_class(
 
     # TODO : if field is relational, expose pk and url serialized
     for name, field in enum_fields:
+
         if field.f_type == 'FileField':
             attrs.update(
                 {
@@ -412,6 +418,7 @@ def make_serializer_class(
                 {name: serializers.JSONField(binary=False, required=False)}
             )
         if field.type.startswith("rel_") and nested is True:
+
             force_nested = getattr(field, 'force_nested', False)
 
             attrs.update(

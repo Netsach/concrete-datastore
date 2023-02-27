@@ -9,6 +9,7 @@ logger = logging.getLogger('concrete_datastore')
 
 
 def load_datamodel(datamodel_path='current-datamodel.meta'):
+
     datamodel_path = os.getenv('DATAMODEL_FILE') or datamodel_path
 
     try:

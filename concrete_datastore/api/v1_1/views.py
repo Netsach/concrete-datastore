@@ -146,6 +146,7 @@ class ProcessRegisterApiView(generics.GenericAPIView):
     serializer_class = ProcessRegisterSerializer
 
     def post(self, request, *args, **kwargs):
+
         """
         1. Check if the token is not already created and that it is valid
         2. Check if the user(process) is not already created with a different token
@@ -449,11 +450,13 @@ class EmailDeviceAuthView(PaginatedViewSet, viewsets.ModelViewSet):
         }
 
     def perform_create(self, serializer):
+
         attrs = {'created_by': self.request.user, 'user': self.request.user}
         serializer.save(**attrs)
 
 
 class ConcreteRoleApiView(PaginatedViewSet, viewsets.ModelViewSet):
+
     model_class = ConcreteRole
     permission_classes = (IsAuthenticated, ConcreteRolesPermission)
     api_namespace = DEFAULT_API_NAMESPACE
@@ -499,6 +502,7 @@ class ConcretePermissionApiView(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
+
     model_class = ConcretePermission
     permission_classes = (IsAuthenticated, ConcreteRolesPermission)
     serializer_class = ConcretePermissionSerializer
