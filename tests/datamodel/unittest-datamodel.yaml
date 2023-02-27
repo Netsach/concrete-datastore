@@ -1,7 +1,7 @@
 manifest:
   data_modeling:
     application_id: 4a674cd4f14366b8248d46d739
-    version: "1.0"
+    version: 1.0.0
     models:
       - name: RoleModel
         description: ""

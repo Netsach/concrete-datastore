@@ -12,6 +12,8 @@ from concrete_datastore.concrete.models import (
     AuthToken,
     ConcretePermission,
     EmailDevice,
+    InstancePermission,
+    SystemVersion,
 )
 from concrete_datastore.concrete.models import (
     divider,
@@ -231,3 +233,70 @@ class EmailDeviceAdmin(SaveModelMixin, admin.ModelAdmin):
         'modification_date',
     ]
     list_filter = ['mfa_mode', 'confirmed']
+
+
+@admin.register(InstancePermission, site=admin_site)
+class InstancePermissionAdmin(SaveModelMixin, admin.ModelAdmin):
+    list_display = [
+        'uid',
+        'user',
+        'model_name',
+        'creation_date',
+        'modification_date',
+    ]
+    search_fields = ['user__email']
+    readonly_fields = [
+        'uid',
+        'user',
+        'model_name',
+        'creation_date',
+        'modification_date',
+    ]
+    date_hierarchy = 'creation_date'
+
+    fields = [
+        'uid',
+        'user',
+        'model_name',
+        'read_instance_uids',
+        'write_instance_uids',
+        'creation_date',
+        'modification_date',
+    ]
+    list_filter = ['model_name']
+
+
+@admin.register(SystemVersion, site=admin_site)
+class SystemVersionAdmin(SaveModelMixin, admin.ModelAdmin):
+    @admin.action(description='Tag as latest')
+    def tag_as_latest(self, request, queryset):
+        queryset.update(is_latest=True)
+
+    @admin.action(description='Untag as latest')
+    def untag_as_latest(self, request, queryset):
+        queryset.update(is_latest=False)
+
+    list_display = [
+        'uid',
+        'app_name',
+        'version',
+        'is_latest',
+        'creation_date',
+        'modification_date',
+    ]
+    search_fields = ['app_name']
+    readonly_fields = ['uid', 'creation_date', 'modification_date']
+    date_hierarchy = 'creation_date'
+
+    fields = [
+        'uid',
+        'user',
+        'model_name',
+        'read_instance_uids',
+        'write_instance_uids',
+        'creation_date',
+        'modification_date',
+    ]
+    list_filter = ['app_name', 'is_latest']
+
+    actions = ['tag_as_latest', 'untag_as_latest']

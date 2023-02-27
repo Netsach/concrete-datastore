@@ -59,8 +59,7 @@ from concrete_datastore.api.v1.throttling import (
 from concrete_datastore.api.v1.permissions import (
     UserAtLeastAuthenticatedPermission,
     UserAccessPermission,
-    filter_queryset_by_permissions,
-    filter_queryset_by_divider,
+    filter_queryset_by_permissions_and_scope,
 )
 from concrete_datastore.api.v1.responses import ConcreteBadResponse
 from concrete_datastore.api.v1.pagination import ExtendedPagination
@@ -535,7 +534,6 @@ class LoginApiView(generics.GenericAPIView):
             )
 
         if not user.is_confirmed():
-
             log_request = (
                 base_message
                 + f"Connection attempt to a not validated user {email}"
@@ -821,7 +819,6 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         ):
             same_password = target_user.check_password(password)
             if same_password:
-
                 log_request = base_message + (
                     f"Change password attempt by {user.email}"
                     f" to user {target_user.email}, "
@@ -1506,7 +1503,6 @@ class ResetPasswordApiView(SecurityRulesMixin, generics.GenericAPIView):
         return Response(data={'email': user.email}, status=HTTP_200_OK)
 
     def send_email(self, link, user, created_by):
-
         Email.objects.create(
             subject="Reset password",
             resource_status='to-send',
@@ -1522,7 +1518,6 @@ class ResetPasswordApiView(SecurityRulesMixin, generics.GenericAPIView):
 class AccountMeApiView(
     generics.RetrieveAPIView, generics.UpdateAPIView, generics.GenericAPIView
 ):
-
     model_class = UserModel
     authentication_classes = (
         authentication.SessionAuthentication,
@@ -2108,7 +2103,6 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
                 )
 
         if self.model_class is UserModel:
-
             #: Anonymous user can only see public objects
             divider_name_plural = '{}s'.format(DIVIDER_MODEL.lower())
             user_filters = {'is_active': True}
@@ -2120,16 +2114,11 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
             user_filters.update(public=True)
             return UserModel.objects.filter(**user_filters)
 
-        queryset = filter_queryset_by_permissions(
+        queryset = filter_queryset_by_permissions_and_scope(
             queryset=self.model_class.objects.all(),
             user=self.request.user,
             divider=divider,
         )
-
-        if divider is not None:
-            queryset = filter_queryset_by_divider(
-                queryset=queryset, user=self.request.user, divider=divider
-            )
 
         if self.request.method in permissions.SAFE_METHODS:
             rel_fields = self.rel_single_fields + self.rel_iterable_fields
@@ -2374,7 +2363,6 @@ def make_api_viewset_generic_attributes_class(
         model_filterset_fields += ('{}'.format(DIVIDER_MODEL.lower()),)
 
     class GenericAttributesViewsetClass:
-
         permission_classes = model_permission_classes
 
         model_class = main_app.models[meta_model.get_model_name().lower()]

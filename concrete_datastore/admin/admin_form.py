@@ -15,7 +15,6 @@ class MyAuthForm(forms.AuthenticationForm):
 
 
 class OTPAuthenticationForm(MyAuthForm, OTPAuthenticationFormMixin):
-
     otp_error_messages = {
         'token_required': _('Please enter your OTP token.'),
         'challenge_exception': _('Error generating challenge: {0}'),

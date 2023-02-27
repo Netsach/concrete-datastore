@@ -4,11 +4,13 @@
 
 ### Added
 
-- nothing added
+- Add model InstancePermission to determine read and write permissions for a user
+- InstancePermission are bulk created or bulk updated
 
 ### Changed
 
-- nothing changed
+- Changed the logic of read/write permissions by user: A user that has read/write access to an instance of the model Model, will have an instance of InstancePermission (with the model_name="Model") and the uid of the instance will be in the read/write_instance_uids
+- Update black version
 
 ### Removed
 

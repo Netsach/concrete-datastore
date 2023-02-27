@@ -431,7 +431,6 @@ class SecureConnectModelMixin(models.Model):
 
 
 class SecureConnectToken(SecureConnectModelMixin):
-
     value = models.UUIDField(default=uuid.uuid4, primary_key=True)
     user = models.ForeignKey(
         'concrete.User',
@@ -719,7 +718,6 @@ class HasPermissionAbstractUser(models.Model):
 
 
 class PasswordChangeToken(models.Model):
-
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4)
     creation_date = models.DateTimeField(auto_now_add=True)
     expiry_date = models.DateTimeField(default=compute_pwd_change_token_expiry)
@@ -739,6 +737,40 @@ class DeletedModel(models.Model):
     uid = models.UUIDField()
 
     model_name = models.CharField(max_length=255, default='', db_index=True)
+
+    modification_date = models.DateTimeField(auto_now=True)
+
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+
+class InstancePermission(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4)
+
+    model_name = models.CharField(max_length=255, default='', db_index=True)
+
+    read_instance_uids = models.JSONField(default=list)
+
+    write_instance_uids = models.JSONField(default=list)
+
+    user = models.ForeignKey(
+        'concrete.User',
+        related_name="instance_permissions",
+        on_delete=models.PROTECT,
+    )
+
+    modification_date = models.DateTimeField(auto_now=True)
+
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+
+class SystemVersion(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4)
+
+    version = models.CharField(max_length=255, default='0.1.0')
+
+    app_name = models.CharField(max_length=255, db_index=True)
+
+    is_latest = models.BooleanField(default=True)
 
     modification_date = models.DateTimeField(auto_now=True)
 
@@ -996,7 +1028,6 @@ def make_django_model(meta_model, divider):
             args.setdefault('max_digits', 20)
             args.setdefault('default', 0.00)
         elif field.f_type in ('ForeignKey',):
-
             # Copy args to not alter the real field.f_args
             args = args.copy()
             # Force FK to null=True to avoid default value problems
@@ -1110,7 +1141,6 @@ def get_divider_fn(meta_model):
 
 
 def get_divider():
-
     dividers_set = set(map(get_divider_fn, meta_models))
 
     #:  Remove None values from the set
