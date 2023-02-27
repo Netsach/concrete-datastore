@@ -535,7 +535,6 @@ class LoginApiView(generics.GenericAPIView):
             )
 
         if not user.is_confirmed():
-
             log_request = (
                 base_message
                 + f"Connection attempt to a not validated user {email}"
@@ -821,7 +820,6 @@ class ChangePasswordView(SecurityRulesMixin, generics.GenericAPIView):
         ):
             same_password = target_user.check_password(password)
             if same_password:
-
                 log_request = base_message + (
                     f"Change password attempt by {user.email}"
                     f" to user {target_user.email}, "
@@ -1506,7 +1504,6 @@ class ResetPasswordApiView(SecurityRulesMixin, generics.GenericAPIView):
         return Response(data={'email': user.email}, status=HTTP_200_OK)
 
     def send_email(self, link, user, created_by):
-
         Email.objects.create(
             subject="Reset password",
             resource_status='to-send',
@@ -1522,7 +1519,6 @@ class ResetPasswordApiView(SecurityRulesMixin, generics.GenericAPIView):
 class AccountMeApiView(
     generics.RetrieveAPIView, generics.UpdateAPIView, generics.GenericAPIView
 ):
-
     model_class = UserModel
     authentication_classes = (
         authentication.SessionAuthentication,
@@ -2108,7 +2104,6 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
                 )
 
         if self.model_class is UserModel:
-
             #: Anonymous user can only see public objects
             divider_name_plural = '{}s'.format(DIVIDER_MODEL.lower())
             user_filters = {'is_active': True}
@@ -2374,7 +2369,6 @@ def make_api_viewset_generic_attributes_class(
         model_filterset_fields += ('{}'.format(DIVIDER_MODEL.lower()),)
 
     class GenericAttributesViewsetClass:
-
         permission_classes = model_permission_classes
 
         model_class = main_app.models[meta_model.get_model_name().lower()]

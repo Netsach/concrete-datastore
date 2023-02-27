@@ -108,7 +108,6 @@ class ConcreteRoleSerializer(serializers.ModelSerializer):
 
 
 class EmailDeviceSerializer(serializers.ModelSerializer):
-
     url = serializers.SerializerMethodField()
 
     class Meta:
@@ -143,7 +142,6 @@ class EmailDeviceSerializer(serializers.ModelSerializer):
 
 
 class ConcretePermissionSerializer(serializers.ModelSerializer):
-
     create_roles = serializers.StringRelatedField(many=True, read_only=True)
     update_roles = serializers.StringRelatedField(many=True, read_only=True)
     retrieve_roles = serializers.StringRelatedField(many=True, read_only=True)
