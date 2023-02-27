@@ -97,7 +97,7 @@ def on_pre_save(sender, instance, *args, **kwargs):
 
 
 @receiver(post_save, sender=get_user_model())
-def on_post_save(sender, instance, created, **kwargs):
+def on_post_save(sender, instance, **kwargs):
     if instance.level == 'blocked':
         divider_manager = getattr(
             instance, '{}s'.format(DIVIDER_MODEL.lower())

@@ -268,12 +268,12 @@ class InstancePermissionAdmin(SaveModelMixin, admin.ModelAdmin):
 
 @admin.register(SystemVersion, site=admin_site)
 class SystemVersionAdmin(SaveModelMixin, admin.ModelAdmin):
-    @admin.action(description='Set selected versions as the latest versions')
-    def set_is_latest_to_true(self, request, queryset):
+    @admin.action(description='Tag as latest')
+    def tag_as_latest(self, request, queryset):
         queryset.update(is_latest=True)
 
-    @admin.action(description='Set selected versions as earlier versions')
-    def set_is_latest_to_false(self, request, queryset):
+    @admin.action(description='Untag as latest')
+    def untag_as_latest(self, request, queryset):
         queryset.update(is_latest=False)
 
     list_display = [
@@ -299,4 +299,4 @@ class SystemVersionAdmin(SaveModelMixin, admin.ModelAdmin):
     ]
     list_filter = ['app_name', 'is_latest']
 
-    actions = ['set_is_latest_to_true', 'set_is_latest_to_false']
+    actions = ['tag_as_latest', 'untag_as_latest']

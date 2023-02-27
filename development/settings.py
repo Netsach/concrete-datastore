@@ -3,7 +3,6 @@ import os
 from concrete_datastore.settings.base import *
 from concrete_datastore.settings.utils import load_datamodel
 
-
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__)) + '/'
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media/')
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static/')
@@ -84,4 +83,4 @@ EMAIL_REPLY_TO = os.environ.get("EMAIL_REPLY_TO", SERVER_EMAIL)
 
 API_REGISTER_EMAIL_FILTER = r'.*'
 
-USE_TWO_FACTOR_AUTH = False
+USE_TWO_FACTOR_AUTH = True
