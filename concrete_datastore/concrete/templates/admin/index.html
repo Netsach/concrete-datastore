@@ -4,6 +4,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style type="text/css">
     .custom-btn{
+        display: block;
+        text-decoration: none;
         cursor: pointer;
         background-color: #79aec8;
         border: none;
@@ -11,6 +13,15 @@
         padding: 7px;
         cursor: pointer;
         border-radius: 4px;
+    }
+    .custom-btn:hover{
+        background-color: #79aec8;
+        text-decoration: none;
+        color: #fff;
+    }
+    .custom-btn:visited,.custom-btn:link{
+        background-color: #79aec8;
+        color: #fff;
     }
     .loader {
         border: 16px solid #f3f3f3;
@@ -35,15 +46,15 @@
 </div>
 <div id="content-main"class="module">
     {% if use_core_automation %}
-        <p class="custom-btn" onclick="window.location.href='{{target_admin_view}}';">Go to {{target_admin_view_name}}</p>
+        <a class="custom-btn" href="{{target_admin_view}}">Go to {{target_admin_view_name}}</a>
     {% endif %}
     {% if display_datamodel %}
         <p><a href="{% url 'datamodel' action='view' %}"><u>Show datamodel</u></a></p>
     {% endif %}
     {% if enable_db_dump %}
-        <p><a href="{% url 'concrete:dump_data' %}" onclick="showWaitingDiv()"><u>Show JSON database dump</u></a></p>
+        <p><a href="{% url 'concrete:dump_data' %}" onclick="showWaitingDiv()"><u>Show JSON database dump</u></a><p>
         <br>
-        <p onclick="donwloadDump()" href="{% url 'concrete:dump_data' %}?download=true" class="custom-btn"><i class="fa fa-download" style="padding: 0px 15px"></i>Download a database dump file</p>
+        <a onclick="donwloadDump()" href="{% url 'concrete:dump_data' %}?download=true" class="custom-btn"><i class="fa fa-download" style="padding: 0px 15px"></i>Download a database dump file</a>
     {% endif %}
     {% if enable_db_load %}
 
@@ -52,8 +63,8 @@
                 {% csrf_token %}
               <input type="file" name="file" id="file" class="inputfile" onchange="submitAndWait(this.form)" style="display: none;">
               <label for="file">
-                <p class="custom-btn"><i class="fa fa-upload" style="padding: 0px 15px"></i>Select a dump file to load into the database
-                </p>
+                <p><a class="custom-btn"><i class="fa fa-upload" style="padding: 0px 15px"></i>Select a dump file to load into the database
+                </a></p>
               </label>
             </form>
         </div>
@@ -66,13 +77,23 @@
                 document.getElementById('content-main').style.display = "none";
                 document.getElementById('content-related').style.display = "none";
             };
+            function hideWaitingDiv() {
+                // Show waiting component
+                document.getElementById('loading-component').style.display = "none";
+                // Hide other contents
+                document.getElementById('content-main').style.display = "block";
+                document.getElementById('content-related').style.display = "block";
+            };
             function submitAndWait(form) {
                 form.submit();
                 showWaitingDiv();
             };
-            function donwloadDump() {
+            async function donwloadDump() {
+                const test = await Navigator.StorageManager.getDirectory();
+                showWaitingDiv();
                 document.location.href="{% url 'concrete:dump_data' %}?download=true";
-                alert('Your download will begin soon')
+                setInterval(()=>{console.log(test)}, 1000)
+                // hideWaitingDiv();
             }
         </script>
         <br>
