@@ -11,8 +11,8 @@ from django.apps import apps
 logger_archive_users = logging.getLogger('archive-concrete-users')
 
 
-def email_to_username(email):  # nosec
-    return hashlib.md5(email.lower().encode('utf-8')).hexdigest()[:30]
+def email_to_username(email):
+    return hashlib.md5(email.lower().encode('utf-8')).hexdigest()[:30]  # nosec
 
 
 def archive_legacy(user, email_list):
