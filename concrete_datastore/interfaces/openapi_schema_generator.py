@@ -354,7 +354,6 @@ class SchemaGenerator(BaseSchemaGenerator):
 
 
 class AutoSchema(AutoSchemaSuper):
-
     components = {}
 
     def get_component_schemas(self):
@@ -466,7 +465,6 @@ class AutoSchema(AutoSchemaSuper):
             if model is not None:
                 # Attempt to infer a field description if possible.
                 try:
-
                     model_field = model._meta.get_field(variable)
                 except Exception:
                     model_field = None
@@ -488,7 +486,6 @@ class AutoSchema(AutoSchemaSuper):
         return parameters
 
     def custom_map_field(self, field):
-
         # Related fields.
         if isinstance(field, serializers.ManyRelatedField):
             return {
@@ -540,7 +537,6 @@ class AutoSchema(AutoSchemaSuper):
         properties = {}
 
         for field in serializer.fields.values():
-
             if (
                 isinstance(field, serializers.PrimaryKeyRelatedField)
                 and nested is False

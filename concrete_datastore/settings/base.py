@@ -11,7 +11,7 @@ try:  # nosec
     import ldap  # pylint: disable=import-error
     from django_auth_ldap.config import *  # pylint: disable=import-error
 except Exception:
-    pass
+    pass  # nosec
 
 
 ALLOWED_HOSTS = []
