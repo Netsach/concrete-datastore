@@ -147,7 +147,7 @@ class ProcessRegisterApiView(generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         """
-        1. Check if the token is not already created and that it is valid
+        1. Check if the token is not already created and that it is valid.
         2. Check if the user(process) is not already created with a different token
         """
         serializer = self.serializer_class(data=request.data)
