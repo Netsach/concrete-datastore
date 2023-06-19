@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Set a default max length to 1024 for URLFields
 
 ### Removed
 

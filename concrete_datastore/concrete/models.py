@@ -984,6 +984,8 @@ def make_django_model(meta_model, divider):
             args['null'] = False
             args.setdefault('blank', True)
             args.setdefault('default', "")
+        elif field.f_type == 'URLField':
+            args.setdefault('max_length', settings.URL_FIELD_MAX_LENGTH)
         elif field.f_type in ('IntegerField', 'BigIntegerField'):
             args['null'] = False
             args.setdefault('blank', True)
