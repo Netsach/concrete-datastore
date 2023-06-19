@@ -204,6 +204,11 @@ manifest:
             datatype: file
             attributes: {}
             description: Photo of the project
+          - name: storage_url
+            datatype: url
+            attributes:
+              allow_empty: true
+            description: Url of the project storgae
         uid: 7158d6af-8c79-4613-82cb-c1b0b20400ab
       - name: Category
         description: Category
