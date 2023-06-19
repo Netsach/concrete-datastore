@@ -8,11 +8,17 @@
 
 ### Changed
 
-- Set a default max length to 1024 for URLFields
+- nothing changed
 
 ### Removed
 
 - nothing removed
+
+## [1.54.0] - 2023-06-19
+
+### Changed
+
+- Set a default max length to 1024 for URLFields
 
 ## [1.52.0] - 2022-12-12
 
