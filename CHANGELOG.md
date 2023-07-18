@@ -8,7 +8,8 @@
 
 ### Changed
 
-- nothing changed
+- Upgrade celery version from v4 to v5
+- Upgrade redis version from v3 to v4
 
 ### Removed
 
