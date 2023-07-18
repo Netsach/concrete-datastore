@@ -8,7 +8,7 @@
 
 ### Changed
 
-- Upgrade celery version from v4 to v5
+- Upgrade celery version from v4 to v5 (https://github.com/pypa/pip/issues/12063)
 - Upgrade redis version from v3 to v4
 
 ### Removed
