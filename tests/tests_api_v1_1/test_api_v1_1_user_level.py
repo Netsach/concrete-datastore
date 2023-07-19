@@ -2,7 +2,11 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.test import override_settings
-from concrete_datastore.concrete.models import User, UserConfirmation
+from concrete_datastore.concrete.models import (
+    User,
+    UserConfirmation,
+    DefaultDivider,
+)
 
 
 @override_settings(DEBUG=True)
@@ -19,11 +23,7 @@ class UserTestCase(APITestCase):
         self.assertEqual(self.user_admin.admin, True)
         url = '/api/v1.1/auth/login/'
         resp = self.client.post(
-            url,
-            {
-                "email": "admin@netsach.org",
-                "password": "plop",
-            },
+            url, {"email": "admin@netsach.org", "password": "plop"}
         )
         self.token_admin = resp.data['token']
 
@@ -40,11 +40,7 @@ class UserTestCase(APITestCase):
 
         url = '/api/v1.1/auth/login/'
         resp = self.client.post(
-            url,
-            {
-                "email": "simple@netsach.org",
-                "password": "plop",
-            },
+            url, {"email": "simple@netsach.org", "password": "plop"}
         )
         self.token_simple = resp.data['token']
 
@@ -100,3 +96,108 @@ class UserTestCase(APITestCase):
         u = User.objects.get(uid=self.user_simple.uid)
         self.assertEqual(u.level, "simpleuser")
         self.assertEqual(u.is_superuser, False)
+
+
+class RetrieveUsersTestCase(APITestCase):
+    def test_user_get_permissions(self):
+        divider = DefaultDivider.objects.create(name="TEST1")
+        simple = User.objects.create(email='simple@netsach.org')
+        simple.defaultdividers.add(divider)
+        token_simple = simple.auth_tokens.create().key
+        manager = User.objects.create(email='manager@netsach.org')
+        manager.defaultdividers.add(divider)
+        token_manager = manager.auth_tokens.create().key
+        manager.set_level('manager')
+        manager.save()
+        admin = User.objects.create(email='admin@netsach.org')
+        admin.defaultdividers.add(divider)
+        token_admin = admin.auth_tokens.create().key
+        admin.set_level('admin')
+        admin.save()
+        superuser = User.objects.create(email='superuser@netsach.org')
+        superuser.defaultdividers.add(divider)
+        token_superuser = superuser.auth_tokens.create().key
+        superuser.set_level('superuser')
+        superuser.save()
+        #: Unscoped requests
+        #: The simple user cannot acces to any of the users. expect a 403
+        resp = self.client.get(
+            '/api/v1.1/user/',
+            HTTP_AUTHORIZATION='Token {}'.format(token_simple),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        resp = self.client.get(
+            f'/api/v1.1/user/{admin.pk}/',
+            HTTP_AUTHORIZATION='Token {}'.format(token_simple),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        #: The manager has access to all users
+        resp = self.client.get(
+            '/api/v1.1/user/',
+            HTTP_AUTHORIZATION='Token {}'.format(token_manager),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['total_objects_count'], 4)
+        resp = self.client.get(
+            f'/api/v1.1/user/{admin.pk}/',
+            HTTP_AUTHORIZATION='Token {}'.format(token_manager),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        #: The admin has access to all users
+        resp = self.client.get(
+            '/api/v1.1/user/',
+            HTTP_AUTHORIZATION='Token {}'.format(token_admin),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['total_objects_count'], 4)
+        #: The superuser has access to all users
+        resp = self.client.get(
+            '/api/v1.1/user/',
+            HTTP_AUTHORIZATION='Token {}'.format(token_superuser),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['total_objects_count'], 4)
+
+        #: Scoped requests
+        #: The simple user cannot acces to any of the users. expect a 403
+        resp = self.client.get(
+            '/api/v1.1/user/',
+            HTTP_AUTHORIZATION='Token {}'.format(token_simple),
+            HTTP_X_ENTITY_UID=str(divider.uid),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        resp = self.client.get(
+            f'/api/v1.1/user/{admin.pk}/',
+            HTTP_AUTHORIZATION='Token {}'.format(token_simple),
+            HTTP_X_ENTITY_UID=str(divider.uid),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        #: The manager cannot acces to any of the users. expect a 403
+        resp = self.client.get(
+            '/api/v1.1/user/',
+            HTTP_AUTHORIZATION='Token {}'.format(token_manager),
+            HTTP_X_ENTITY_UID=str(divider.uid),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        resp = self.client.get(
+            f'/api/v1.1/user/{admin.pk}/',
+            HTTP_AUTHORIZATION='Token {}'.format(token_manager),
+            HTTP_X_ENTITY_UID=str(divider.uid),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
+        #: The admin has access to all users
+        resp = self.client.get(
+            '/api/v1.1/user/',
+            HTTP_AUTHORIZATION='Token {}'.format(token_admin),
+            HTTP_X_ENTITY_UID=str(divider.uid),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['total_objects_count'], 4)
+        #: The superuser has access to all users
+        resp = self.client.get(
+            '/api/v1.1/user/',
+            HTTP_AUTHORIZATION='Token {}'.format(token_superuser),
+            HTTP_X_ENTITY_UID=str(divider.uid),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data['total_objects_count'], 4)

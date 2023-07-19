@@ -10,6 +10,7 @@
 
 - Upgrade celery version from v4 to v5 (https://github.com/pypa/pip/issues/12063)
 - Upgrade redis version from v3 to v4
+- Change user permissions when attempting to retrieve a user: Through settings, we can decide the minimum user level that allows him to retrieve all users
 
 ### Removed
 
