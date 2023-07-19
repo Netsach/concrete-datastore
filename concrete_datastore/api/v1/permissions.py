@@ -19,6 +19,27 @@ DIVIDER_MODELs = "{}s".format(DIVIDER_MODEL)
 DIVIDER_MODELs_LOWER = DIVIDER_MODELs.lower()
 DIVIDER_MODEL_LOWER = DIVIDER_MODEL.lower()
 
+minimum_level_method_map = {
+    'authenticated': lambda x: x.is_authenticated is True,
+    'manager': lambda x: x.is_at_least_staff is True,
+    'admin': lambda x: x.is_at_least_admin is True,
+    'superuser': lambda x: x.is_superuser is True,
+}
+
+
+def get_minimum_level_for_retreiving_users(request):
+    request_is_scoped = request.headers.get('X-Entity-Uid') is not None
+    if request_is_scoped:
+        return settings.MINIMUM_LEVEL_FOR_RETRIEVING_USERS_SCOPED
+    else:
+        return settings.MINIMUM_LEVEL_FOR_RETRIEVING_USERS_UNSCOPED
+
+
+def has_retrive_permission_on_user(user, request):
+    min_retrieve_lvl = get_minimum_level_for_retreiving_users(request)
+    minimum_level_method = minimum_level_method_map[min_retrieve_lvl]
+    return user.is_anonymous is False and minimum_level_method(user) is True
+
 
 class PreconditionFailed(APIException):
     status_code = status.HTTP_412_PRECONDITION_FAILED
@@ -160,8 +181,9 @@ class UserAccessPermission(permissions.BasePermission):
             # In this case, if that ever happened, view should be set to
             # view = request.parser_context["view"]
             raise AttributeError('View has no model_class attr, see comment')
-        if not request.user.is_anonymous:
-            if not request.user.is_confirmed():
+        user = request.user
+        if not user.is_anonymous:
+            if not user.is_confirmed():
                 raise PreconditionFailed(
                     detail={
                         'message': 'Email has not been validated',
@@ -170,17 +192,15 @@ class UserAccessPermission(permissions.BasePermission):
                 )
         model = view.model_class
         if model == get_user_model():
-            if request.user.is_anonymous or not request.user.is_at_least_staff:
+            if request.method == "GET":
+                return has_retrive_permission_on_user(user, request)
+            if user.is_anonymous or not user.is_at_least_staff:
                 return False
 
         if request.method not in ["OPTIONS", "HEAD"]:
-            level_allowed = check_minimum_level(
-                request.method, request.user, model
-            )
+            level_allowed = check_minimum_level(request.method, user, model)
             if settings.USE_CONCRETE_ROLES and model != get_user_model():
-                roles_allowed = check_roles(
-                    request.method, request.user, model
-                )
+                roles_allowed = check_roles(request.method, user, model)
                 return level_allowed and roles_allowed
             else:
                 return level_allowed
@@ -197,6 +217,11 @@ class UserAccessPermission(permissions.BasePermission):
         return False
 
     def can_access_user_obj(self, request, user, obj):
+        #: If the request is a GET, git acess to any user with a minimum level
+        #: that respects the minimum level of `minimum_level_method_map`
+        if request.method == "GET":
+            return has_retrive_permission_on_user(user, request)
+
         field_not_divider_changed = self.is_field_not_divider_changed(request)
         #: If the obj has a lower level, authorize
         if obj < user:
@@ -248,8 +273,10 @@ class UserAccessPermission(permissions.BasePermission):
                 return True
             if superuser:
                 return True
-            elif at_least_staff:
+            elif authenticated:
                 return self.can_access_user_obj(request, user, obj)
+            # elif at_least_staff:
+            #     return self.can_access_user_obj(request, user, obj)
             else:
                 return False
         else:
