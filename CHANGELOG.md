@@ -8,7 +8,7 @@
 
 ### Changed
 
-- nothing changed
+- Fix unittests for retrieving users with a manager within a scoped request
 
 ### Removed
 
