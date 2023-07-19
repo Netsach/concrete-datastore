@@ -1103,7 +1103,7 @@ class FilterUsersByDivider(APITestCase):
         # USER A
         self.user1 = User.objects.create_user('usera@netsach.org')
         self.user1.set_password('plop')
-        self.user1.is_staff = True
+        self.user1.admin = True
         self.user1.save()
         confirmation = UserConfirmation.objects.create(user=self.user1)
         confirmation.confirmed = True
