@@ -8,11 +8,17 @@
 
 ### Changed
 
-- Fix unittests for retrieving users with a manager within a scoped request
+- nothing changed
 
 ### Removed
 
 - nothing removed
+
+## [1.56.0] - 2023-07-19
+
+### Changed
+
+- Fix unittests for retrieving users with a manager within a scoped request
 
 ## [1.55.0] - 2023-07-19
 
