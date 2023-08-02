@@ -58,16 +58,13 @@ def api_token_has_expired(token):
 
 
 def ensure_secure_connect_instance_is_not_expired(
-    instance, expiration_limit_in_seconds
+    instance, token_expiration_date
 ):
     # if the instance is not expired, return True
     # false otherwise
-    if expiration_limit_in_seconds:
+    if token_expiration_date:
         now = pendulum.now('utc')
-        secure_connect_instance_expired = (
-            now.diff(instance.creation_date).in_seconds()
-            >= expiration_limit_in_seconds
-        )
+        secure_connect_instance_expired = token_expiration_date <= now
         if secure_connect_instance_expired:
             instance.expired = True
             instance.save()
@@ -94,15 +91,17 @@ class TokenExpiryAuthentication(authentication.TokenAuthentication):
         for secure_token in SecureConnectToken.objects.filter(
             user=token.user, expired=False
         ):
+            print("A" * 10)
+            print(secure_token.expiry_date)
             ensure_secure_connect_instance_is_not_expired(
-                secure_token, settings.SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS
+                secure_token, secure_token.expiry_date
             )
         # Check if the secure token is expired and expire in database
         for secure_code in SecureConnectCode.objects.filter(
             user=token.user, expired=False
         ):
             ensure_secure_connect_instance_is_not_expired(
-                secure_code, settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS
+                secure_code, secure_code.expiry_date
             )
 
         return (token.user, token)

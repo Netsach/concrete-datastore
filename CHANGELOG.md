@@ -4,11 +4,12 @@
 
 ### Added
 
-- nothing added
+- Model SecureConnectToken (expiry_date)
+- Model SecureConnectCode (expiry_date)
 
 ### Changed
 
-- nothing changed
+- SecureConnectToken and SecureConnectCode have a expiry_date, we check the expiry_date to pass the expirate to true. 
 
 ### Removed
 

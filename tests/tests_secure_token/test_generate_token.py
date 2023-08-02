@@ -136,7 +136,7 @@ class GenerateTokenTestCase(APITestCase):
         first_token = secure_tokens.first()
         self.assertFalse(first_token.expired)
         # Expire token
-        first_token.creation_date += timedelta(-10)
+        first_token.expiry_date += timedelta(-10)
         first_token.save()
 
         # Creation of second token
