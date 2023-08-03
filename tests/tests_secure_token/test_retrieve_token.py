@@ -27,7 +27,10 @@ class RetrieveTokenTestCase(APITestCase):
         url = '/api/v1.1/secure-connect/retrieve-token/'
 
         # POST a valid email
-        resp = self.client.post(url, {"email": 'usera@netsach.org'},)
+        resp = self.client.post(
+            url,
+            {"email": 'usera@netsach.org'},
+        )
         self.assertEqual(
             resp.status_code, status.HTTP_201_CREATED, msg=resp.content
         )
@@ -43,7 +46,10 @@ class RetrieveTokenTestCase(APITestCase):
         url = '/api/v1.1/secure-connect/retrieve-token/'
 
         # POST a valid email
-        resp = self.client.post(url, {"email": 'user42@netsach.org'},)
+        resp = self.client.post(
+            url,
+            {"email": 'user42@netsach.org'},
+        )
         self.assertEqual(
             resp.status_code, status.HTTP_400_BAD_REQUEST, msg=resp.content
         )
@@ -60,10 +66,16 @@ class RetrieveTokenTestCase(APITestCase):
         url = '/api/v1.1/secure-connect/retrieve-token/'
 
         # POST a valid email
-        resp = self.client.post(url, {"email": 'usera@netsach.org'},)
+        resp = self.client.post(
+            url,
+            {"email": 'usera@netsach.org'},
+        )
         secure_tokens = SecureConnectToken.objects.filter(user=self.userA)
         self.assertEqual(secure_tokens.count(), 1)
-        resp = self.client.post(url, {"email": 'usera@netsach.org'},)
+        resp = self.client.post(
+            url,
+            {"email": 'usera@netsach.org'},
+        )
         self.assertEqual(
             resp.status_code,
             status.HTTP_429_TOO_MANY_REQUESTS,
@@ -78,17 +90,23 @@ class RetrieveTokenTestCase(APITestCase):
         url = '/api/v1.1/secure-connect/retrieve-token/'
 
         # POST a valid email
-        resp = self.client.post(url, {"email": 'usera@netsach.org'},)
+        resp = self.client.post(
+            url,
+            {"email": 'usera@netsach.org'},
+        )
         secure_tokens = SecureConnectToken.objects.filter(user=self.userA)
         self.assertEqual(secure_tokens.count(), 1)
         first_token = secure_tokens.first()
         self.assertFalse(first_token.expired)
         # Expire token
-        first_token.creation_date += timedelta(-10)
+        first_token.expiry_date += timedelta(-10)
         first_token.save()
 
         # Creation of second token
-        resp = self.client.post(url, {"email": 'usera@netsach.org'},)
+        resp = self.client.post(
+            url,
+            {"email": 'usera@netsach.org'},
+        )
         self.assertEqual(
             resp.status_code, status.HTTP_201_CREATED, msg=resp.content
         )
@@ -101,7 +119,10 @@ class RetrieveTokenTestCase(APITestCase):
         url = '/api/v1.1/secure-connect/retrieve-token/'
 
         # POST an invalid email
-        resp = self.client.post(url, {"email": 'user42ànetsachcom'},)
+        resp = self.client.post(
+            url,
+            {"email": 'user42ànetsachcom'},
+        )
         self.assertEqual(
             resp.status_code, status.HTTP_400_BAD_REQUEST, msg=resp.content
         )

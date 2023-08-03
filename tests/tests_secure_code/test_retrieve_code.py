@@ -85,7 +85,7 @@ class RetrieveCodeTestCase(APITestCase):
         first_code = secure_codes.first()
         self.assertFalse(first_code.expired)
         # Expire code
-        first_code.creation_date += timedelta(minutes=-11)
+        first_code.expiry_date += timedelta(minutes=-11)
         first_code.save()
 
         # Creation of second code

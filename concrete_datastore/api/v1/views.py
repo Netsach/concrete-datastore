@@ -266,7 +266,7 @@ class RetrieveSecureConnectCode(generics.GenericAPIView):
         for secure_code in secure_codes:
             # Ensure that the code is not expired
             ensure_secure_connect_instance_is_not_expired(
-                secure_code, settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS
+                secure_code, secure_code.expiry_date
             )
         secure_codes_count = secure_codes.count()
         if (
@@ -319,7 +319,7 @@ class RetrieveSecureTokenApiView(generics.GenericAPIView):
         )
         for secure_token in secure_tokens:
             ensure_secure_connect_instance_is_not_expired(
-                secure_token, settings.SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS
+                secure_token, secure_token.expiry_date
             )
         secure_tokens_count = secure_tokens.count()
         if secure_tokens_count >= settings.MAX_SECURE_CONNECT_TOKENS:
@@ -376,7 +376,7 @@ class GenerateSecureTokenApiView(generics.GenericAPIView):
         )
         for secure_token in secure_tokens:
             ensure_secure_connect_instance_is_not_expired(
-                secure_token, settings.SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS
+                secure_token, secure_token.expiry_date
             )
         secure_tokens_count = secure_tokens.count()
         if secure_tokens_count >= settings.MAX_SECURE_CONNECT_TOKENS:
@@ -426,8 +426,7 @@ class SecureLoginApiView(generics.GenericAPIView):
 
         if (
             ensure_secure_connect_instance_is_not_expired(
-                secure_connect_token,
-                settings.SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS,
+                secure_connect_token, secure_connect_token.expiry_date
             )
             is False
         ):
@@ -658,8 +657,7 @@ class SecureLoginCodeApiView(LoginApiView):
 
         if (
             ensure_secure_connect_instance_is_not_expired(
-                secure_connect_code,
-                settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS,
+                secure_connect_code, secure_connect_code.expiry_date
             )
             is False
         ):

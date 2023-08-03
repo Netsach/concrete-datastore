@@ -430,6 +430,11 @@ class SecureConnectModelMixin(models.Model):
         self.save()
 
 
+def compute_auth_secure_connect_expiry():
+    now = pendulum.now('utc')
+    return now.add(seconds=settings.SECURE_CONNECT_TOKEN_EXPIRY_TIME_SECONDS)
+
+
 class SecureConnectToken(SecureConnectModelMixin):
     value = models.UUIDField(default=uuid.uuid4, primary_key=True)
     user = models.ForeignKey(
@@ -438,6 +443,9 @@ class SecureConnectToken(SecureConnectModelMixin):
         related_name='secure_connect_tokens',
     )
     url = models.URLField(blank=True, null=True)
+    expiry_date = models.DateTimeField(
+        default=compute_auth_secure_connect_expiry
+    )
 
     def get_body(self):
         body = settings.SECURE_TOKEN_MESSAGE_BODY.format(
@@ -456,11 +464,20 @@ def get_random_secure_connect_code():
     return auth_code
 
 
+def compute_auth_secure_connect_code_expiry():
+    now = pendulum.now('utc')
+    return now.add(seconds=settings.SECURE_CONNECT_CODE_EXPIRY_TIME_SECONDS)
+
+
 class SecureConnectCode(SecureConnectModelMixin):
     uid = models.UUIDField(default=uuid.uuid4, primary_key=True)
     value = models.CharField(
         default=get_random_secure_connect_code, max_length=250
     )
+    expiry_date = models.DateTimeField(
+        default=compute_auth_secure_connect_code_expiry
+    )
+
     user = models.ForeignKey(
         'concrete.User',
         on_delete=models.PROTECT,
