@@ -91,8 +91,6 @@ class TokenExpiryAuthentication(authentication.TokenAuthentication):
         for secure_token in SecureConnectToken.objects.filter(
             user=token.user, expired=False
         ):
-            print("A" * 10)
-            print(secure_token.expiry_date)
             ensure_secure_connect_instance_is_not_expired(
                 secure_token, secure_token.expiry_date
             )
