@@ -4,16 +4,26 @@
 
 ### Added
 
+- nothing added
+
+### Changed
+
+- nothing changed
+
+### Removed
+
+- nothing removed
+
+## [1.57.0] - 2023-08-03
+
+### Added
+
 - Model SecureConnectToken (expiry_date)
 - Model SecureConnectCode (expiry_date)
 
 ### Changed
 
 - SecureConnectToken and SecureConnectCode have a expiry_date, we check the expiry_date to pass the expirate to true. 
-
-### Removed
-
-- nothing removed
 
 ## [1.56.0] - 2023-07-19
 
