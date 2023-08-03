@@ -14,7 +14,11 @@
 
 - nothing removed
 
-## [1.57.1] - 2023-08-03
+## [1.57.2] - 2023-08-03
+
+### Changed
+
+- Add forgotten migrations for tests
 
 ## [1.57.0] - 2023-08-03
 
