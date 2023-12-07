@@ -1798,6 +1798,19 @@ class PaginatedViewSet(object):
                         excl_modified_instances.values_list('uid', flat=True),
                     )
                 )
+                model_name = queryset.model.__name__
+                if model_name.lower() == 'user':
+                    # Add deleted uids for model user
+                    # with blocked users
+                    deleted_users_uids, _ = apply_filter_since(
+                        UserModel.objects.filter(is_active=False),
+                        timestamp_start,
+                        timestamp_end,
+                    )
+                    deleted_uids.update(
+                        deleted_users_uids.values_list('uid', flat=True)
+                    )
+
                 deleted_uids = list(deleted_uids)
 
             extra_informations.update(
