@@ -12,6 +12,12 @@
 
 ### Removed
 
+- nothing removed
+
+## [1.58.1] - 2023-12-08
+
+### Removed
+
 - Python 3.6 support
 
 ## [1.58.0] - 2023-12-08
