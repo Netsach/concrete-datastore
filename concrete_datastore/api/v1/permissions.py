@@ -281,8 +281,10 @@ class UserAccessPermission(permissions.BasePermission):
                 return False
         else:
             return authenticated and (
-                (obj.created_by is not None and obj.created_by.pk == user.pk)
-                or (user.is_at_least_admin)
+                (user.is_at_least_admin)
+                or (
+                    obj.created_by is not None and obj.created_by_id == user.pk
+                )
                 or (
                     obj.can_admin_users.filter(pk=user.pk).exists()
                     or does_intersect(

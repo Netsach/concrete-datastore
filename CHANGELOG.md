@@ -4,7 +4,7 @@
 
 ### Added
 
-- Deleted uids for blocked users for requests with a timestamp
+- nothing added
 
 ### Changed
 
@@ -13,6 +13,12 @@
 ### Removed
 
 - nothing removed
+
+## [1.58.0] - 2023-12-08
+
+### Added
+
+- Deleted uids for blocked users for requests with a timestamp
 
 ## [1.57.2] - 2023-08-03
 
