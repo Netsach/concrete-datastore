@@ -4,7 +4,7 @@
 
 ### Added
 
-- nothing added
+- Deleted uids for blocked users for requests with a timestamp
 
 ### Changed
 
