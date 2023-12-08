@@ -12,7 +12,7 @@
 
 ### Removed
 
-- nothing removed
+- Python 3.6 support
 
 ## [1.58.0] - 2023-12-08
 
