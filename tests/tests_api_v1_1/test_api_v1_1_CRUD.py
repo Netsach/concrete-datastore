@@ -396,3 +396,100 @@ class CRUDTestCase(APITestCase):
         project = Project.objects.first()
 
         self.assertEqual(project.name, project_name_to_post)
+
+    def test_create_with_specify_uid(self):
+        project_name_to_post = "project 1"
+        url_projects = '/api/v1.1/project/'
+
+        self.assertEqual(Project.objects.count(), 0)
+
+        resp = self.client.post(
+            url_projects,
+            {
+                "uid": "521fd822-12d2-49b1-9573-a1cde74e4d51",
+                "name": project_name_to_post,
+                "description": "description",
+                "skills": [],
+                "members": [],
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(
+            resp.status_code, status.HTTP_201_CREATED, msg=resp.content
+        )
+
+        self.assertEqual(Project.objects.count(), 1)
+        project = Project.objects.first()
+
+        self.assertEqual(project.name, project_name_to_post)
+        self.assertEqual(
+            str(project.pk), "521fd822-12d2-49b1-9573-a1cde74e4d51"
+        )
+
+    def test_create_with_specify_uid_wrong_format(self):
+        project_name_to_post = "project 1"
+        url_projects = '/api/v1.1/project/'
+
+        self.assertEqual(Project.objects.count(), 0)
+
+        resp = self.client.post(
+            url_projects,
+            {
+                "uid": "521fd822-12-a1cde74e4d51",  # wrong format
+                "name": project_name_to_post,
+                "description": "description",
+                "skills": [],
+                "members": [],
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.data['uid'][0].title(), 'Must Be A Valid Uuid.')
+
+    def test_error_when_patch_uid_instance(self):
+        # We can't update uuid of instance
+        project_name_to_post = "project 1"
+        url_projects = '/api/v1.1/project/'
+
+        self.assertEqual(Project.objects.count(), 0)
+
+        resp = self.client.post(
+            url_projects,
+            {
+                "uid": "521fd822-12d2-49b1-9573-a1cde74e4d51",
+                "name": project_name_to_post,
+                "description": "description",
+                "skills": [],
+                "members": [],
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(
+            resp.status_code, status.HTTP_201_CREATED, msg=resp.content
+        )
+
+        self.assertEqual(Project.objects.count(), 1)
+        project = Project.objects.first()
+
+        url_to_patch = resp.data['url']
+        resp = self.client.patch(
+            url_to_patch,
+            {"name": "Project42"},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        new_name = resp.data['name']
+        self.assertEqual(new_name, "Project42", msg=resp.content)
+
+        resp = self.client.patch(
+            url_to_patch,
+            {"uid": "1af2566f-6dad-4fb4-81f1-2cb4d67a713f"},
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        new_uid = resp.data['uid']
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(
+            new_uid, "521fd822-12d2-49b1-9573-a1cde74e4d51", msg=resp.content
+        )
