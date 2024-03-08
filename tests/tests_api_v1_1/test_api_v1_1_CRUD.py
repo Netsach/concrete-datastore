@@ -448,6 +448,7 @@ class CRUDTestCase(APITestCase):
 
     def test_error_when_patch_uid_instance(self):
         # We can't update uuid of instance
+        # Test to update only uuid field
         project_name_to_post = "project 1"
         url_projects = '/api/v1.1/project/'
 
@@ -493,10 +494,50 @@ class CRUDTestCase(APITestCase):
             resp.data['message'], "The field 'uid' can't be updated"
         )
 
+    def test_request_patch_with_same_uid(self):
+        # Test a patch request with the same uuid,
+        # the request must not fail but the uid must not change
+        project_name_to_post = "project 1"
+        url_projects = '/api/v1.1/project/'
+        initial_uid = "521fd822-12d2-49b1-9573-a1cde74e4d51"
+
+        self.assertEqual(Project.objects.count(), 0)
+
+        resp = self.client.post(
+            url_projects,
+            {
+                "uid": initial_uid,
+                "name": project_name_to_post,
+                "description": "description",
+                "skills": [],
+                "members": [],
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(
+            resp.status_code, status.HTTP_201_CREATED, msg=resp.content
+        )
+
+        self.assertEqual(Project.objects.count(), 1)
+        project = Project.objects.first()
+
+        url_to_patch = resp.data['url']
+        new_project_name = "project new"
+
+        resp = self.client.patch(
+            url_to_patch,
+            {
+                "uid": initial_uid,
+                "name": new_project_name,
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data["uid"], initial_uid, msg=resp.content)
+        self.assertEqual(resp.data["name"], new_project_name, msg=resp.content)
+
     def test_update_uid_with_put_request(self):
-        # We can't update uuid of instance
-        # The request must not fail but the uid field
-        # must not be modified
         url_projects = '/api/v1.1/project/'
         initial_uid = "521fd822-12d2-49b1-9573-a1cde74e4d51"
 
@@ -529,8 +570,8 @@ class CRUDTestCase(APITestCase):
             },
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
         )
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(resp.data["name"], new_project_name, msg=resp.content)
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.data['_errors'], ['INVALID_QUERY'])
         self.assertEqual(
-            resp.data["uid"], initial_uid, msg=resp.content
+            resp.data['message'], "The field 'uid' can't be updated"
         )  # Must not be modified
