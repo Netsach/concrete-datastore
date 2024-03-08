@@ -2274,6 +2274,17 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
+        update_uid = request.data.__contains__('uid')
+
+        if request.method == "PATCH" and update_uid is True:
+            return Response(
+                data={
+                    "message": "The field 'uid' can't be updated",
+                    "_errors": ["INVALID_QUERY"],
+                },
+                status=HTTP_400_BAD_REQUEST,
+            )
+
         if isinstance(instance, UserModel):
             request_user = request.user
             at_least_admin = request_user.is_at_least_admin

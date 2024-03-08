@@ -487,9 +487,50 @@ class CRUDTestCase(APITestCase):
             {"uid": "1af2566f-6dad-4fb4-81f1-2cb4d67a713f"},
             HTTP_AUTHORIZATION='Token {}'.format(self.token),
         )
-        new_uid = resp.data['uid']
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
-
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(resp.data['_errors'], ['INVALID_QUERY'])
         self.assertEqual(
-            new_uid, "521fd822-12d2-49b1-9573-a1cde74e4d51", msg=resp.content
+            resp.data['message'], "The field 'uid' can't be updated"
         )
+
+    def test_update_uid_with_put_request(self):
+        # We can't update uuid of instance
+        # The request must not fail but the uid field
+        # must not be modified
+        url_projects = '/api/v1.1/project/'
+        initial_uid = "521fd822-12d2-49b1-9573-a1cde74e4d51"
+
+        project_name_to_post = "project 1"
+
+        self.assertEqual(Project.objects.count(), 0)
+
+        resp = self.client.post(
+            url_projects,
+            {
+                "uid": initial_uid,
+                "name": project_name_to_post,
+                "description": "description",
+                "skills": [],
+                "members": [],
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+
+        self.assertEqual(Project.objects.count(), 1)
+        project = User.objects.first()
+
+        url_to_put = resp.data['url']
+        new_project_name = "project new"
+        resp = self.client.put(
+            url_to_put,
+            {
+                "uid": "1af2566f-6dad-4fb4-81f1-2cb4d67a713f",
+                "name": new_project_name,
+            },
+            HTTP_AUTHORIZATION='Token {}'.format(self.token),
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data["name"], new_project_name, msg=resp.content)
+        self.assertEqual(
+            resp.data["uid"], initial_uid, msg=resp.content
+        )  # Must not be modified
