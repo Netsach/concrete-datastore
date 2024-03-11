@@ -365,9 +365,7 @@ def make_serializer_class(
     class Meta:
         model = concrete.models[meta_model.get_model_name().lower()]
         fields = _fields
-        no_update_fields = [
-            "uid",
-        ]
+
         read_only_fields = (
             ['created_by', 'admin', 'is_staff']
             + fk_read_only_fields
@@ -429,7 +427,7 @@ def make_serializer_class(
 
     attrs.update(custom_fields_attrs)
 
-    class _ModelSerializer(UpdateMixin, serializers.ModelSerializer):
+    class _ModelSerializer(serializers.ModelSerializer):
         url = serializers.SerializerMethodField()
         verbose_name = serializers.SerializerMethodField()
         scopes = serializers.SerializerMethodField()
@@ -606,16 +604,3 @@ class ConcretePasswordValidator(object):
             raise PasswordInsecureValidationError(
                 str(e), code='PASSWORD_INSECURE'
             )
-
-
-class UpdateMixin(serializers.ModelSerializer):
-    def get_extra_kwargs(self):
-        kwargs = super().get_extra_kwargs()
-        no_update_fields = getattr(self.Meta, "no_update_fields", None)
-
-        if self.instance and no_update_fields:
-            for field in no_update_fields:
-                kwargs.setdefault(field, {})
-                kwargs[field]["read_only"] = True
-
-        return kwargs
