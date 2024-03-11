@@ -2274,10 +2274,10 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
-        request_uid = request.data.get('uid', None)
-        if request_uid is not None:
-            instance_uid = str(instance.uid)
-            if request_uid != instance_uid:
+        request_uid = str(request.data.get('uid', ''))
+        if request_uid:
+            initial_uid = str(instance.uid)
+            if request_uid != initial_uid:
                 return Response(
                     data={
                         "message": "The field 'uid' can't be updated",
