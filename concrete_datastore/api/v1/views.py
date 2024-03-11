@@ -2280,8 +2280,8 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
             if request_uid != instance_uid:
                 return Response(
                     data={
-                        "message": "The field 'uid' can't be updated",
-                        "_errors": ["INVALID_QUERY"],
+                        'message': 'The field "uid" can\'t be updated',
+                        '_errors': ['INVALID_QUERY'],
                     },
                     status=HTTP_400_BAD_REQUEST,
                 )

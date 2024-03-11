@@ -491,7 +491,7 @@ class CRUDTestCase(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(resp.data['_errors'], ['INVALID_QUERY'])
         self.assertEqual(
-            resp.data['message'], "The field 'uid' can't be updated"
+            resp.data['message'], 'The field "uid" can\'t be updated'
         )
 
     def test_request_patch_with_same_uid(self):
@@ -573,5 +573,5 @@ class CRUDTestCase(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(resp.data['_errors'], ['INVALID_QUERY'])
         self.assertEqual(
-            resp.data['message'], "The field 'uid' can't be updated"
+            resp.data['message'], 'The field "uid" can\'t be updated'
         )  # Must not be modified
