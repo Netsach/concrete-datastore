@@ -2276,8 +2276,8 @@ class ApiModelViewSet(PaginatedViewSet, viewsets.ModelViewSet):
         instance = self.get_object()
         request_uid = str(request.data.get('uid', ''))
         if request_uid:
-            initial_uid = str(instance.uid)
-            if request_uid != initial_uid:
+            instance_uid = str(instance.uid)
+            if request_uid != instance_uid:
                 return Response(
                     data={
                         "message": "The field 'uid' can't be updated",
