@@ -14,9 +14,15 @@
 
 - nothing removed
 
-## [1.58.2] - 2026-04-28
+## [1.58.3] - 2026-04-28
 
 ### Removed
+
+- Python 3.13 support - Not yet ready, will need to update dependencies (pendulum) and fix unittests before being able to support it. We will add it in a future release when it will be ready.
+
+## [1.58.2] - 2026-04-28
+
+### Added
 
 - Python 3.12 support
 
