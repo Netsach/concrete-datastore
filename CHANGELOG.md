@@ -14,6 +14,12 @@
 
 - nothing removed
 
+## [1.58.2] - 2026-04-28
+
+### Removed
+
+- Python 3.12 support
+
 ## [1.58.1] - 2023-12-08
 
 ### Removed
@@ -41,7 +47,7 @@
 
 ### Changed
 
-- SecureConnectToken and SecureConnectCode have a expiry_date, we check the expiry_date to pass the expirate to true. 
+- SecureConnectToken and SecureConnectCode have a expiry_date, we check the expiry_date to pass the expirate to true.
 
 ## [1.56.0] - 2023-07-19
 
@@ -75,8 +81,7 @@
 
 ### Added
 
-
-- Doc MFA authentication 
+- Doc MFA authentication
 - Enable MFA with TOTP. The user authenticates to an url that will display a qrcode. This qrcode is to be used by an OTP application to generate the code.
 - Add the model EmailDevice to the admin models
 
@@ -91,6 +96,7 @@
 ```bash
 /usr/bin/pg_dump --dbname=`python3 manage.py db_connection_string` | bzip2 --fast > backup.sql.bzip2
 ```
+
 - nothing added
 
 ### Changed
@@ -98,7 +104,6 @@
 - Command management `check_superuser_with_email`: Now we check if any users exists not only superuser
 - The datetimefomat accept two formats `yyyy-mm-ddTHH-mm-ssZ` and `yyyy-mm-ddTHH-mm-ss.SSSSSSZ`
 - Disable trimmimng the leading and trailing whitespaces within CharField and TextField serializers.
-
 
 ## [1.49.0] - 2022-09-01
 
@@ -147,7 +152,6 @@
 ### Added
 
 - Check if a user is not anonymous before calling `user.is_at_least_staff`
-
 
 ## [1.42.0] - 2022-05-17
 
@@ -279,7 +283,7 @@
 
 ### Added
 
-- Add ordering fields to metadata to allow ordering against fk field 
+- Add ordering fields to metadata to allow ordering against fk field
 - Objects can be filtered with the uid
 
 ## [1.28.0] - 2021-03-15
