@@ -77,7 +77,6 @@ from concrete_datastore.concrete.models import (
 )
 from concrete_datastore.concrete.automation.signals import user_logged_in
 
-
 UserModel = get_user_model()
 
 logger = logging.getLogger('concrete-datastore')

@@ -97,9 +97,9 @@ class DatamodelServer(APIView, TemplateView):
                 self._get_datamodel_format(data_format=data_format),
                 content_type=data_format,
             )
-            response[
-                'Content-Disposition'
-            ] = 'attachment; filename="{}"'.format(filename)
+            response['Content-Disposition'] = (
+                'attachment; filename="{}"'.format(filename)
+            )
             return response
         if action == 'view':
             return super().get(request, *args, **kwargs)

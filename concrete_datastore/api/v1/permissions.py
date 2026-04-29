@@ -14,7 +14,6 @@ from concrete_datastore.concrete.models import (
     UNDIVIDED_MODEL,
 )
 
-
 DIVIDER_MODELs = "{}s".format(DIVIDER_MODEL)
 DIVIDER_MODELs_LOWER = DIVIDER_MODELs.lower()
 DIVIDER_MODEL_LOWER = DIVIDER_MODEL.lower()

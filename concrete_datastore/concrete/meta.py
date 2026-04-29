@@ -3,7 +3,6 @@ from django.conf import settings
 
 from concrete_datastore.parsers.loaders import loads_meta
 
-
 default_meta_models = [
     # Model Email
     {

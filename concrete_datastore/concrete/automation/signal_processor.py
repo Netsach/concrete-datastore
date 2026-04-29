@@ -12,7 +12,6 @@ from concrete_datastore.api.v1.views import (
     remove_instances_user_tracked_fields,
 )
 
-
 logger = logging.getLogger(__name__)
 
 

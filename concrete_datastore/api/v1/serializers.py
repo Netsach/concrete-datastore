@@ -33,7 +33,6 @@ from concrete_datastore.api.v1.exceptions import (
 )
 from concrete_datastore.api.v1.signals import build_absolute_uri
 
-
 concrete = apps.get_app_config('concrete')
 
 

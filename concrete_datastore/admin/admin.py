@@ -20,7 +20,6 @@ from concrete_datastore.concrete.models import (
 )
 from concrete_datastore.interfaces.csv import csv_streaming_response
 
-
 main_app = apps.get_app_config('concrete')
 
 admin_site = get_admin_site()

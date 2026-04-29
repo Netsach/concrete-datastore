@@ -157,9 +157,9 @@ def get_admin_site():
         def index(self, request, extra_context=None, *args, **kwargs):
             if extra_context is None:
                 extra_context = {}
-            extra_context[
-                'display_datamodel'
-            ] = settings.ENABLE_SERVE_DATAMODEL
+            extra_context['display_datamodel'] = (
+                settings.ENABLE_SERVE_DATAMODEL
+            )
             if settings.USE_CORE_AUTOMATION:
                 extra_context.update(
                     {

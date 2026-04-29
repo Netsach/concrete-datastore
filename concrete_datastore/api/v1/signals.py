@@ -12,7 +12,6 @@ from concrete_datastore.concrete.automation.tasks import (
     perform_send_email,
 )
 
-
 logger = logging.getLogger(__name__)
 
 

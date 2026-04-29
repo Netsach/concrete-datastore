@@ -109,7 +109,6 @@ from concrete_datastore.api.v1.exceptions import (
 )
 from concrete_datastore.interfaces.csv import csv_streaming_response
 
-
 UserModel = get_user_model()
 
 logger = logging.getLogger('concrete-datastore')

@@ -397,12 +397,16 @@ def make_modelisation_cls(modelisation_spec, version, base=Model):
                     target_model_uid=attributes['to'][self.element_id],
                 )
                 attributes.update({'to': rel_model})
-                attributes.update(
-                    {'on_delete': on_delete_rule}
-                ) if datatype == 'fk' else None
-                attributes.update(
-                    {'related_name': target_field}
-                ) if target_field is not None else None
+                (
+                    attributes.update({'on_delete': on_delete_rule})
+                    if datatype == 'fk'
+                    else None
+                )
+                (
+                    attributes.update({'related_name': target_field})
+                    if target_field is not None
+                    else None
+                )
 
             else:
                 field_type = 'data'

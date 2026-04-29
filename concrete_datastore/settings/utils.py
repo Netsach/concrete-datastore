@@ -4,7 +4,6 @@ import os
 import sys
 import yaml
 
-
 logger = logging.getLogger('concrete_datastore')
 
 

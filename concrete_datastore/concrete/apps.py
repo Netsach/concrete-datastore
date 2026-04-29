@@ -7,7 +7,6 @@ from django.utils.translation import gettext_lazy as _
 from django.apps import AppConfig
 from django.apps import apps
 
-
 logger_archive_users = logging.getLogger('archive-concrete-users')
 
 
