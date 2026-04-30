@@ -14,6 +14,12 @@
 
 - nothing removed
 
+## [1.58.4] - 2026-04-30
+
+### Changed
+
+- Fix CI
+
 ## [1.58.3] - 2026-04-28
 
 ### Removed
