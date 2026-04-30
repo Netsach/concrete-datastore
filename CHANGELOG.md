@@ -8,7 +8,8 @@
 
 ### Changed
 
-- nothing changed
+- Create instance with spécific uid 
+- raise 400 if user try to update uid with patch request
 
 ### Removed
 
